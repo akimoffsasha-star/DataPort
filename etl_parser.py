@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date, datetime
 import openpyxl
 import pandas as pd
 
@@ -27,7 +27,7 @@ PORT_CLUSTERS = {
     "Морський порт Чорноморськ": "Велика Одеса",
 }
 
-# Нормалізація назв портів (на випадок різних лапок)
+
 def normalize_port_name(name: str) -> str | None:
     if not name:
         return None
@@ -48,11 +48,12 @@ def normalize_port_name(name: str) -> str | None:
         return "Морський порт Чорноморськ"
     return None
 
+
 def normalize_operator_name(name: str) -> str:
     s = " ".join(str(name).strip().split())
-    # Виправлення типових описок з файлів 1С
     s = s.replace("Элеватор", "Елеватор").replace("Арго", "Агро")
     return s
+
 
 def to_float(val) -> float:
     if val is None or val == "":
@@ -64,6 +65,7 @@ def to_float(val) -> float:
         return float(s)
     except ValueError:
         return 0.0
+
 
 def extract_report_date(title_text: str) -> date:
     s = str(title_text).lower()
@@ -77,16 +79,16 @@ def extract_report_date(title_text: str) -> date:
         raise ValueError(f"Не вдалося визначити дату звіту із заголовка: '{title_text}'")
     return date(int(year_match.group(1)), month_num, 1)
 
+
 def clean_note(val) -> str | None:
     if val is None:
         return None
     s = str(val).strip()
-    # Відсіюємо заглушки типу '*', '.', '........'
     if not s or re.fullmatch(r"[*.,\-\s]+", s):
         return None
     return s
 
-# Карта вантажів для файлу 23-м: (group_level_1, group_level_2, unit, is_summary)
+
 CARGO_META = {
     "ВСЬОГО ВАНТАЖІВ": ("Всього", None, "тис. тонн", True),
     "НАЛИВНІ": ("Наливні", None, "тис. тонн", True),
@@ -95,7 +97,6 @@ CARGO_META = {
     "Олія": ("Наливні", "Олія", "тис. тонн", False),
     "Хімічні": ("Наливні", "Хімічні наливні", "тис. тонн", False),
     "Інші наливні вантажі": ("Наливні", "Інші наливні", "тис. тонн", False),
-
     "СУХОВАНТАЖНІ СИПУЧІ": ("Суховантажні сипучі", None, "тис. тонн", True),
     "Вугілля": ("Суховантажні сипучі", "Вугілля", "тис. тонн", False),
     "в т.ч. імпортне енергетичне вугілля": ("Суховантажні сипучі", "Вугілля", "тис. тонн", True),
@@ -108,7 +109,6 @@ CARGO_META = {
     "Хлібні - всього": ("Суховантажні сипучі", "Хлібні", "тис. тонн", True),
     "з них зерно": ("Суховантажні сипучі", "Хлібні", "тис. тонн", False),
     "Інші сипучі вантажі": ("Суховантажні сипучі", "Інші сипучі", "тис. тонн", False),
-
     "ТАРНО-ШТУЧНІ ВАНТАЖІ": ("Тарно-штучні", None, "тис. тонн", True),
     "Автотехніка й сільгосптехніка": ("Тарно-штучні", "Автотехніка", "тис. тонн", False),
     "Лісні вантажі": ("Тарно-штучні", "Лісні вантажі", "тис. тонн", False),
@@ -135,17 +135,10 @@ CARGO_META = {
     "Автомобілі великовантажні (тонн)": ("Тарно-штучні", "Автомобілі великовантажні", "тис. тонн", False),
     "Автомобілі великовантажні (шт)": ("Спецпоказники", "Автомобілі великовантажні", "шт", False),
     "Інші тарно-штучні вантажі": ("Тарно-штучні", "Інші тарно-штучні", "тис. тонн", False),
-
-    "Назва вантажу точно як в Excel": ("Суховантажні сипучі", "Підгрупа", "тис. тонн", False),
-    
 }
 
 
 def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFrame, list[str]]:
-    """
-    Парсить файл типу '23-м ... з ПО'.
-    Повертає (df_cargo, validation_warnings).
-    """
     wb = openpyxl.load_workbook(file_obj, data_only=True)
     records = []
     warnings = []
@@ -167,17 +160,15 @@ def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFr
         report_date = extract_report_date(ws["A1"].value)
         prev_year_date = date(report_date.year - 1, report_date.month, 1)
 
-        # Читаємо 4-й рядок (назви портів/операторів) і 5-й (2025, 2026, %)
         max_col = ws.max_column
-        entities = []  # (col_2025, col_2026, port_name, operator_name)
+        entities = []
         current_port = None
-        col = 2  # починаємо з колонки B
+        col = 2
         while col <= max_col:
             header = ws.cell(4, col).value
             sub = str(ws.cell(5, col).value or "").strip()
             if header and sub in (str(report_date.year - 1), str(report_date.year), "2025", "2026"):
                 h_str = " ".join(str(header).strip().split())
-                # Пропускаємо загальні зведені колонки
                 if h_str.lower().startswith("всього по"):
                     col += 3
                     continue
@@ -190,8 +181,6 @@ def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFr
             else:
                 col += 1
 
-        # Читаємо рядки вантажів (з 6-го рядка)
-        # Обробка дублювання '- брухт' (є у чорних і кольорових металах)
         in_nonferrous = False
         rows_by_name = {}
         for r in range(6, ws.max_row + 1):
@@ -203,7 +192,6 @@ def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFr
                 in_nonferrous = True
             if c_name == "- брухт" and in_nonferrous:
                 c_name = "- брухт_кол"
-            # Пошук точного чи нормалізованого ключа в CARGO_META
             matched_key = next(
                 (k for k in CARGO_META if " ".join(k.split()).lower() == c_name.lower()),
                 None,
@@ -212,16 +200,25 @@ def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFr
                 rows_by_name[matched_key] = r
 
         def add_records_for_year(target_date: date, col_idx_selector: int):
-            for _, _, port_name, op_name in entities:
-                c25, c26 = _ , _
             for c25, c26, port_name, op_name in entities:
                 col_idx = c25 if col_idx_selector == 0 else c26
-                total_check_file = to_float(ws.cell(rows_by_name.get("ВСЬОГО ВАНТАЖІВ", 6), col_idx).value) if "ВСЬОГО ВАНТАЖІВ" in rows_by_name else 0.0
+                total_check_file = (
+                    to_float(ws.cell(rows_by_name.get("ВСЬОГО ВАНТАЖІВ", 6), col_idx).value)
+                    if "ВСЬОГО ВАНТАЖІВ" in rows_by_name
+                    else 0.0
+                )
                 op_ton_sum = 0.0
 
-                # Спеціальна обробка: Хлібні - всього vs з них зерно
-                bread_total = to_float(ws.cell(rows_by_name["Хлібні - всього"], col_idx).value) if "Хлібні - всього" in rows_by_name else 0.0
-                grain_val = to_float(ws.cell(rows_by_name["з них зерно"], col_idx).value) if "з них зерно" in rows_by_name else 0.0
+                bread_total = (
+                    to_float(ws.cell(rows_by_name["Хлібні - всього"], col_idx).value)
+                    if "Хлібні - всього" in rows_by_name
+                    else 0.0
+                )
+                grain_val = (
+                    to_float(ws.cell(rows_by_name["з них зерно"], col_idx).value)
+                    if "з них зерно" in rows_by_name
+                    else 0.0
+                )
 
                 for key, r_idx in rows_by_name.items():
                     grp1, grp2, unit, is_summary = CARGO_META[key]
@@ -244,7 +241,6 @@ def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFr
                     if unit == "тис. тонн":
                         op_ton_sum += val
 
-                # Якщо Хлібні - всього більше ніж з них зерно, додаємо залишок як 'Хлібні (продукти переробки / інші)'
                 bread_diff = round(bread_total - grain_val, 3)
                 if bread_diff > 0.001:
                     records.append({
@@ -260,7 +256,6 @@ def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFr
                     })
                     op_ton_sum += bread_diff
 
-                # Перевірка балансу по оператору
                 if abs(op_ton_sum - total_check_file) > 0.05:
                     warnings.append(
                         f"[{direction} | {target_date}] Розбіжність по {op_name} ({port_name}): "
@@ -275,10 +270,6 @@ def parse_23m_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFr
 
 
 def parse_25vod_file(file_obj, include_prev_year: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Парсить файл типу '25-вод ... з ПО'.
-    Повертає (df_vessels, df_notes).
-    """
     wb = openpyxl.load_workbook(file_obj, data_only=True)
     ws = wb.active
     report_date = extract_report_date(ws["A1"].value)
@@ -295,15 +286,15 @@ def parse_25vod_file(file_obj, include_prev_year: bool = False) -> tuple[pd.Data
         port_match = normalize_port_name(col_a)
         if port_match:
             current_port = port_match
-            v25 = int(round(to_float(ws.cell(r, 18).value))) # колонка R
-            v26 = int(round(to_float(ws.cell(r, 19).value))) # колонка S
+            v25 = int(round(to_float(ws.cell(r, 18).value)))
+            v26 = int(round(to_float(ws.cell(r, 19).value)))
             vessels.append({"report_date": report_date, "port_name": current_port, "vessels_count": v26})
             if include_prev_year:
                 vessels.append({"report_date": prev_year_date, "port_name": current_port, "vessels_count": v25})
         elif current_port and col_b:
             op_name = normalize_operator_name(col_b)
-            reason = clean_note(ws.cell(r, 21).value) # колонка U
-            work = clean_note(ws.cell(r, 22).value)   # колонка V
+            reason = clean_note(ws.cell(r, 21).value)
+            work = clean_note(ws.cell(r, 22).value)
             if reason or work:
                 notes.append({
                     "report_date": report_date,
@@ -314,3 +305,133 @@ def parse_25vod_file(file_obj, include_prev_year: bool = False) -> tuple[pd.Data
                 })
 
     return pd.DataFrame(vessels), pd.DataFrame(notes)
+
+
+def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
+    """
+    Парсить файл 'Коридори.xlsx' із 3 аркушами:
+    - 'Вантажі' (історія 2021–2026: Всього та Зерно по портах і кластерах)
+    - 'Суднозаходи' (історія 2020–2026 по портах)
+    - 'Атаки' (накопичувальна статистика пошкоджених об'єктів, суден та постраждалих осіб)
+    """
+    wb = openpyxl.load_workbook(file_obj, data_only=True)
+    result = {}
+
+    # 1. Вантажі
+    if "Вантажі" in wb.sheetnames:
+        ws = wb["Вантажі"]
+        port_cols = []
+        last_port = None
+        for c in range(3, ws.max_column + 1):
+            p_raw = ws.cell(1, c).value
+            sub_raw = ws.cell(2, c).value
+            if p_raw is not None:
+                last_port = " ".join(str(p_raw).strip().split())
+            if last_port and sub_raw is not None:
+                port_cols.append((c, last_port, str(sub_raw).strip()))
+
+        cargo_rows = []
+        current_year = None
+        for r in range(3, ws.max_row + 1):
+            y_val = ws.cell(r, 1).value
+            m_val = ws.cell(r, 2).value
+            if y_val is not None:
+                y_match = re.search(r"(20\d{2})", str(y_val))
+                if y_match:
+                    current_year = int(y_match.group(1))
+            if not m_val or str(m_val).strip().upper() == "РІК" or not current_year:
+                continue
+            m_clean = str(m_val).strip().lower()
+            m_num = UKR_MONTHS.get(m_clean)
+            if not m_num:
+                continue
+            rep_date = date(current_year, m_num, 1)
+            for c_idx, p_name, metric_type in port_cols:
+                if p_name in ("ОДЕСА", "ДУНАЙ"):
+                    continue  # пропускаємо підсумкові колонки кластерів, щоб уникнути подвійного рахунку
+                val = ws.cell(r, c_idx).value
+                if val is None or val == "":
+                    continue
+                cluster = (
+                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорноморськ")
+                    else "Дунайський кластер" if p_name in ("Рені", "Ізмаїл", "Усть-Дунайськ")
+                    else "Інші порти (тимчасово окуповані / заблоковані)"
+                )
+                cargo_rows.append({
+                    "report_date": rep_date,
+                    "period_str": f"{current_year}-{m_num:02d}",
+                    "year": current_year,
+                    "month": m_num,
+                    "cluster": cluster,
+                    "port_short": p_name,
+                    "metric_type": metric_type,
+                    "volume": round(to_float(val), 2),
+                })
+        result["cargo"] = pd.DataFrame(cargo_rows)
+
+    # 2. Суднозаходи
+    if "Суднозаходи" in wb.sheetnames:
+        ws = wb["Суднозаходи"]
+        s_cols = []
+        for c in range(3, ws.max_column + 1):
+            p_raw = ws.cell(1, c).value
+            if p_raw is not None:
+                p_clean = " ".join(str(p_raw).strip().split())
+                if p_clean not in ("ОДЕСА", "ДУНАЙ"):
+                    s_cols.append((c, p_clean))
+
+        vessel_rows = []
+        current_year = None
+        for r in range(2, ws.max_row + 1):
+            y_val = ws.cell(r, 1).value
+            m_val = ws.cell(r, 2).value
+            if y_val is not None:
+                y_match = re.search(r"(20\d{2})", str(y_val))
+                if y_match:
+                    current_year = int(y_match.group(1))
+            if not m_val or str(m_val).strip().upper() == "РІК" or not current_year:
+                continue
+            m_num = UKR_MONTHS.get(str(m_val).strip().lower())
+            if not m_num:
+                continue
+            rep_date = date(current_year, m_num, 1)
+            for c_idx, p_name in s_cols:
+                val = ws.cell(r, c_idx).value
+                if val is None or val == "":
+                    continue
+                cluster = (
+                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорном.")
+                    else "Дунайський кластер" if p_name in ("Ізмаїл", "Рені", "Усть-Дунай.")
+                    else "Інші порти"
+                )
+                vessel_rows.append({
+                    "report_date": rep_date,
+                    "period_str": f"{current_year}-{m_num:02d}",
+                    "year": current_year,
+                    "cluster": cluster,
+                    "port_short": p_name,
+                    "vessels_count": int(round(to_float(val))),
+                })
+        result["vessels"] = pd.DataFrame(vessel_rows)
+
+    # 3. Атаки
+    if "Атаки" in wb.sheetnames:
+        ws = wb["Атаки"]
+        attack_rows = []
+        for c in range(2, ws.max_column + 1):
+            dt_val = ws.cell(3, c).value
+            if isinstance(dt_val, datetime):
+                d_str = dt_val.strftime("%Y-%m-%d")
+            elif dt_val is not None:
+                d_str = str(dt_val)[:10]
+            else:
+                continue
+            attack_rows.append({
+                "attack_date": d_str,
+                "objects_damaged": int(round(to_float(ws.cell(4, c).value))),
+                "vessels_damaged": int(round(to_float(ws.cell(5, c).value))),
+                "casualties": int(round(to_float(ws.cell(6, c).value))),
+            })
+        result["attacks"] = pd.DataFrame(attack_rows)
+
+    return result
