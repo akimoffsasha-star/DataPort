@@ -29,7 +29,7 @@ from pdf_reports import (
 
 st.set_page_config(
     page_title="Аналітика морських портів",
-    page_icon="🚢",
+    page_icon="⚓📉📊📈🔍",
     layout="wide",
 )
 
