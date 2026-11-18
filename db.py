@@ -7,15 +7,13 @@ from sqlalchemy import create_engine, text
 def get_engine():
     db_url = st.secrets["DATABASE_URL"]
     if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql+psycopg://", 1)
+        db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
     elif db_url.startswith("postgresql://"):
-        db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
-    return create_engine(
-        db_url,
-        pool_pre_ping=True,
-        connect_args={"prepare_threshold": None},
-    )
-
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+    elif db_url.startswith("postgresql+psycopg://"):
+        db_url = db_url.replace("postgresql+psycopg://", "postgresql+psycopg2://", 1)
+    return create_engine(db_url, pool_pre_ping=True
+)
 
 def _sync_dimensions(conn, df: pd.DataFrame):
     """Автоматично додає нові порти, операторів та вантажі в довідники."""
