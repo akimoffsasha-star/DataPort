@@ -373,3 +373,30 @@ def clear_all_facts_db():
         )
     st.cache_data.clear()
 
+def save_corridors_to_db(corridors_data: dict) -> dict:
+    """Зберігає дані з файлу 'Коридори.xlsx' (cargo, vessels, attacks) до бази даних."""
+    engine = get_engine()
+    results = {}
+    
+    with engine.begin() as conn:
+        # 1. Вантажі коридорів
+        if "cargo" in corridors_data and not corridors_data["cargo"].empty:
+            df_cargo = corridors_data["cargo"]
+            # Записуємо у таблицю (можна створити окрему таблицю fact_corridors_cargo або оновлювати існуючу)
+            df_cargo.to_sql("fact_corridors_cargo", conn, if_exists="append", index=False)
+            results["cargo"] = len(df_cargo)
+            
+        # 2. Суднозаходи коридорів
+        if "vessels" in corridors_data and not corridors_data["vessels"].empty:
+            df_vessels = corridors_data["vessels"]
+            df_vessels.to_sql("fact_corridors_vessels", conn, if_exists="append", index=False)
+            results["vessels"] = len(df_vessels)
+            
+        # 3. Атаки
+        if "attacks" in corridors_data and not corridors_data["attacks"].empty:
+            df_attacks = corridors_data["attacks"]
+            df_attacks.to_sql("fact_corridors_attacks", conn, if_exists="append", index=False)
+            results["attacks"] = len(df_attacks)
+            
+    return results
+
