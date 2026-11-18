@@ -75,8 +75,6 @@ def style_fig(fig, height: int = 380):
         plot_bgcolor="rgba(0,0,0,0)",
     )
     fig.update_xaxes(showgrid=False)
-    fig_trend.update_xaxes(type="category")
-    fig_heat.update_xaxes(type="category")
     fig.update_yaxes(gridcolor="#E2E8F0")
     return fig
 
