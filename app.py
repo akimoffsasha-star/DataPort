@@ -28,32 +28,73 @@ from pdf_reports import (
     build_operators_audit_pdf,
 )
 
-st.set_page_config(
-    page_title="Аналітика морських портів",
-    page_icon="📊",
-    layout="wide",
-)
+THEMES = {
+    "Фірмова (Міністерство)": {
+        "bg": "#0B192C",
+        "sidebar_bg": "#102542",
+        "card": "#16325B",
+        "text": "#F8FAFC",
+        "muted": "#94A3B8",
+        "accent": "#008DDA",
+        "secondary": "#41C9E2",
+        "border": "#1E3E62",
+        "plotly_tpl": "plotly_dark",
+    },
+    "Світла": {
+        "bg": "#F4F7FA",
+        "sidebar_bg": "#FFFFFF",
+        "card": "#FFFFFF",
+        "text": "#0F172A",
+        "muted": "#64748B",
+        "accent": "#0F4C81",
+        "secondary": "#0EA5E9",
+        "border": "#E2E8F0",
+        "plotly_tpl": "plotly_white",
+    },
+    "Темна": {
+        "bg": "#090D16",
+        "sidebar_bg": "#0F172A",
+        "card": "#131C2E",
+        "text": "#F1F5F9",
+        "muted": "#94A3B8",
+        "accent": "#3B82F6",
+        "secondary": "#60A5FA",
+        "border": "#1E293B",
+        "plotly_tpl": "plotly_dark",
+    },
+}
+
+st.sidebar.title("🚢 Портова аналітика")
+selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=0)
+T = THEMES[selected_theme]
 
 st.markdown(
-    """
+    f"""
     <style>
-    div[data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-left: 4px solid #0F4C81;
+    [data-testid="stAppViewContainer"] {{
+        background-color: {T['bg']};
+        color: {T['text']};
+    }}
+    [data-testid="stSidebar"] {{
+        background-color: {T['sidebar_bg']};
+    }}
+    div[data-testid="stMetric"] {{
+        background-color: {T['card']};
+        border: 1px solid {T['border']};
+        border-left: 4px solid {T['accent']};
         border-radius: 10px;
         padding: 14px 18px;
-        box-shadow: 0 2px 6px rgba(15, 76, 129, 0.06);
-    }
-    div[data-testid="stMetric"] label {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }}
+    div[data-testid="stMetric"] label {{
         font-size: 0.85rem;
-        color: #64748B;
+        color: {T['muted']};
         font-weight: 600;
-    }
-    div[data-testid="stMetricValue"] {
+    }}
+    div[data-testid="stMetricValue"] {{
         font-size: 1.5rem;
-        color: #0F172A;
-    }
+        color: {T['text']};
+    }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -77,15 +118,15 @@ OWNERSHIP_COLORS = {
 def style_fig(fig, height: int = 380):
     fig.update_layout(
         height=height,
-        template="plotly_white",
+        template=T["plotly_tpl"],
         margin=dict(l=10, r=20, t=48, b=10),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, title=None),
-        font=dict(family="sans-serif", size=12, color="#334155"),
+        font=dict(family="sans-serif", size=12, color=T["text"]),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
     fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(gridcolor="#E2E8F0")
+    fig.update_yaxes(gridcolor=T["border"])
     return fig
 
 
@@ -301,6 +342,54 @@ st.sidebar.caption(
     "Департамент морського та внутрішнього водного транспорту  \n"
     "**Версія 1.1**"
 )
+if not check_password(): st.stop()
+
+elif page == "🛡️ Коридори та безпека":
+    st.title("🛡️ Динаміка морських коридорів, суднозаходів та безпекових факторів")
+    kor_file = st.file_uploader("Завантажте файл «Коридори.xlsx» для аналізу (2020–2026 рр.)", type=["xlsx"])
+    if kor_file:
+        from etl_parser import parse_corridors_file
+        kdata = parse_corridors_file(kor_file)
+
+        tab_k1, tab_k2, tab_k3 = st.tabs(["📦 Вантажі та зерновий коридор", "🚢 Динаміка суднозаходів", "⚠️ Реєстр атак на інфраструктуру"])
+
+        with tab_k1:
+            df_kc = kdata.get("cargo", pd.DataFrame())
+            if not df_kc.empty:
+                m_type = st.radio("Показник", ["Всього", "Зерно"], horizontal=True)
+                sub_c = df_kc[df_kc["metric_type"] == m_type]
+                agg_c = sub_c.groupby(["period_str", "cluster"], as_index=False)["volume"].sum()
+                fig_kc = px.area(
+                    agg_c, x="period_str", y="volume", color="cluster",
+                    title=f"Щомісячний вантажообіг за кластерами ({m_type}, тис. тонн)",
+                )
+                st.plotly_chart(style_fig(fig_kc, 420), use_container_width=True)
+
+        with tab_k2:
+            df_kv = kdata.get("vessels", pd.DataFrame())
+            if not df_kv.empty:
+                agg_v = df_kv.groupby(["period_str", "cluster"], as_index=False)["vessels_count"].sum()
+                fig_kv = px.line(
+                    agg_v, x="period_str", y="vessels_count", color="cluster", markers=True,
+                    title="Кількість оброблених суден по кластерах (2020–2026 рр.)",
+                )
+                st.plotly_chart(style_fig(fig_kv, 420), use_container_width=True)
+
+        with tab_k3:
+            df_ka = kdata.get("attacks", pd.DataFrame())
+            if not df_ka.empty:
+                latest = df_ka.iloc[-1]
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Пошкоджено об'єктів портової інфраструктури", f"{latest['objects_damaged']:,}".replace(",", " "))
+                c2.metric("Пошкоджено цивільних суден", f"{latest['vessels_damaged']:,}".replace(",", " "))
+                c3.metric("Постраждало осіб", f"{latest['casualties']:,}".replace(",", " "))
+
+                fig_ka = px.line(
+                    df_ka, x="attack_date", y=["objects_damaged", "vessels_damaged", "casualties"],
+                    markers=True, title="Накопичувальна динаміка наслідків атак на портову інфраструктуру (2026 р.)",
+                )
+                st.plotly_chart(style_fig(fig_ka, 380), use_container_width=True)
+
 if page == "📘 Інструкція":
     st.title("📘 Інструкція користувача та адміністратора")
     manual_path = Path(__file__).resolve().parent / "README.md"
