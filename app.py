@@ -324,7 +324,7 @@ if page == "📊 Дашборд та KPI":
             )
 
 
-    with tab_trends:
+with tab_trends:
         df_trend = df_all[df_all["unit"] == "тис. тонн"].copy()
         if sel_clusters:
             df_trend = df_trend[df_trend["cluster"].isin(sel_clusters)]
@@ -349,6 +349,7 @@ if page == "📊 Дашборд та KPI":
             labels={"period_str": "Місяць", "volume": "Обсяг, тис. т", "direction": "Напрямок"},
         )
         fig_trend.update_layout(hovermode="x unified")
+        fig_trend.update_xaxes(type="category")
         st.plotly_chart(
             style_fig(fig_trend, height=380),
             use_container_width=True,
@@ -367,12 +368,13 @@ if page == "📊 Дашборд та KPI":
                 title="Теплова карта активності портів по місяцях (тис. тонн)",
                 labels=dict(x="Місяць", y="Порт", color="тис. т"),
             )
+            fig_heat.update_xaxes(type="category")
             st.plotly_chart(
                 style_fig(fig_heat, height=340),
                 use_container_width=True,
                 config={"displayModeBar": False},
             )
-
+    
     with tab_ops:
         o_left, o_right = st.columns([1.2, 1])
 
