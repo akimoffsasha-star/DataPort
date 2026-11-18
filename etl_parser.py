@@ -31,8 +31,9 @@ PORT_CLUSTERS = {
 def normalize_port_name(name: str) -> str | None:
     if not name:
         return None
-    s = " ".join(str(name).strip().split())
-    s_low = s.lower()
+    s_low = " ".join(str(name).strip().lower().split())
+    if "морський порт" not in s_low or s_low.startswith("всього"):
+        return None
     if "ізмаїл" in s_low:
         return "Ізмаїльський морський порт"
     if "реній" in s_low:
