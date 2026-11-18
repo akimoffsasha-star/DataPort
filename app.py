@@ -1,4 +1,5 @@
 import io
+from pathlib import Path
 import openpyxl
 from openpyxl.utils import get_column_letter
 import pandas as pd
@@ -6,23 +7,19 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-```python
-from pathlib import Path
-
 from db import (
+    clear_all_facts_db,
+    delete_month_from_db,
     load_cargo_view,
+    load_months_summary,
     load_notes,
     load_operators_dict,
     load_vessels,
     save_25vod_to_db,
     save_cargo_to_db,
     update_operators_dict,
-    clear_all_facts_db,
-    delete_month_from_db,
-    load_months_summary,
 )
 from etl_parser import parse_23m_file, parse_25vod_file
-
 from pdf_reports import (
     build_cargo_audit_pdf,
     build_custom_matrix_pdf,
@@ -140,6 +137,7 @@ def _blue_heatmap(val, max_val: float) -> str:
     return f"background-color: rgb({r}, {g}, {b}); color: #0F172A;"
 
 
+st.sidebar.title("🚢 Портова аналітика")
 page = st.sidebar.radio(
     "Розділ",
     [
@@ -576,7 +574,14 @@ elif page == "🧮 Конструктор матриць":
 
     st.dataframe(styled, use_container_width=True, height=560)
 
-st.download_button(
+    b1, b2 = st.columns(2)
+    b1.download_button(
+        label="📥 Завантажити матрицю в Excel (.xlsx)",
+        data=to_excel_bytes(pivot),
+        file_name="port_matrix_export.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    b2.download_button(
         label="📄 Завантажити матрицю в PDF (А4 альбомний)",
         data=build_custom_matrix_pdf(
             pivot,
@@ -590,7 +595,7 @@ st.download_button(
 
 
 # =====================================================================
-# СТОРІНКА 3: ЗАВАНТАЖЕННЯ EXCEL-ФАЙЛІВ
+# СТОРІНКА 3: ПРОФЕСІЙНІ PDF-ЗВІТИ (АУДИТ)
 # =====================================================================
 elif page == "📄 PDF-звіти (Аудит)":
     st.title("📄 Професійні аналітичні та аудиторські звіти (PDF)")
@@ -640,7 +645,10 @@ elif page == "📄 PDF-звіти (Аудит)":
         st.warning("За обраними фільтрами немає даних для формування звіту.")
         st.stop()
 
-    st.info(f"Попередній обсяг у вибірці: **{df_rep_tons['volume'].sum():,.2f} тис. т** ({len(df_rep_tons)} записів)")
+    st.info(
+        f"Попередній обсяг у вибірці: **{df_rep_tons['volume'].sum():,.2f} тис. т** "
+        f"({len(df_rep_tons)} записів)"
+    )
 
     if st.button("⚙️ Згенерувати PDF-звіт", type="primary"):
         with st.spinner("Формування графіків та верстка PDF..."):
@@ -668,6 +676,10 @@ elif page == "📄 PDF-звіти (Аудит)":
             mime="application/pdf",
         )
 
+
+# =====================================================================
+# СТОРІНКА 4: ЗАВАНТАЖЕННЯ EXCEL-ФАЙЛІВ
+# =====================================================================
 elif page == "📤 Завантаження Excel":
     st.title("📤 Автоматичне завантаження щомісячних файлів")
     st.markdown(
@@ -712,10 +724,10 @@ elif page == "📤 Завантаження Excel":
 
 
 # =====================================================================
-# СТОРІНКА 4: ПРИЧИНИ ПАДІННЯ ТА ДОВІДНИКИ
+# СТОРІНКА 5: ПРИЧИНИ ПАДІННЯ, ДОВІДНИКИ ТА КЕРУВАННЯ МІСЯЦЯМИ
 # =====================================================================
 elif page == "📝 Причини та довідники":
-    st.title("📝 Коментарі операторів та довідник власності")
+    st.title("📝 Коментарі, довідники та керування місяцями")
 
     tab1, tab2, tab3 = st.tabs([
         "Коментарі з звітів (25-вод)",
@@ -760,7 +772,7 @@ elif page == "📝 Причини та довідники":
             if st.button("💾 Зберегти довідник", type="primary"):
                 update_operators_dict(edited)
                 st.success("Довідник операторів оновлено!")
-    
+
     with tab3:
         st.subheader("Завантажені періоди в базі даних")
         df_m_sum = load_months_summary()
