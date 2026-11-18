@@ -295,10 +295,12 @@ if page == "📊 Дашборд та KPI":
                 use_container_width=True,
                 config={"displayModeBar": False},
             )
+            if "Не визначено" in own_df["ownership_type"].values:
+                st.caption(
+                    "ℹ️ Для розподілу приватних операторів вкажіть тип причалу у вкладці "
+                    "«📝 Причини та довідники → Налаштування операторів»."
+                )
 
-if "Не визначено" in own_df["ownership_type"].values:
-    st.caption("ℹ️ Для розподілу приватних операторів вкажіть тип причалу у вкладці «📝 Причини та довідники → Налаштування операторів».")
-        
         if pd.notna(prev_y_vol) and prev_y_vol > 0:
             wf = df_tons.groupby("port_name", as_index=False)[["volume", "volume_prev_year"]].sum()
             wf["diff"] = wf["volume"] - wf["volume_prev_year"].fillna(0)
@@ -322,6 +324,7 @@ if "Не визначено" in own_df["ownership_type"].values:
                 use_container_width=True,
                 config={"displayModeBar": False},
             )
+
 
     with tab_trends:
         df_trend = df_all[df_all["unit"] == "тис. тонн"].copy()
