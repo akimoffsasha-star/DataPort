@@ -17,6 +17,9 @@ from db import (
     save_25vod_to_db,
     save_cargo_to_db,
     update_operators_dict,
+    clear_all_facts_db,
+    delete_month_from_db,
+    load_months_summary,
 )
 from etl_parser import parse_23m_file, parse_25vod_file
 
@@ -714,7 +717,11 @@ elif page == "📤 Завантаження Excel":
 elif page == "📝 Причини та довідники":
     st.title("📝 Коментарі операторів та довідник власності")
 
-    tab1, tab2 = st.tabs(["Коментарі з звітів (25-вод)", "Налаштування операторів"])
+    tab1, tab2, tab3 = st.tabs([
+        "Коментарі з звітів (25-вод)",
+        "Налаштування операторів",
+        "🗑️ Керування місяцями",
+    ])
 
     with tab1:
         df_n = load_notes()
@@ -753,3 +760,38 @@ elif page == "📝 Причини та довідники":
             if st.button("💾 Зберегти довідник", type="primary"):
                 update_operators_dict(edited)
                 st.success("Довідник операторів оновлено!")
+    
+    with tab3:
+        st.subheader("Завантажені періоди в базі даних")
+        df_m_sum = load_months_summary()
+        if df_m_sum.empty:
+            st.info("У базі немає жодного завантаженого місяця.")
+        else:
+            st.dataframe(
+                df_m_sum.drop(columns=["report_date"]),
+                column_config={
+                    "period_str": "Місяць",
+                    "cargo_rows": "Рядків вантажів",
+                    "total_tons": st.column_config.NumberColumn("Всього, тис. т", format="%.2f"),
+                    "vessel_rows": "Записів суден",
+                    "note_rows": "Коментарів",
+                },
+                hide_index=True,
+                use_container_width=True,
+            )
+
+            st.divider()
+            sel_del = st.selectbox("Оберіть місяць для видалення", df_m_sum["period_str"].tolist())
+            confirm_del = st.checkbox(f"Підтверджую видалення всіх даних за {sel_del}")
+            if st.button("🗑️ Видалити обраний місяць", disabled=not confirm_del):
+                target_date = df_m_sum.loc[df_m_sum["period_str"] == sel_del, "report_date"].iloc[0]
+                delete_month_from_db(pd.to_datetime(target_date).date())
+                st.success(f"Дані за {sel_del} видалено!")
+                st.rerun()
+
+            with st.expander("⚠️ Повне очищення бази (скидання з нуля)"):
+                confirm_all = st.checkbox("Я розумію, що будуть видалені ВСІ місяці та довідник операторів")
+                if st.button("🔥 Очистити всі дані", disabled=not confirm_all):
+                    clear_all_facts_db()
+                    st.success("Базу повністю очищено!")
+                    st.rerun()
