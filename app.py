@@ -6,6 +6,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+```python
+from pathlib import Path
+
 from db import (
     load_cargo_view,
     load_notes,
@@ -142,8 +145,42 @@ page = st.sidebar.radio(
         "📄 PDF-звіти (Аудит)",
         "📤 Завантаження Excel",
         "📝 Причини та довідники",
+        "📘 Інструкція",
     ],
 )
+
+if page == "📘 Інструкція":
+    st.title("📘 Інструкція користувача та адміністратора")
+    manual_path = Path(__file__).resolve().parent / "README.md"
+    if not manual_path.exists():
+        st.warning("Файл інструкції README.md не знайдено в репозиторії.")
+        st.stop()
+
+    raw_md = manual_path.read_text(encoding="utf-8")
+    st.download_button(
+        label="📥 Завантажити інструкцію (.md)",
+        data=raw_md.encode("utf-8"),
+        file_name="Port_Analytics_Manual.md",
+        mime="text/markdown",
+    )
+
+    if "<!-- PART_2 -->" in raw_md and "<!-- PART_3 -->" in raw_md:
+        part1, rest = raw_md.split("<!-- PART_2 -->", 1)
+        part2, part3 = rest.split("<!-- PART_3 -->", 1)
+        t1, t2, t3 = st.tabs([
+            "👤 Робота в системі",
+            "🛠️ Супровід і хмара",
+            "🚨 Діагностика помилок",
+        ])
+        with t1:
+            st.markdown(part1)
+        with t2:
+            st.markdown(part2)
+        with t3:
+            st.markdown(part3)
+    else:
+        st.markdown(raw_md)
+    st.stop()
 
 try:
     df_all = load_cargo_view()
