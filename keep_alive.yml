@@ -1,0 +1,19 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: "0 6 */4 * *"   # Запускається автоматично кожні 4 дні о 06:00 UTC
+  workflow_dispatch:        # Дозволяє запускати вручну для перевірки
+
+jobs:
+  ping-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install psycopg2
+        run: pip install psycopg2-binary
+
+      - name: Ping PostgreSQL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python -c "import os, psycopg2; conn = psycopg2.connect(os.environ['DATABASE_URL'].split('?')[0], sslmode='require'); cur = conn.cursor(); cur.execute('SELECT COUNT(*) FROM dim_ports;'); print('OK, ports:', cur.fetchone()[0]); conn.close()"
