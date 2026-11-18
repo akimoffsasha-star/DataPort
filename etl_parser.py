@@ -438,12 +438,140 @@ def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
     
 def detect_file_type(uploaded_file) -> str:
     wb = openpyxl.load_workbook(uploaded_file, read_only=True)
-    sheets = [s.lower() for s in wb.sheetnames]
+    sheets = [s.lower().replace("і", "i") for s in wb.sheetnames]
     uploaded_file.seek(0)
-    
-    if "антажі" in "".join(sheets) or any("коридор" in s for s in sheets):
+    if any("антажі" in s or "коридор" in s for s in sheets) or "коридор" in uploaded_file.name.lower():
         return "коридори"
-    elif any("23" in s or "експорт" in s for s in sheets):
+    if any(s in sheets for s in ("експорт", "імпорт", "транзит")):
         return "23-м"
-    else:
-        return "25-вод"
+    return "25-вод"
+
+
+def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
+    """
+    Парсить файл 'Коридори.xlsx' із 3 аркушами:
+    - 'Вантажі' (історія по портах і кластерах)
+    - 'Суднозаходи' (статистика по портах)
+    - 'Атаки' (накопичувальна статистика пошкоджень)
+    """
+    wb = openpyxl.load_workbook(file_obj, data_only=True)
+    result = {}
+
+    # 1. Вантажі
+    if "Вантажі" in wb.sheetnames:
+        ws = wb["Вантажі"]
+        port_cols = []
+        last_port = None
+        for c in range(3, ws.max_column + 1):
+            p_raw = ws.cell(1, c).value
+            sub_raw = ws.cell(2, c).value
+            if p_raw is not None:
+                last_port = " ".join(str(p_raw).strip().split())
+            if last_port and sub_raw is not None:
+                port_cols.append((c, last_port, str(sub_raw).strip()))
+
+        cargo_rows = []
+        current_year = None
+        for r in range(3, ws.max_row + 1):
+            y_val = ws.cell(r, 1).value
+            m_val = ws.cell(r, 2).value
+            if y_val is not None:
+                y_match = re.search(r"(20\d{2})", str(y_val))
+                if y_match:
+                    current_year = int(y_match.group(1))
+            if not m_val or str(m_val).strip().upper() == "РІК" or not current_year:
+                continue
+            m_clean = str(m_val).strip().lower()
+            m_num = UKR_MONTHS.get(m_clean)
+            if not m_num:
+                continue
+            rep_date = date(current_year, m_num, 1)
+            for c_idx, p_name, metric_type in port_cols:
+                if p_name in ("ОДЕСА", "ДУНАЙ"):
+                    continue
+                val = ws.cell(r, c_idx).value
+                if val is None or val == "":
+                    continue
+                cluster = (
+                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорноморськ")
+                    else "Дунайський кластер" if p_name in ("Рені", "Ізмаїл", "Усть-Дунайськ")
+                    else "Інші порти"
+                )
+                cargo_rows.append({
+                    "report_date": rep_date,
+                    "period_str": f"{current_year}-{m_num:02d}",
+                    "year": current_year,
+                    "month": m_num,
+                    "cluster": cluster,
+                    "port_short": p_name,
+                    "metric_type": metric_type,
+                    "volume": round(to_float(val), 2),
+                })
+        result["cargo"] = pd.DataFrame(cargo_rows)
+
+    # 2. Суднозаходи
+    if "Суднозаходи" in wb.sheetnames:
+        ws = wb["Суднозаходи"]
+        s_cols = []
+        for c in range(3, ws.max_column + 1):
+            p_raw = ws.cell(1, c).value
+            if p_raw is not None:
+                p_clean = " ".join(str(p_raw).strip().split())
+                if p_clean not in ("ОДЕСА", "ДУНАЙ"):
+                    s_cols.append((c, p_clean))
+
+        vessel_rows = []
+        current_year = None
+        for r in range(2, ws.max_row + 1):
+            y_val = ws.cell(r, 1).value
+            m_val = ws.cell(r, 2).value
+            if y_val is not None:
+                y_match = re.search(r"(20\d{2})", str(y_val))
+                if y_match:
+                    current_year = int(y_match.group(1))
+            if not m_val or str(m_val).strip().upper() == "РІК" or not current_year:
+                continue
+            m_num = UKR_MONTHS.get(str(m_val).strip().lower())
+            if not m_num:
+                continue
+            rep_date = date(current_year, m_num, 1)
+            for c_idx, p_name in s_cols:
+                val = ws.cell(r, c_idx).value
+                if val is None or val == "":
+                    continue
+                cluster = (
+                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорном.")
+                    else "Дунайський кластер" if p_name in ("Ізмаїл", "Рені", "Усть-Дунай.")
+                    else "Інші порти"
+                )
+                vessel_rows.append({
+                    "report_date": rep_date,
+                    "period_str": f"{current_year}-{m_num:02d}",
+                    "year": current_year,
+                    "cluster": cluster,
+                    "port_short": p_name,
+                    "vessels_count": int(round(to_float(val))),
+                })
+        result["vessels"] = pd.DataFrame(vessel_rows)
+
+    # 3. Атаки
+    if "Атаки" in wb.sheetnames:
+        ws = wb["Атаки"]
+        attack_rows = []
+        for c in range(2, ws.max_column + 1):
+            dt_val = ws.cell(3, c).value
+            if isinstance(dt_val, datetime):
+                d_str = dt_val.strftime("%Y-%m-%d")
+            elif dt_val is not None:
+                d_str = str(dt_val)[:10]
+            else:
+                continue
+            attack_rows.append({
+                "attack_date": d_str,
+                "objects_damaged": int(round(to_float(ws.cell(4, c).value))),
+                "vessels_damaged": int(round(to_float(ws.cell(5, c).value))),
+                "casualties": int(round(to_float(ws.cell(6, c).value))),
+            })
+        result["attacks"] = pd.DataFrame(attack_rows)
+
+    return result
