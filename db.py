@@ -400,3 +400,19 @@ def save_corridors_to_db(corridors_data: dict) -> dict:
             
     return results
 
+
+
+def save_corridors_to_db(corridors_data: dict) -> dict:
+    engine = get_engine()
+    results = {}
+    with engine.begin() as conn:
+        if "cargo" in corridors_data and not corridors_data["cargo"].empty:
+            corridors_data["cargo"].to_sql("fact_corridors_cargo", conn, if_exists="replace", index=False)
+            results["cargo"] = len(corridors_data["cargo"])
+        if "vessels" in corridors_data and not corridors_data["vessels"].empty:
+            corridors_data["vessels"].to_sql("fact_corridors_vessels", conn, if_exists="replace", index=False)
+            results["vessels"] = len(corridors_data["vessels"])
+        if "attacks" in corridors_data and not corridors_data["attacks"].empty:
+            corridors_data["attacks"].to_sql("fact_corridors_attacks", conn, if_exists="replace", index=False)
+            results["attacks"] = len(corridors_data["attacks"])
+    return results
