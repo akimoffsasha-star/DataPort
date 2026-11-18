@@ -20,7 +20,8 @@ from db import (
     save_cargo_to_db,
     update_operators_dict,
 )
-from etl_parser import parse_23m_file, parse_25vod_file
+from etl_parser import parse_23m_file, parse_25vod_file, parse_corridors_file
+
 from pdf_reports import (
     build_cargo_audit_pdf,
     build_custom_matrix_pdf,
@@ -953,32 +954,25 @@ if uploaded_files and st.button("🚀 Обробити та зберегти в 
         for uf in uploaded_files:
             with st.status(f"Обробка {uf.name}...", expanded=True) as status:
                 try:
-                    # Перевіряємо назву файлу або вміст аркушів
-                    file_name_lower = uf.name.lower()
-                    
-                    if "коридор" in file_name_lower:
-                        # Викликаємо ваш готовий парсер коридорів
-                        corridors_data = parse_corridors_file(uf)
-                        # Зберігаємо у базу (або обробляйте результати)
-                        saved_res = save_corridors_to_db(corridors_data)
-                        st.write(f"Опрацьовано файл 'Коридори': аркуші Вантажі, Суднозаходи, Атаки успішно завантажено!")
-                        
-                    else:
-                        ftype = detect_file_type(uf)
-                        st.write(f"Визначено тип: **{ftype}**")
+                    ftype = detect_file_type(uf)
+                    st.write(f"Визначено тип: **{ftype}**")
 
-                        if ftype == "23-м":
-                            df_c, warnings = parse_23m_file(uf, include_prev_year=include_prev)
-                            inserted = save_cargo_to_db(df_c)
-                            st.write(f"Збережено рядків вантажообігу: **{inserted}**")
-                            if warnings:
-                                st.warning("Виявлено контрольні зауваження:")
-                                for w in warnings[:20]:
-                                    st.write(f"- {w}")
-                        else:
-                            df_v, df_n = parse_25vod_file(uf, include_prev_year=include_prev)
-                            vc, nc = save_25vod_to_db(df_v, df_n)
-                            st.write(f"Оновлено суднозаходів: **{vc}**, коментарів операторів: **{nc}**")
+                    if ftype == "коридори":
+                        corridors_data = parse_corridors_file(uf)
+                        # Тут ви можете зберегти дані у базу або вивести підтвердження
+                        st.write(f"Успішно опрацьовано аркуші коридорів: {list(corridors_data.keys())}")
+                    elif ftype == "23-м":
+                        df_c, warnings = parse_23m_file(uf, include_prev_year=include_prev)
+                        inserted = save_cargo_to_db(df_c)
+                        st.write(f"Збережено рядків вантажообігу: **{inserted}**")
+                        if warnings:
+                            st.warning("Виявлено контрольні зауваження:")
+                            for w in warnings[:20]:
+                                st.write(f"- {w}")
+                    else:
+                        df_v, df_n = parse_25vod_file(uf, include_prev_year=include_prev)
+                        vc, nc = save_25vod_to_db(df_v, df_n)
+                        st.write(f"Оновлено суднозаходів: **{vc}**, коментарів операторів: **{nc}**")
 
                     status.update(label=f"✅ {uf.name} успішно завантажено", state="complete")
                 except Exception as e:
