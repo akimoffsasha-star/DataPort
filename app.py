@@ -28,16 +28,23 @@ from pdf_reports import (
     build_operators_audit_pdf,
 )
 
+st.set_page_config(
+    page_title="Аналітика морських портів",
+    page_icon="📊",
+    layout="wide",
+)
+
+# --- Фірмові теми (Світла за замовчуванням, покращений контраст) ---
 THEMES = {
     "Фірмова (Міністерство)": {
         "bg": "#0B192C",
-        "sidebar_bg": "#102542",
-        "card": "#16325B",
-        "text": "#F8FAFC",
-        "muted": "#94A3B8",
+        "sidebar_bg": "#112238",
+        "card": "#1E3E62",
+        "text": "#FFFFFF",
+        "muted": "#CBD5E1",
         "accent": "#008DDA",
         "secondary": "#41C9E2",
-        "border": "#1E3E62",
+        "border": "#2E5B88",
         "plotly_tpl": "plotly_dark",
     },
     "Світла": {
@@ -53,19 +60,20 @@ THEMES = {
     },
     "Темна": {
         "bg": "#090D16",
-        "sidebar_bg": "#0F172A",
+        "sidebar_bg": "#0E1525",
         "card": "#131C2E",
         "text": "#F1F5F9",
         "muted": "#94A3B8",
         "accent": "#3B82F6",
         "secondary": "#60A5FA",
-        "border": "#1E293B",
+        "border": "#22324D",
         "plotly_tpl": "plotly_dark",
     },
 }
 
+# Винесено в самий початок сайдбару, щоб працювати і на екрані входу
 st.sidebar.title("🚢 Портова аналітика")
-selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=0)
+selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=1) # Світла за замовчуванням
 T = THEMES[selected_theme]
 
 st.markdown(
@@ -94,6 +102,9 @@ st.markdown(
     div[data-testid="stMetricValue"] {{
         font-size: 1.5rem;
         color: {T['text']};
+    }}
+    h1, h2, h3, h4, h5, h6, p, span, label {{
+        color: {T['text']} !important;
     }}
     </style>
     """,
