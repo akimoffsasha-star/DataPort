@@ -68,8 +68,18 @@ page = st.sidebar.radio(
     ],
 )
 
-df_all = load_cargo_view()
-df_vessels = load_vessels()
+try:
+    df_all = load_cargo_view()
+    df_vessels = load_vessels()
+except Exception as e:
+    raw_url = st.secrets.get("DATABASE_URL", "")
+    if raw_url.count("@") > 1:
+        st.error("У рядку DATABASE_URL більше одного символу '@'. Ймовірно, у паролі бази є '@', його треба замінити на '%40' або змінити пароль БД.")
+    user_part = raw_url.split("://")[-1].split(":")[0] if "://" in raw_url else "?"
+    host_part = raw_url.split("@")[-1].split("?")[0] if "@" in raw_url else "?"
+    st.error(f"Помилка підключення до БД: {getattr(e, 'orig', e)}")
+    st.info(f"Перевірка параметрів → Логін: `{user_part}` | Хост: `{host_part}`")
+    st.stop()
 
 # =====================================================================
 # СТОРІНКА 1: ДАШБОРД ТА KPI
