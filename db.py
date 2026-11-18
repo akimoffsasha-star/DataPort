@@ -272,14 +272,16 @@ def save_25vod_to_db(df_vessels: pd.DataFrame, df_notes: pd.DataFrame) -> tuple[
     with engine.begin() as conn:
         if not df_vessels.empty:
             _sync_dimensions(conn, df_vessels)
-            for d in df_vessels["report_date"].unique():
-                conn.execute(text("DELETE FROM fact_port_vessels WHERE report_date = :d"), {"d": d})
             ports_map = dict(conn.execute(text("SELECT port_name, port_id FROM dim_ports")).fetchall())
             for _, r in df_vessels.iterrows():
                 conn.execute(
                     text(
-                        "INSERT INTO fact_port_vessels (report_date, port_id, vessels_count) "
-                        "VALUES (:d, :p, :v)"
+                        """
+                        INSERT INTO fact_port_vessels (report_date, port_id, vessels_count)
+                        VALUES (:d, :p, :v)
+                        ON CONFLICT (report_date, port_id)
+                        DO UPDATE SET vessels_count = EXCLUDED.vessels_count
+                        """
                     ),
                     {"d": r["report_date"], "p": ports_map[r["port_name"]], "v": int(r["vessels_count"])},
                 )
@@ -287,16 +289,20 @@ def save_25vod_to_db(df_vessels: pd.DataFrame, df_notes: pd.DataFrame) -> tuple[
 
         if not df_notes.empty:
             _sync_dimensions(conn, df_notes)
-            for d in df_notes["report_date"].unique():
-                conn.execute(text("DELETE FROM fact_operator_notes WHERE report_date = :d"), {"d": d})
             ports_map = dict(conn.execute(text("SELECT port_name, port_id FROM dim_ports")).fetchall())
             ops_map = dict(conn.execute(text("SELECT raw_name, operator_id FROM dim_operators")).fetchall())
             for _, r in df_notes.iterrows():
                 conn.execute(
                     text(
-                        "INSERT INTO fact_operator_notes "
-                        "(report_date, port_id, operator_id, decline_reason, work_done) "
-                        "VALUES (:d, :p, :o, :reason, :work)"
+                        """
+                        INSERT INTO fact_operator_notes
+                            (report_date, port_id, operator_id, decline_reason, work_done)
+                        VALUES (:d, :p, :o, :reason, :work)
+                        ON CONFLICT (report_date, port_id, operator_id)
+                        DO UPDATE SET
+                            decline_reason = EXCLUDED.decline_reason,
+                            work_done = EXCLUDED.work_done
+                        """
                     ),
                     {
                         "d": r["report_date"],
