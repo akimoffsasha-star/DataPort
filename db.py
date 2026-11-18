@@ -5,15 +5,20 @@ from sqlalchemy import create_engine, text
 
 @st.cache_resource
 def get_engine():
-    db_url = st.secrets["DATABASE_URL"]
+    db_url = st.secrets["DATABASE_URL"].strip()
+    if "?" in db_url:
+        db_url = db_url.split("?", 1)[0]
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
     elif db_url.startswith("postgresql://"):
         db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
     elif db_url.startswith("postgresql+psycopg://"):
         db_url = db_url.replace("postgresql+psycopg://", "postgresql+psycopg2://", 1)
-    return create_engine(db_url, pool_pre_ping=True
-)
+    return create_engine(
+        db_url,
+        pool_pre_ping=True,
+        connect_args={"sslmode": "require"},
+    )
 
 def _sync_dimensions(conn, df: pd.DataFrame):
     """Автоматично додає нові порти, операторів та вантажі в довідники."""
