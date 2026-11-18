@@ -265,3 +265,105 @@ def update_operators_dict(edited_df: pd.DataFrame):
                 },
             )
     st.cache_data.clear()
+
+def save_25vod_to_db(df_vessels: pd.DataFrame, df_notes: pd.DataFrame) -> tuple[int, int]:
+    engine = get_engine()
+    v_count, n_count = 0, 0
+    with engine.begin() as conn:
+        if not df_vessels.empty:
+            _sync_dimensions(conn, df_vessels)
+            for d in df_vessels["report_date"].unique():
+                conn.execute(text("DELETE FROM fact_port_vessels WHERE report_date = :d"), {"d": d})
+            ports_map = dict(conn.execute(text("SELECT port_name, port_id FROM dim_ports")).fetchall())
+            for _, r in df_vessels.iterrows():
+                conn.execute(
+                    text(
+                        "INSERT INTO fact_port_vessels (report_date, port_id, vessels_count) "
+                        "VALUES (:d, :p, :v)"
+                    ),
+                    {"d": r["report_date"], "p": ports_map[r["port_name"]], "v": int(r["vessels_count"])},
+                )
+            v_count = len(df_vessels)
+
+        if not df_notes.empty:
+            _sync_dimensions(conn, df_notes)
+            for d in df_notes["report_date"].unique():
+                conn.execute(text("DELETE FROM fact_operator_notes WHERE report_date = :d"), {"d": d})
+            ports_map = dict(conn.execute(text("SELECT port_name, port_id FROM dim_ports")).fetchall())
+            ops_map = dict(conn.execute(text("SELECT raw_name, operator_id FROM dim_operators")).fetchall())
+            for _, r in df_notes.iterrows():
+                conn.execute(
+                    text(
+                        "INSERT INTO fact_operator_notes "
+                        "(report_date, port_id, operator_id, decline_reason, work_done) "
+                        "VALUES (:d, :p, :o, :reason, :work)"
+                    ),
+                    {
+                        "d": r["report_date"],
+                        "p": ports_map[r["port_name"]],
+                        "o": ops_map[r["operator_name"]],
+                        "reason": r["decline_reason"],
+                        "work": r["work_done"],
+                    },
+                )
+            n_count = len(df_notes)
+
+    st.cache_data.clear()
+    return v_count, n_count
+
+@st.cache_data(ttl=300)
+def load_months_summary() -> pd.DataFrame:
+    engine = get_engine()
+    sql = """
+        WITH dates AS (
+            SELECT DISTINCT report_date FROM fact_cargo_turnover
+            UNION
+            SELECT DISTINCT report_date FROM fact_port_vessels
+            UNION
+            SELECT DISTINCT report_date FROM fact_operator_notes
+        ),
+        c AS (
+            SELECT report_date,
+                   COUNT(*) AS cargo_rows,
+                   ROUND(SUM(CASE WHEN unit = 'тис. тонн' THEN volume ELSE 0 END), 2) AS total_tons
+            FROM fact_cargo_turnover
+            GROUP BY report_date
+        ),
+        v AS (SELECT report_date, COUNT(*) AS vessel_rows FROM fact_port_vessels GROUP BY report_date),
+        n AS (SELECT report_date, COUNT(*) AS note_rows FROM fact_operator_notes GROUP BY report_date)
+        SELECT
+            d.report_date,
+            TO_CHAR(d.report_date, 'YYYY-MM') AS period_str,
+            COALESCE(c.cargo_rows, 0) AS cargo_rows,
+            COALESCE(c.total_tons, 0) AS total_tons,
+            COALESCE(v.vessel_rows, 0) AS vessel_rows,
+            COALESCE(n.note_rows, 0) AS note_rows
+        FROM dates d
+        LEFT JOIN c ON d.report_date = c.report_date
+        LEFT JOIN v ON d.report_date = v.report_date
+        LEFT JOIN n ON d.report_date = n.report_date
+        ORDER BY d.report_date DESC
+    """
+    return pd.read_sql(sql, engine)
+
+
+def delete_month_from_db(period_date):
+    engine = get_engine()
+    with engine.begin() as conn:
+        conn.execute(text("DELETE FROM fact_cargo_turnover WHERE report_date = :d"), {"d": period_date})
+        conn.execute(text("DELETE FROM fact_port_vessels WHERE report_date = :d"), {"d": period_date})
+        conn.execute(text("DELETE FROM fact_operator_notes WHERE report_date = :d"), {"d": period_date})
+    st.cache_data.clear()
+
+
+def clear_all_facts_db():
+    engine = get_engine()
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "TRUNCATE TABLE fact_cargo_turnover, fact_port_vessels, fact_operator_notes, dim_operators "
+                "RESTART IDENTITY CASCADE"
+            )
+        )
+    st.cache_data.clear()
+
