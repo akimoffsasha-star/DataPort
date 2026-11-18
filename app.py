@@ -23,7 +23,6 @@ st.set_page_config(
     layout="wide",
 )
 
-# Корпоративний CSS для KPI-карток та вкладок
 st.markdown(
     """
     <style>
@@ -207,7 +206,6 @@ if page == "📊 Дашборд та KPI":
     if sel_ports:
         df_v_filt = df_v_filt[df_v_filt["port_name"].isin(sel_ports)]
 
-    # Розрахунок KPI
     tot_vol = float(df_tons["volume"].sum())
     prev_y_vol = df_tons["volume_prev_year"].sum(min_count=1)
     yoy_delta = ((tot_vol / prev_y_vol - 1) * 100) if pd.notna(prev_y_vol) and prev_y_vol > 0 else None
@@ -225,10 +223,11 @@ if page == "📊 Дашборд та KPI":
     tot_teu = int(df_teu["volume"].sum()) if not df_teu.empty else 0
 
     delta_parts = []
-    if yoy_delta is not None:
-        delta_parts.append(f"{yoy_delta:+.1f}% YoY")
-    if mom_delta is not None:
-        delta_parts.append(f"{mom_delta:+.1f}% MoM")
+    if len(sel_periods) == 1:
+        if yoy_delta is not None:
+            delta_parts.append(f"{yoy_delta:+.1f}% YoY")
+        if mom_delta is not None and pd.notna(prev_m_vol) and prev_m_vol != prev_y_vol:
+            delta_parts.append(f"{mom_delta:+.1f}% MoM")
 
     k1, k2, k3, k4, k5 = st.columns(5)
     k1.metric(
@@ -323,8 +322,7 @@ if page == "📊 Дашборд та KPI":
                 config={"displayModeBar": False},
             )
 
-
-with tab_trends:
+    with tab_trends:
         df_trend = df_all[df_all["unit"] == "тис. тонн"].copy()
         if sel_clusters:
             df_trend = df_trend[df_trend["cluster"].isin(sel_clusters)]
@@ -374,7 +372,7 @@ with tab_trends:
                 use_container_width=True,
                 config={"displayModeBar": False},
             )
-    
+
     with tab_ops:
         o_left, o_right = st.columns([1.2, 1])
 
