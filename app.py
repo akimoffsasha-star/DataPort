@@ -1,3 +1,4 @@
+import base64
 import io
 from pathlib import Path
 import openpyxl
@@ -88,22 +89,167 @@ def style_fig(fig, height: int = 380):
     return fig
 
 
+def _get_login_bg_css() -> str:
+    root = Path(__file__).resolve().parent
+    for fname in ("login_bg.jpg", "login_bg.jpeg", "login_bg.png", "login_bg.webp"):
+        img_path = root / fname
+        if img_path.exists():
+            ext = img_path.suffix.lstrip(".").lower()
+            mime = "jpeg" if ext in ("jpg", "jpeg") else ext
+            b64 = base64.b64encode(img_path.read_bytes()).decode()
+            return (
+                f'background: linear-gradient(135deg, rgba(6, 24, 44, 0.78), rgba(15, 76, 129, 0.72)), '
+                f'url("data:image/{mime};base64,{b64}") center/cover no-repeat fixed;'
+            )
+
+    # Вбудований тематичний морський SVG-фон (хвилі, навігаційна сітка, силует порту)
+    svg = """
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#06192E"/>
+          <stop offset="55%" stop-color="#0D3B66"/>
+          <stop offset="100%" stop-color="#0F527D"/>
+        </linearGradient>
+        <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        </pattern>
+      </defs>
+      <rect width="1440" height="900" fill="url(#g)"/>
+      <rect width="1440" height="900" fill="url(#grid)"/>
+      <g fill="rgba(255,255,255,0.05)">
+        <path d="M120 690 L120 520 L150 520 L210 470 L210 490 L155 535 L155 690 Z"/>
+        <path d="M260 690 L260 500 L290 500 L360 440 L360 460 L295 515 L295 690 Z"/>
+        <rect x="420" y="610" width="220" height="55" rx="4"/>
+        <rect x="450" y="575" width="70" height="35" rx="2"/>
+        <rect x="530" y="575" width="70" height="35" rx="2"/>
+        <path d="M740 655 L1060 655 L1035 690 L765 690 Z"/>
+        <rect x="790" y="625" width="180" height="30" rx="2"/>
+        <rect x="980" y="595" width="45" height="60" rx="2"/>
+      </g>
+      <path d="M0 710 Q 360 665 720 710 T 1440 710 L 1440 900 L 0 900 Z" fill="rgba(14, 165, 233, 0.14)"/>
+      <path d="M0 755 Q 360 720 720 755 T 1440 755 L 1440 900 L 0 900 Z" fill="rgba(6, 24, 44, 0.45)"/>
+    </svg>
+    """.strip()
+    b64_svg = base64.b64encode(svg.encode("utf-8")).decode()
+    return f'background: url("data:image/svg+xml;base64,{b64_svg}") center/cover no-repeat fixed;'
+
+
 def check_password() -> bool:
     if st.session_state.get("authenticated"):
         return True
-    st.title("🔐 Вхід до системи портової аналітики")
-    pwd = st.text_input("Пароль доступу", type="password")
-    if st.button("Увійти", type="primary"):
-        if pwd == st.secrets["APP_PASSWORD"]:
-            st.session_state["authenticated"] = True
-            st.rerun()
-        else:
-            st.error("Невірний пароль")
+
+    bg_css = _get_login_bg_css()
+    st.markdown(
+        f"""
+        <style>
+        [data-testid="stAppViewContainer"] {{
+            {bg_css}
+        }}
+        [data-testid="stHeader"] {{
+            background: transparent;
+        }}
+        [data-testid="stForm"] {{
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 16px;
+            padding: 30px 28px 26px 28px;
+            max-width: 450px;
+            margin: 4vh auto 0 auto;
+            border-top: 5px solid #0F4C81;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+        }}
+        .login-badge {{
+            text-align: center;
+            margin-bottom: 14px;
+        }}
+        .login-icon {{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0F4C81, #0EA5E9);
+            color: #FFFFFF;
+            font-size: 26px;
+            margin-bottom: 10px;
+            box-shadow: 0 6px 16px rgba(15, 76, 129, 0.28);
+        }}
+        .login-ministry {{
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748B;
+            font-weight: 700;
+            line-height: 1.35;
+        }}
+        .login-title {{
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin: 6px 0 4px 0;
+        }}
+        .login-dept {{
+            font-size: 0.82rem;
+            color: #0F4C81;
+            font-weight: 600;
+        }}
+        .login-copyright {{
+            text-align: center;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 0.76rem;
+            margin-top: 24px;
+            padding: 8px 14px;
+            line-height: 1.5;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    _, col_center, _ = st.columns([1, 1.3, 1])
+    with col_center:
+        with st.form("login_form", clear_on_submit=False):
+            st.markdown(
+                """
+                <div class="login-badge">
+                    <div class="login-icon">⚓</div>
+                    <div class="login-ministry">
+                        Міністерство з відновлення, інфраструктури та транспорту України
+                    </div>
+                    <div class="login-title">Аналітика морських портів</div>
+                    <div class="login-dept">Департамент морського та внутрішнього водного транспорту</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            pwd = st.text_input(
+                "Пароль доступу",
+                type="password",
+                placeholder="Введіть пароль доступу...",
+            )
+            submitted = st.form_submit_button(
+                "🔐 Увійти в систему",
+                type="primary",
+                use_container_width=True,
+            )
+            if submitted:
+                if pwd == st.secrets["APP_PASSWORD"]:
+                    st.session_state["authenticated"] = True
+                    st.rerun()
+                else:
+                    st.error("Невірний пароль доступу. Спробуйте ще раз.")
+
+    st.markdown(
+        """
+        <div class="login-copyright">
+            © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp;
+            Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 1.1
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     return False
-
-
-if not check_password():
-    st.stop()
 
 
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
@@ -149,7 +295,12 @@ page = st.sidebar.radio(
         "📘 Інструкція",
     ],
 )
-
+st.sidebar.divider()
+st.sidebar.caption(
+    "© 2026, Міністерство з відновлення, інфраструктури та транспорту України\n\n"
+    "Департамент морського та внутрішнього водного транспорту  \n"
+    "**Версія 1.1**"
+)
 if page == "📘 Інструкція":
     st.title("📘 Інструкція користувача та адміністратора")
     manual_path = Path(__file__).resolve().parent / "README.md"
