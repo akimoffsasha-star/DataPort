@@ -6,7 +6,15 @@ from sqlalchemy import create_engine, text
 @st.cache_resource
 def get_engine():
     db_url = st.secrets["DATABASE_URL"]
-    return create_engine(db_url, pool_pre_ping=True)
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql+psycopg://", 1)
+    elif db_url.startswith("postgresql://"):
+        db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return create_engine(
+        db_url,
+        pool_pre_ping=True,
+        connect_args={"prepare_threshold": None},
+    )
 
 
 def _sync_dimensions(conn, df: pd.DataFrame):
