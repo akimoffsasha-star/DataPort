@@ -17,6 +17,13 @@ from db import (
 )
 from etl_parser import parse_23m_file, parse_25vod_file
 
+from pdf_reports import (
+    build_cargo_audit_pdf,
+    build_custom_matrix_pdf,
+    build_executive_pdf,
+    build_operators_audit_pdf,
+)
+
 st.set_page_config(
     page_title="Аналітика морських портів",
     page_icon="🚢",
@@ -127,12 +134,12 @@ def _blue_heatmap(val, max_val: float) -> str:
     return f"background-color: rgb({r}, {g}, {b}); color: #0F172A;"
 
 
-st.sidebar.title("🚢 Портова аналітика")
 page = st.sidebar.radio(
     "Розділ",
     [
         "📊 Дашборд та KPI",
         "🧮 Конструктор матриць",
+        "📄 PDF-звіти (Аудит)",
         "📤 Завантаження Excel",
         "📝 Причини та довідники",
     ],
@@ -529,17 +536,98 @@ elif page == "🧮 Конструктор матриць":
 
     st.dataframe(styled, use_container_width=True, height=560)
 
-    st.download_button(
-        label="📥 Завантажити матрицю в Excel (.xlsx)",
-        data=to_excel_bytes(pivot),
-        file_name="port_matrix_export.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+st.download_button(
+        label="📄 Завантажити матрицю в PDF (А4 альбомний)",
+        data=build_custom_matrix_pdf(
+            pivot,
+            "ІНДИВІДУАЛЬНИЙ ЗВЕДЕНИЙ ЗВІТ (МАТРИЦЯ)",
+            f"Період: {', '.join(m_periods) if m_periods else 'Усі'}",
+            sel_unit,
+        ),
+        file_name="port_matrix_report.pdf",
+        mime="application/pdf",
     )
 
 
 # =====================================================================
 # СТОРІНКА 3: ЗАВАНТАЖЕННЯ EXCEL-ФАЙЛІВ
 # =====================================================================
+elif page == "📄 PDF-звіти (Аудит)":
+    st.title("📄 Професійні аналітичні та аудиторські звіти (PDF)")
+
+    if df_all.empty:
+        st.info("Спочатку завантажте дані у вкладці «📤 Завантаження Excel».")
+        st.stop()
+
+    periods = sorted(df_all["period_str"].unique(), reverse=True)
+    r_col1, r_col2, r_col3 = st.columns(3)
+    rep_type = r_col1.selectbox(
+        "Тип звіту",
+        [
+            "1. Виконавчий звіт (Executive Summary & KPI)",
+            "2. Аудит операторів, CR5/HHI та причини падіння",
+            "3. Номенклатурний звіт та аудит якості даних",
+        ],
+    )
+    rep_periods = r_col2.multiselect("Період (місяці)", periods, default=[periods[0]])
+    rep_ports = r_col3.multiselect("Порти (усі за замовчуванням)", sorted(df_all["port_name"].unique()))
+
+    rep_dirs = st.pills("Напрямок", sorted(df_all["direction"].unique()), selection_mode="multi")
+
+    df_rep_all = df_all.copy()
+    if rep_periods:
+        df_rep_all = df_rep_all[df_rep_all["period_str"].isin(rep_periods)]
+    if rep_ports:
+        df_rep_all = df_rep_all[df_rep_all["port_name"].isin(rep_ports)]
+    if rep_dirs:
+        df_rep_all = df_rep_all[df_rep_all["direction"].isin(rep_dirs)]
+
+    df_rep_tons = df_rep_all[df_rep_all["unit"] == "тис. тонн"].copy()
+
+    df_rep_v = df_vessels.copy()
+    if rep_periods:
+        df_rep_v = df_rep_v[df_rep_v["period_str"].isin(rep_periods)]
+    if rep_ports:
+        df_rep_v = df_rep_v[df_rep_v["port_name"].isin(rep_ports)]
+
+    filters_desc = (
+        f"Період: {', '.join(rep_periods) if rep_periods else 'Усі'} | "
+        f"Порти: {', '.join(rep_ports) if rep_ports else 'Усі'} | "
+        f"Напрямки: {', '.join(rep_dirs) if rep_dirs else 'Усі'}"
+    )
+
+    if df_rep_tons.empty:
+        st.warning("За обраними фільтрами немає даних для формування звіту.")
+        st.stop()
+
+    st.info(f"Попередній обсяг у вибірці: **{df_rep_tons['volume'].sum():,.2f} тис. т** ({len(df_rep_tons)} записів)")
+
+    if st.button("⚙️ Згенерувати PDF-звіт", type="primary"):
+        with st.spinner("Формування графіків та верстка PDF..."):
+            if rep_type.startswith("1."):
+                pdf_bytes = build_executive_pdf(df_rep_tons, df_rep_v, df_rep_all, filters_desc)
+                fname = "executive_port_report.pdf"
+            elif rep_type.startswith("2."):
+                df_n = load_notes()
+                if not df_n.empty:
+                    if rep_periods:
+                        df_n = df_n[df_n["report_date"].isin(rep_periods)]
+                    if rep_ports:
+                        df_n = df_n[df_n["port_name"].isin(rep_ports)]
+                pdf_bytes = build_operators_audit_pdf(df_rep_tons, df_n, filters_desc)
+                fname = "operators_audit_report.pdf"
+            else:
+                pdf_bytes = build_cargo_audit_pdf(df_rep_tons, df_rep_all, filters_desc)
+                fname = "cargo_audit_report.pdf"
+
+        st.success("Звіт готовий!")
+        st.download_button(
+            label=f"📥 Завантажити {fname}",
+            data=pdf_bytes,
+            file_name=fname,
+            mime="application/pdf",
+        )
+
 elif page == "📤 Завантаження Excel":
     st.title("📤 Автоматичне завантаження щомісячних файлів")
     st.markdown(
