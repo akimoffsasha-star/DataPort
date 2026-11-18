@@ -37,20 +37,42 @@ def _sync_dimensions(conn, df: pd.DataFrame):
             )
 
     # Оператори (прив'язуємо до первинного порту)
+# Оператори (оновлюємо порт і автовизначаємо державних)
     if "operator_name" in df.columns and "port_name" in df.columns:
+        state_ops = {
+            "ДП «Ізмаїльський МТП»",
+            "ДП «МТП «Південний»",
+            "ДП «Ренійский МТП»",
+            'Морський торговельний порт "Чорноморськ"',
+        }
         ops = df[["operator_name", "port_name"]].dropna().drop_duplicates()
         for _, row in ops.iterrows():
+            op_name = row["operator_name"]
+            if op_name in state_ops:
+                own_type = "Державний"
+            elif "власні причали" in op_name.lower():
+                own_type = "Приватний на власних причалах"
+            else:
+                own_type = None
+
             conn.execute(
                 text(
                     """
-                    INSERT INTO dim_operators (raw_name, canonical_name, port_id)
-                    SELECT :op, :op, port_id FROM dim_ports WHERE port_name = :p
-                    ON CONFLICT (raw_name) DO NOTHING
+                    INSERT INTO dim_operators (raw_name, canonical_name, port_id, ownership_type)
+                    SELECT :op, :op, port_id, COALESCE(:ot, 'Не визначено')
+                    FROM dim_ports WHERE port_name = :p
+                    ON CONFLICT (raw_name) DO UPDATE SET
+                        port_id = EXCLUDED.port_id,
+                        ownership_type = CASE
+                            WHEN dim_operators.ownership_type = 'Не визначено' AND :ot IS NOT NULL
+                            THEN :ot
+                            ELSE dim_operators.ownership_type
+                        END
                     """
                 ),
-                {"op": row["operator_name"], "p": row["port_name"]},
+                {"op": op_name, "p": row["port_name"], "ot": own_type},
             )
-
+            
     # Вантажі
     if {"cargo_name", "group_level_1", "group_level_2", "unit"}.issubset(df.columns):
         cargos = df[["cargo_name", "group_level_1", "group_level_2", "unit"]].drop_duplicates()
