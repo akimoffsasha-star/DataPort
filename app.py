@@ -75,6 +75,8 @@ def style_fig(fig, height: int = 380):
         plot_bgcolor="rgba(0,0,0,0)",
     )
     fig.update_xaxes(showgrid=False)
+    fig_trend.update_xaxes(type="category")
+    fig_heat.update_xaxes(type="category")
     fig.update_yaxes(gridcolor="#E2E8F0")
     return fig
 
@@ -294,6 +296,9 @@ if page == "📊 Дашборд та KPI":
                 config={"displayModeBar": False},
             )
 
+if "Не визначено" in own_df["ownership_type"].values:
+    st.caption("ℹ️ Для розподілу приватних операторів вкажіть тип причалу у вкладці «📝 Причини та довідники → Налаштування операторів».")
+        
         if pd.notna(prev_y_vol) and prev_y_vol > 0:
             wf = df_tons.groupby("port_name", as_index=False)[["volume", "volume_prev_year"]].sum()
             wf["diff"] = wf["volume"] - wf["volume_prev_year"].fillna(0)
