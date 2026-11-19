@@ -402,6 +402,11 @@ def check_password() -> bool:
             overflow: hidden !important;
             align-items: stretch !important;
         }}
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
+            height: 100% !important;
+            max-height: 100% !important;
+            overflow: hidden !important;
+        }}
 
         /* Фіксована світла шапка з годинником по центру */
         .port-fixed-header {{
@@ -444,7 +449,7 @@ def check_password() -> bool:
             flex-shrink: 0;
         }}
         .port-header-ministry {{
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             font-weight: 800;
             color: #0F172A !important;
             white-space: nowrap;
@@ -458,7 +463,7 @@ def check_password() -> bool:
             color: #0F4C81 !important;
             border-radius: 999px;
             padding: 2px 14px;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             font-weight: 800;
             white-space: nowrap;
         }}
@@ -466,55 +471,28 @@ def check_password() -> bool:
             justify-self: end;
         }}
 
-        /* Ліва частина: форма вужча, вища та зміщена нижче до нижньої третини */
-        .port-left-spacer {{
-            height: 21vh;
-        }}
-        .port-left-card-head {{
-            width: 380px;
-            max-width: 100%;
-            margin: 0 0 0 16px;
-            background: rgba(248, 251, 255, 0.97);
-            border: 1px solid rgba(186, 214, 245, 0.95);
-            border-top: 4px solid #0284C7;
-            border-bottom: none;
-            border-radius: 16px 16px 0 0;
-            padding: 18px 20px 8px 20px;
-            box-shadow: 0 18px 40px rgba(2, 10, 23, 0.42);
-            text-align: center;
+        /* Ліва частина: форма входу зміщена нижче до нижньої третини, вужча і вища */
+        .port-left-top-gap {{
+            height: 22vh;
         }}
         [data-testid="stForm"] {{
-            width: 380px !important;
+            width: 390px !important;
             max-width: 100% !important;
-            margin: 0 0 0 16px !important;
+            margin: 0 0 0 14px !important;
             background: rgba(248, 251, 255, 0.97) !important;
-            border-left: 1px solid rgba(186, 214, 245, 0.95) !important;
-            border-right: 1px solid rgba(186, 214, 245, 0.95) !important;
-            border-top: none !important;
-            border-bottom: none !important;
-            border-radius: 0 !important;
-            padding: 6px 20px 10px 20px !important;
-            box-shadow: 0 18px 40px rgba(2, 10, 23, 0.42) !important;
+            border: 1px solid rgba(186, 214, 245, 0.95) !important;
+            border-top: 4px solid #0284C7 !important;
+            border-radius: 16px !important;
+            padding: 20px 20px 16px 20px !important;
+            box-shadow: 0 18px 40px rgba(2, 10, 23, 0.45) !important;
         }}
-        .port-left-card-foot {{
-            width: 380px;
-            max-width: 100%;
-            margin: 0 0 0 16px;
-            background: rgba(248, 251, 255, 0.97);
-            border: 1px solid rgba(186, 214, 245, 0.95);
-            border-top: none;
-            border-radius: 0 0 16px 16px;
-            padding: 0 20px 16px 20px;
-            box-shadow: 0 18px 40px rgba(2, 10, 23, 0.42);
-        }}
-
         [data-testid="stForm"] .stTextInput {{
-            margin-top: 6px;
+            margin-top: 8px;
             margin-bottom: 12px;
         }}
         [data-testid="stForm"] label,
         [data-testid="stForm"] .stTextInput label p {{
-            font-size: 0.96rem !important;
+            font-size: 0.95rem !important;
             font-weight: 700 !important;
             color: #0F172A !important;
             margin-bottom: 3px !important;
@@ -545,56 +523,67 @@ def check_password() -> bool:
             height: 40px !important;
         }}
 
+        .port-form-head {{
+            text-align: center;
+            margin-bottom: 10px;
+        }}
         .port-form-icon {{
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 11px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #0F4C81, #0284C7);
             color: #FFFFFF;
-            font-size: 19px;
+            font-size: 18px;
             margin-bottom: 6px;
         }}
         .port-form-title {{
-            font-size: 1.22rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: #0F172A !important;
             margin: 0;
             line-height: 1.18;
         }}
         .port-form-dept {{
-            font-size: 0.84rem;
+            font-size: 0.83rem;
             font-weight: 700;
             color: #0F4C81 !important;
             margin: 3px 0 0 0;
             line-height: 1.25;
         }}
 
-        .port-left-card-foot .stButton > button {{
+        /* Кнопка Інструкція точно за шириною блоку входу */
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
+            width: 390px !important;
+            max-width: 100% !important;
+            margin: 8px 0 0 14px !important;
+        }}
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton > button {{
             width: 100% !important;
-            background: #EFF6FF !important;
+            background: rgba(248, 251, 255, 0.97) !important;
             color: #0F4C81 !important;
             border: 1px solid #93C5FD !important;
-            border-radius: 9px !important;
+            border-radius: 10px !important;
             font-size: 0.94rem !important;
             font-weight: 700 !important;
             min-height: 38px !important;
             height: 38px !important;
+            box-shadow: 0 8px 20px rgba(2, 10, 23, 0.32) !important;
         }}
-        .port-left-card-foot .stButton > button:hover {{
-            background: #DBEAFE !important;
+        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton > button:hover {{
+            background: #EFF6FF !important;
             color: #0B3A63 !important;
         }}
 
-        /* Права колонка: 6 однакових за висотою блоків від шапки до футера */
+        /* Права колонка: удвічі вужча, 6 однакових карток на всю висоту без прокрутки */
         .port-right-stack {{
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             gap: 6px;
-            height: calc(100vh - 96px);
+            height: 100%;
             width: 100%;
             min-width: 0;
             overflow: hidden;
@@ -611,23 +600,26 @@ def check_password() -> bool:
             border: 1px solid rgba(125, 211, 252, 0.28);
             border-left: 4px solid #38BDF8;
             border-radius: 12px;
-            padding: 6px 12px;
-            box-shadow: 0 6px 16px rgba(2, 10, 23, 0.28);
+            padding: 5px 11px;
+            box-shadow: 0 6px 14px rgba(2, 10, 23, 0.28);
             overflow: hidden;
         }}
         .port-right-card-title {{
-            font-size: 0.88rem;
+            font-size: 0.84rem;
             font-weight: 800;
             color: #7DD3FC !important;
             margin: 0 0 1px 0;
-            line-height: 1.18;
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }}
         .port-right-card-text {{
-            font-size: 0.76rem;
+            font-size: 0.73rem;
             font-weight: 500;
             color: #E2E8F0 !important;
             margin: 0;
-            line-height: 1.25;
+            line-height: 1.22;
         }}
 
         /* Фіксований нижній футер */
@@ -661,30 +653,26 @@ def check_password() -> bool:
                 grid-template-columns: auto auto 1fr;
             }}
             .port-header-ministry {{
-                font-size: 0.82rem !important;
+                font-size: 0.8rem !important;
             }}
             .port-header-clock {{
-                font-size: 0.82rem !important;
+                font-size: 0.8rem !important;
                 padding: 2px 10px;
             }}
-            .port-left-spacer {{
-                height: 8vh;
+            .port-left-top-gap {{
+                height: 10vh;
             }}
-            .port-left-card-head,
             [data-testid="stForm"],
-            .port-left-card-foot {{
-                width: 350px !important;
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
+                width: 340px !important;
                 margin-left: auto !important;
                 margin-right: auto !important;
             }}
-            .port-right-stack {{
-                height: calc(100vh - 94px);
-            }}
             .port-right-card-title {{
-                font-size: 0.82rem !important;
+                font-size: 0.8rem !important;
             }}
             .port-right-card-text {{
-                font-size: 0.72rem !important;
+                font-size: 0.7rem !important;
             }}
             .port-login-footer {{
                 font-size: 0.78rem !important;
@@ -703,7 +691,8 @@ def check_password() -> bool:
             [data-testid="stAppViewContainer"] > .main > .block-container {{
                 padding: 62px 12px 16px 12px !important;
             }}
-            div[data-testid="stHorizontalBlock"] {{
+            div[data-testid="stHorizontalBlock"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
                 height: auto !important;
                 max-height: none !important;
                 overflow: visible !important;
@@ -720,16 +709,15 @@ def check_password() -> bool:
                 justify-self: center;
             }}
             .port-header-ministry {{
-                font-size: 0.78rem !important;
+                font-size: 0.76rem !important;
                 white-space: normal;
                 text-align: center;
             }}
-            .port-left-spacer {{
+            .port-left-top-gap {{
                 height: 6px;
             }}
-            .port-left-card-head,
             [data-testid="stForm"],
-            .port-left-card-foot {{
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
                 width: 100% !important;
                 margin-left: 0 !important;
                 margin-right: 0 !important;
@@ -742,7 +730,7 @@ def check_password() -> bool:
             }}
             .port-right-card {{
                 flex: none;
-                padding: 10px 12px;
+                padding: 9px 12px;
             }}
             .port-login-footer {{
                 position: static;
@@ -750,7 +738,7 @@ def check_password() -> bool:
                 margin-top: 12px;
                 white-space: normal;
                 text-align: center;
-                font-size: 0.8rem !important;
+                font-size: 0.78rem !important;
             }}
         }}
         </style>
@@ -763,15 +751,15 @@ def check_password() -> bool:
         unsafe_allow_html=True,
     )
 
-    col_form_side, col_info_side = st.columns([0.95, 1.45], gap="medium")
+    col_form_side, col_info_side = st.columns([1.85, 0.72], gap="medium")
 
     with col_form_side:
-        st.markdown('<div class="port-left-spacer"></div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="port-left-card-head"><div class="port-form-icon">🔐</div><div class="port-form-title">Вхід до аналітичної системи</div><div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div></div>',
-            unsafe_allow_html=True,
-        )
+        st.markdown('<div class="port-left-top-gap"></div>', unsafe_allow_html=True)
         with st.form("login_form", clear_on_submit=False):
+            st.markdown(
+                '<div class="port-form-head"><div class="port-form-icon">🔐</div><div class="port-form-title">Вхід до аналітичної системи</div><div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div></div>',
+                unsafe_allow_html=True,
+            )
             pwd = st.text_input(
                 "Пароль доступу",
                 type="password",
@@ -789,20 +777,18 @@ def check_password() -> bool:
                 else:
                     st.error("Невірний пароль доступу. Спробуйте ще раз.")
 
-        st.markdown('<div class="port-left-card-foot">', unsafe_allow_html=True)
         if st.button("📘 Інструкція", key="login_manual_btn", width="stretch"):
             _show_login_manual_dialog()
-        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_info_side:
         st.markdown(
             '<div class="port-right-stack">'
-            '<div class="port-right-card"><div class="port-right-card-title">📊 Вантажообіг за формами 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY, середньої партії та сезонності.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">🧮 Конструктор багатовимірних матриць</div><p class="port-right-card-text">Гнучка побудова зведених таблиць у тис. тонн, TEU та шт. з вибором рядків, стовпців, агрегацій та миттєвим експортом у Excel (.xlsx) і PDF.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">⚓ Аудит операторів, причалів і причин</div><p class="port-right-card-text">Розрахунок індексів концентрації ринку CR3/CR5 та HHI, класифікація власності причалів і аналіз пояснень щодо відхилень вантажообігу.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">🛡️ Морські коридори та кластери</div><p class="port-right-card-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по портах і кластерах із гнучкою фільтрацією.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">🚨 Безпека та статистика атак</div><p class="port-right-card-text">Хронологія фіксації та накопичувальна динаміка пошкоджень портової інфраструктури, суден і постраждалих осіб.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">📄 PDF-звіти, керування періодами та 3 теми</div><p class="port-right-card-text">Формування виконавчих, аудиторських і коридорних PDF-звітів, керування місяцями в БД та перемикання між Світлою, Темною і Фірмовою темами.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">🧮 Конструктор матриць</div><p class="port-right-card-text">Зведені таблиці у тис. тонн, TEU та шт. з гнучким вибором вимірів і миттєвим експортом у Excel (.xlsx) та PDF.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">⚓ Аудит операторів і причалів</div><p class="port-right-card-text">Індекси концентрації ринку CR3/CR5 та HHI, структура власності причалів та аналіз пояснень відхилень.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">🛡️ Морські коридори та кластери</div><p class="port-right-card-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по портах і кластерах.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">🚨 Безпека та статистика атак</div><p class="port-right-card-text">Хронологія фіксації та накопичувальна динаміка пошкоджень портової інфраструктури, суден і постраждалих.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">📄 PDF-звіти, періоди та 3 теми</div><p class="port-right-card-text">Виконавчі, аудиторські й коридорні PDF-звіти, керування періодами в БД та Світла, Темна і Фірмова теми.</p></div>'
             '</div>',
             unsafe_allow_html=True,
         )
