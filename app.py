@@ -793,9 +793,9 @@ def check_password() -> bool:
             unsafe_allow_html=True,
         )
 
-    st.markdown(
-        '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1</div>',
-        unsafe_allow_html=True,
+        st.markdown(
+            '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1</div>',
+            unsafe_allow_html=True,
     )
     return False
 
