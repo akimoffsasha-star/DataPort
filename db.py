@@ -317,6 +317,7 @@ def save_25vod_to_db(df_vessels: pd.DataFrame, df_notes: pd.DataFrame) -> tuple[
     st.cache_data.clear()
     return v_count, n_count
 
+
 @st.cache_data(ttl=300)
 def load_months_summary() -> pd.DataFrame:
     engine = get_engine()
@@ -373,6 +374,7 @@ def clear_all_facts_db():
         )
     st.cache_data.clear()
 
+
 def save_corridors_to_db(corridors_data: dict) -> dict:
     engine = get_engine()
     results = {}
@@ -386,7 +388,8 @@ def save_corridors_to_db(corridors_data: dict) -> dict:
         if "attacks" in corridors_data and not corridors_data["attacks"].empty:
             corridors_data["attacks"].to_sql("fact_corridors_attacks", conn, if_exists="replace", index=False)
             results["attacks"] = len(corridors_data["attacks"])
-    return results}
+    st.cache_data.clear()
+    return results
     
     with engine.begin() as conn:
         # 1. Вантажі коридорів
