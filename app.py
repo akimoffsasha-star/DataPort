@@ -322,6 +322,8 @@ def check_password() -> bool:
         return True
 
     bg_css = _get_login_bg_css()
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
+
     st.markdown(
         f"""
         <style>
@@ -333,44 +335,103 @@ def check_password() -> bool:
         [data-testid="stAppViewContainer"] {{
             {bg_css}
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }}
-        [data-testid="stAppViewContainer"] > .main {{
-            flex: 1 0 auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding-bottom: 72px;
         }}
         [data-testid="stHeader"] {{
             background: transparent;
         }}
-
-        /* Пропорційне зміщення форми ближче до 1/3 нижньої частини екрану */
-        .login-upper-zone {{
-            min-height: 24vh;
-        }}
-        .login-form-offset {{
-            margin-top: 12vh;
+        [data-testid="stAppViewContainer"] > .main > .block-container {{
+            padding-top: 0.75rem !important;
+            padding-bottom: 4.5rem !important;
+            max-width: 1380px;
         }}
 
-        /* 3 лівих та 3 правих заокруглених підблоки */
+        /* Шапка сторінки входу (за аналогією до Системи обліку пального) */
+        .port-topbar {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: rgba(248, 251, 255, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(186, 214, 245, 0.9);
+            border-radius: 16px;
+            padding: 10px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 10px 28px rgba(2, 12, 27, 0.25);
+        }}
+        .port-topbar-left {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }}
+        .port-topbar-emblem {{
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0F4C81, #0284C7);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }}
+        .port-topbar-ministry {{
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #0F172A !important;
+            line-height: 1.25;
+        }}
+        .port-topbar-sub {{
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #0F4C81 !important;
+            line-height: 1.2;
+        }}
+        .port-topbar-right {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }}
+        .port-pill {{
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            color: #0F172A !important;
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }}
+        .port-pill-active {{
+            background: #0F4C81;
+            border: 1px solid #0F4C81;
+            color: #FFFFFF !important;
+            border-radius: 999px;
+            padding: 5px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }}
+
+        /* Відступ зверху, щоб форма та бічні картки не закривали напис на фоновій картинці */
+        .login-hero-clearance {{
+            height: clamp(72px, 15vh, 148px);
+        }}
+
+        /* Заокруглені підблоки зліва і праворуч */
         .login-subcard {{
-            background: linear-gradient(145deg, rgba(244, 249, 255, 0.94), rgba(226, 238, 252, 0.90));
+            background: rgba(248, 251, 255, 0.93);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(147, 197, 253, 0.75);
+            border: 1px solid rgba(186, 214, 245, 0.88);
             border-left: 5px solid #0284C7;
             border-radius: 18px;
-            padding: 14px 18px;
-            margin-bottom: 12px;
-            box-shadow: 0 12px 28px rgba(2, 12, 27, 0.28);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }}
-        .login-subcard:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 16px 34px rgba(2, 12, 27, 0.36);
+            padding: 13px 17px;
+            margin-bottom: 11px;
+            box-shadow: 0 12px 28px rgba(2, 12, 27, 0.26);
         }}
         .login-subcard:last-child {{
             margin-bottom: 0;
@@ -387,25 +448,25 @@ def check_password() -> bool:
             font-weight: 500;
             color: #1E293B !important;
             margin: 0;
-            line-height: 1.4;
+            line-height: 1.38;
         }}
 
-        /* Світла картка входу паролю з підвищеною контрастністю та збільшеним шрифтом */
+        /* Форма входу паролю */
         [data-testid="stForm"] {{
-            background: linear-gradient(180deg, rgba(252, 254, 255, 0.98), rgba(239, 246, 255, 0.96));
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: rgba(252, 254, 255, 0.97);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(186, 214, 245, 0.95);
             border-top: 5px solid #0F4C81;
-            border-radius: 22px;
-            padding: 24px 26px 20px 26px;
-            max-width: 460px;
+            border-radius: 20px;
+            padding: 22px 24px 18px 24px;
+            max-width: 450px;
             margin: 0 auto;
-            box-shadow: 0 22px 54px rgba(2, 12, 27, 0.45);
+            box-shadow: 0 22px 50px rgba(2, 12, 27, 0.42);
         }}
         [data-testid="stForm"] label,
         [data-testid="stForm"] .stTextInput label p {{
-            font-size: 1.06rem !important;
+            font-size: 1.04rem !important;
             font-weight: 700 !important;
             color: #0F172A !important;
         }}
@@ -414,13 +475,13 @@ def check_password() -> bool:
             color: #0F172A !important;
             border: 1.5px solid #64748B !important;
             border-radius: 10px !important;
-            font-size: 1.15rem !important;
+            font-size: 1.12rem !important;
             padding: 10px 14px !important;
-            min-height: 46px !important;
+            min-height: 44px !important;
         }}
         [data-testid="stForm"] input::placeholder {{
             color: #475569 !important;
-            font-size: 1.02rem !important;
+            font-size: 1rem !important;
         }}
         [data-testid="stForm"] button[kind="primary"],
         [data-testid="stForm"] button[kind="primary"] * {{
@@ -428,97 +489,85 @@ def check_password() -> bool:
             color: #FFFFFF !important;
             border: none !important;
             border-radius: 10px !important;
-            font-size: 1.08rem !important;
+            font-size: 1.06rem !important;
             font-weight: 700 !important;
-            min-height: 46px !important;
+            min-height: 44px !important;
         }}
 
         .login-badge {{
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }}
         .login-icon {{
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
             background: linear-gradient(135deg, #0F4C81, #0EA5E9);
             color: #FFFFFF;
-            font-size: 24px;
-            margin-bottom: 8px;
-            box-shadow: 0 8px 18px rgba(15, 76, 129, 0.28);
+            font-size: 22px;
+            margin-bottom: 6px;
+            box-shadow: 0 6px 16px rgba(15, 76, 129, 0.25);
         }}
         .login-ministry {{
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             color: #334155 !important;
             font-weight: 800;
-            line-height: 1.32;
+            line-height: 1.3;
         }}
         .login-title {{
-            font-size: 1.52rem;
+            font-size: 1.45rem;
             font-weight: 800;
             color: #0F172A !important;
-            margin: 4px 0 2px 0;
+            margin: 3px 0 2px 0;
             line-height: 1.2;
         }}
         .login-dept {{
-            font-size: 0.96rem;
+            font-size: 0.9rem;
             color: #0F4C81 !important;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.25;
         }}
 
-        /* Фіксований нижній футер з копірайтом */
+        /* Нижній футер */
         .login-footer {{
             position: fixed;
             left: 0;
             right: 0;
             bottom: 0;
             z-index: 20;
-            background: rgba(6, 22, 43, 0.88);
+            background: rgba(248, 251, 255, 0.94);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(125, 211, 252, 0.35);
-            padding: 10px 20px;
+            border-top: 1px solid rgba(186, 214, 245, 0.9);
+            padding: 9px 18px;
             text-align: center;
-            color: #F8FAFC !important;
-            font-size: 0.98rem;
+            color: #0F172A !important;
+            font-size: 0.92rem;
             font-weight: 600;
-            letter-spacing: 0.01em;
         }}
 
-        /* Планшети та мобільні пристрої */
+        /* Адаптивність для планшетів та смартфонів */
         @media (max-width: 1024px) {{
-            .login-upper-zone {{
-                min-height: 12vh;
+            .login-hero-clearance {{
+                height: 24px;
             }}
-            .login-form-offset {{
-                margin-top: 24px;
+            .port-topbar {{
+                padding: 10px 14px;
             }}
             .login-subcard {{
-                padding: 12px 15px;
+                padding: 12px 14px;
                 border-radius: 15px;
             }}
-            .login-subcard-title {{
-                font-size: 0.94rem !important;
-            }}
-            .login-subcard-text {{
-                font-size: 0.85rem !important;
-            }}
-            [data-testid="stForm"] {{
-                padding: 20px 18px !important;
-                border-radius: 18px !important;
-            }}
             .login-title {{
-                font-size: 1.36rem !important;
+                font-size: 1.32rem !important;
             }}
             .login-footer {{
-                font-size: 0.88rem !important;
-                padding: 9px 14px;
+                font-size: 0.85rem !important;
             }}
         }}
 
@@ -526,14 +575,15 @@ def check_password() -> bool:
             [data-testid="stAppViewContainer"] {{
                 background-attachment: scroll !important;
             }}
-            [data-testid="stAppViewContainer"] > .main {{
-                padding-bottom: 84px;
+            .login-hero-clearance {{
+                height: 8px;
             }}
-            .login-upper-zone {{
-                min-height: 4vh;
+            .port-topbar-ministry {{
+                font-size: 0.8rem !important;
             }}
-            .login-form-offset {{
-                margin-top: 12px;
+            .port-pill, .port-pill-active {{
+                font-size: 0.76rem !important;
+                padding: 4px 10px;
             }}
             .login-subcard {{
                 padding: 11px 14px;
@@ -541,31 +591,23 @@ def check_password() -> bool:
                 margin-bottom: 8px;
             }}
             .login-subcard-title {{
-                font-size: 0.9rem !important;
+                font-size: 0.92rem !important;
             }}
             .login-subcard-text {{
-                font-size: 0.82rem !important;
+                font-size: 0.84rem !important;
             }}
             [data-testid="stForm"] {{
                 padding: 18px 16px !important;
                 border-radius: 16px !important;
                 max-width: 100% !important;
             }}
-            .login-title {{
-                font-size: 1.24rem !important;
-            }}
-            .login-dept {{
-                font-size: 0.88rem !important;
-            }}
             [data-testid="stForm"] input,
             [data-testid="stForm"] button[kind="primary"] {{
                 font-size: 1rem !important;
-                min-height: 44px !important;
             }}
             .login-footer {{
-                font-size: 0.8rem !important;
+                font-size: 0.78rem !important;
                 padding: 8px 10px;
-                line-height: 1.35;
             }}
         }}
         </style>
@@ -573,7 +615,25 @@ def check_password() -> bool:
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="login-upper-zone"></div>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="port-topbar">
+            <div class="port-topbar-left">
+                <div class="port-topbar-emblem">⚓</div>
+                <div>
+                    <div class="port-topbar-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div>
+                    <div class="port-topbar-sub">Єдина аналітична система морських портів та коридорів</div>
+                </div>
+            </div>
+            <div class="port-topbar-right">
+                <span class="port-pill">🕒 Київ: {now_str}</span>
+                <span class="port-pill-active">Авторизація</span>
+            </div>
+        </div>
+        <div class="login-hero-clearance"></div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     col_left, col_center, col_right = st.columns([1.2, 1.25, 1.2], gap="large")
 
@@ -586,7 +646,7 @@ def check_password() -> bool:
             </div>
             <div class="login-subcard">
                 <div class="login-subcard-title">🧮 Конструктор матриць</div>
-                <p class="login-subcard-text">Гнучкі зведені таблиці у тис. тонн, TEU та шт. з миттєвим експортом в Excel (.xlsx) і PDF.</p>
+                <p class="login-subcard-text">Гнучкі зведені таблиці у тис. тонн, TEU та шт. з миттєвим експортом в Excel (.xlsx) та PDF.</p>
             </div>
             <div class="login-subcard">
                 <div class="login-subcard-title">⚓ Аудит операторів і причалів</div>
@@ -597,16 +657,15 @@ def check_password() -> bool:
         )
 
     with col_center:
-        st.markdown('<div class="login-form-offset"></div>', unsafe_allow_html=True)
         with st.form("login_form", clear_on_submit=False):
             st.markdown(
                 """
                 <div class="login-badge">
-                    <div class="login-icon">⚓</div>
+                    <div class="login-icon">🔐</div>
                     <div class="login-ministry">
                         Міністерство з відновлення, інфраструктури та транспорту України
                     </div>
-                    <div class="login-title">Аналітика морських портів</div>
+                    <div class="login-title">Вхід до аналітичної системи</div>
                     <div class="login-dept">Департамент морського та внутрішнього водного транспорту</div>
                 </div>
                 """,
@@ -618,7 +677,7 @@ def check_password() -> bool:
                 placeholder="Введіть пароль доступу...",
             )
             submitted = st.form_submit_button(
-                "🔐 Увійти в систему",
+                "🔓 Увійти в систему",
                 type="primary",
                 width="stretch",
             )
@@ -658,6 +717,7 @@ def check_password() -> bool:
         unsafe_allow_html=True,
     )
     return False
+
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
