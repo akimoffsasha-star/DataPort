@@ -369,7 +369,7 @@ def check_password() -> bool:
         }
         [data-testid="stAppViewContainer"],
         .stApp {
-            background: #bae6fd !important;
+            background: radial-gradient(circle at 65% 40%, #17355a 0%, #0b192c 100%) !important;
         }
         [data-testid="stAppViewContainer"] > .main {
             padding: 0 !important;
@@ -389,7 +389,7 @@ def check_password() -> bool:
             z-index: 50 !important;
         }
 
-        /* Фіксована світла шапка з годинником по центру */
+        /* Фіксована верхня панель з актуальною назвою міністерства та часом Києва */
         .port-fixed-header {
             position: fixed;
             top: 0;
@@ -401,13 +401,13 @@ def check_password() -> bool:
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
             gap: 10px;
-            background: rgba(248, 251, 255, 0.97);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.45);
+            background: rgba(15, 23, 42, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(51, 65, 85, 0.9);
             padding: 4px 16px;
             padding-right: 135px;
-            box-shadow: 0 4px 16px rgba(2, 12, 27, 0.18);
+            box-shadow: 0 4px 16px rgba(2, 12, 27, 0.35);
         }
         .port-header-brand {
             display: flex;
@@ -420,39 +420,40 @@ def check_password() -> bool:
             width: 26px;
             height: 26px;
             border-radius: 7px;
-            background: linear-gradient(135deg, #0F4C81, #0284C7);
-            color: #FFFFFF;
+            background: rgba(251, 191, 36, 0.16);
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            color: #fbbf24 !important;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 800;
             flex-shrink: 0;
         }
         .port-header-ministry {
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: #0F172A !important;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #f8fafc !important;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .port-header-clock {
             justify-self: center;
-            background: #EFF6FF;
-            border: 1px solid #93C5FD;
-            color: #0F4C81 !important;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(71, 85, 105, 0.9);
+            color: #7dd3fc !important;
             border-radius: 999px;
             padding: 2px 14px;
-            font-size: 0.85rem;
-            font-weight: 800;
+            font-size: 0.82rem;
+            font-weight: 700;
             white-space: nowrap;
         }
         .port-header-spacer {
             justify-self: end;
         }
 
-        /* Сцена контейнеровоза, 6 контейнерів та палубного крана */
+        /* Сцена 1920x1080: контейнеровоз, 6 контейнерів та палубний кран */
         .port-ship-scene-wrap {
             position: fixed;
             top: 44px;
@@ -469,57 +470,110 @@ def check_password() -> bool:
             display: block;
         }
 
-        /* Форма входу */
+        @keyframes portCraneSway {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(0.45deg);
+            }
+        }
+        .port-lifted-assembly {
+            transform-origin: 1285px 186px;
+            animation: portCraneSway 5s ease-in-out infinite;
+        }
+
+        @keyframes portCloudDrift {
+            0% {
+                transform: translateX(0px);
+            }
+            50% {
+                transform: translateX(24px);
+            }
+            100% {
+                transform: translateX(0px);
+            }
+        }
+        .port-cloud-drift {
+            animation: portCloudDrift 36s linear infinite;
+        }
+
+        @keyframes portWave1 {
+            0%, 100% {
+                transform: translateX(0px);
+            }
+            50% {
+                transform: translateX(-14px);
+            }
+        }
+        @keyframes portWave2 {
+            0%, 100% {
+                transform: translateX(0px);
+            }
+            50% {
+                transform: translateX(16px);
+            }
+        }
+        .port-wave-1 {
+            animation: portWave1 7s ease-in-out infinite;
+        }
+        .port-wave-2 {
+            animation: portWave2 9.5s ease-in-out infinite;
+        }
+
+        /* Картка форми входу */
         .port-form-head {
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
         }
         .port-form-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 7px;
-            background: #FEF3C7;
-            border: 1px solid #F59E0B;
-            color: #92400E !important;
-            font-size: 0.9rem;
-            margin-bottom: 3px;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            color: #0c4a6e !important;
+            font-size: 1.25rem;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
         .port-form-title {
-            font-size: 0.95rem;
+            font-size: 1.18rem;
             font-weight: 800;
-            color: #0F172A !important;
-            line-height: 1.15;
+            color: #0f172a !important;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
         }
         .port-form-dept {
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.78rem;
+            font-weight: 500;
             color: #475569 !important;
-            line-height: 1.2;
-            margin-top: 2px;
+            line-height: 1.3;
+            margin-top: 3px;
         }
         [data-testid="stForm"] {
-            width: 340px !important;
+            width: 410px !important;
             max-width: 100% !important;
-            background: rgba(248, 251, 255, 0.95) !important;
-            backdrop-filter: blur(8px) !important;
-            -webkit-backdrop-filter: blur(8px) !important;
-            border: 1.5px solid rgba(15, 23, 42, 0.25) !important;
-            border-top: 4px solid #f59e0b !important;
-            border-radius: 12px !important;
-            padding: 12px 15px 10px 15px !important;
-            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.28) !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.85) !important;
+            border-top: 5px solid #fbbf24 !important;
+            border-radius: 22px !important;
+            padding: 18px 20px 14px 20px !important;
+            box-shadow: 0 22px 50px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(148, 163, 184, 0.2) !important;
         }
         [data-testid="stForm"] label,
         [data-testid="stForm"] label p {
-            color: #0F172A !important;
+            color: #1e293b !important;
             font-weight: 600 !important;
-            font-size: 0.8rem !important;
+            font-size: 0.84rem !important;
         }
 
-        /* Фіксований футер */
+        /* Фіксований нижній колонтитул */
         .port-login-footer {
             position: fixed;
             left: 0;
@@ -527,13 +581,13 @@ def check_password() -> bool:
             bottom: 0;
             height: 30px;
             z-index: 999;
-            background: rgba(248, 251, 255, 0.97);
-            color: #0F172A !important;
-            border-top: 1px solid rgba(148, 163, 184, 0.45);
+            background: rgba(2, 6, 23, 0.96);
+            color: #94a3b8 !important;
+            border-top: 1px solid rgba(30, 41, 59, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             font-weight: 600;
             padding: 0 12px;
             white-space: nowrap;
@@ -541,7 +595,7 @@ def check_password() -> bool:
             text-overflow: ellipsis;
         }
 
-        /* Десктоп: без прокрутки */
+        /* На десктопі: без зайвої прокрутки, форма ліворуч */
         @media (min-width: 769px) {
             html, body,
             [data-testid="stAppViewContainer"],
@@ -553,25 +607,24 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }
             [data-testid="stAppViewContainer"] > .main > .block-container {
-                padding: 52px 22px 36px 22px !important;
+                padding: 56px 24px 38px 24px !important;
             }
             div[data-testid="stHorizontalBlock"] {
-                height: calc(100vh - 88px) !important;
-                max-height: calc(100vh - 88px) !important;
+                height: calc(100vh - 94px) !important;
+                max-height: calc(100vh - 94px) !important;
                 overflow: hidden !important;
-                align-items: flex-end !important;
+                align-items: center !important;
             }
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child {
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {
                 display: flex !important;
                 flex-direction: column !important;
-                justify-content: flex-end !important;
-                align-items: flex-end !important;
-                padding-bottom: 16px !important;
+                justify-content: center !important;
+                align-items: flex-start !important;
             }
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child .stButton {
-                width: 340px !important;
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {
+                width: 410px !important;
                 max-width: 100% !important;
-                margin-top: 6px !important;
+                margin-top: 8px !important;
             }
         }
         </style>
@@ -624,7 +677,7 @@ def check_password() -> bool:
                 <rect x="1480" y="895" width="210" height="4" rx="2" />
               </g>
 
-              <g fill="#ffffff" opacity="0.78">
+              <g class="port-cloud-drift" fill="#ffffff" opacity="0.78">
                 <circle cx="620" cy="145" r="42" />
                 <circle cx="665" cy="135" r="54" />
                 <circle cx="715" cy="145" r="44" />
@@ -689,7 +742,7 @@ def check_password() -> bool:
                   <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
                   <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
                   <rect x="216" y="14" width="100" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="266" y="33" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">IMO - TANK</text>
+                  <text x="266" y="33" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700" letter-spacing="0.5">IMO - TANK</text>
                   <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
                   <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">🚨 Безпека та статистика атак</text>
                   <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
@@ -702,7 +755,7 @@ def check_password() -> bool:
                   <rect width="330" height="118" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3.5" />
                   <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
                   <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="268" y="33" text-anchor="middle" fill="#fecaca" font-size="14" font-weight="700">ISO - 40RF</text>
+                  <text x="268" y="33" text-anchor="middle" fill="#fecaca" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 40RF</text>
                   <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
                   <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">⚓ Аудит операторів і причалів</text>
                   <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
@@ -715,7 +768,7 @@ def check_password() -> bool:
                   <rect width="330" height="118" rx="6" fill="#047857" stroke="#064e3b" stroke-width="3.5" />
                   <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
                   <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="268" y="33" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">ISO - 40HC</text>
+                  <text x="268" y="33" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 40HC</text>
                   <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
                   <text x="28" y="83" fill="#ffffff" font-size="20" font-weight="700">📊 Вантажообіг</text>
                   <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
@@ -728,7 +781,7 @@ def check_password() -> bool:
                   <rect width="330" height="118" rx="6" fill="#ea580c" stroke="#9a3412" stroke-width="3.5" />
                   <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
                   <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="268" y="33" text-anchor="middle" fill="#fed7aa" font-size="14" font-weight="700">ISO - 20OT</text>
+                  <text x="268" y="33" text-anchor="middle" fill="#fed7aa" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 20OT</text>
                   <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
                   <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">📄 PDF-звіти, періоди</text>
                   <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
@@ -741,7 +794,7 @@ def check_password() -> bool:
                   <rect width="330" height="118" rx="6" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
                   <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
                   <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.86" />
-                  <text x="268" y="33" text-anchor="middle" fill="#cbd5e1" font-size="14" font-weight="700">ISO - 45GP</text>
+                  <text x="268" y="33" text-anchor="middle" fill="#cbd5e1" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 45GP</text>
                   <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.75" />
                   <text x="28" y="83" fill="#ffffff" font-size="17.5" font-weight="700">🧭 Морські коридори та кластери</text>
                   <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
@@ -750,11 +803,11 @@ def check_password() -> bool:
                   <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
                 </g>
 
-                <g transform="translate(1120, 342)">
+                <g class="port-lifted-assembly" transform="translate(1120, 342)">
                   <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
                   <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
                   <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
-                  <text x="268" y="33" text-anchor="middle" fill="#fef08a" font-size="14" font-weight="700">ISO - 20DV</text>
+                  <text x="268" y="33" text-anchor="middle" fill="#fef08a" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 20DV</text>
                   <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.82" />
                   <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">🧮 Конструктор матриць</text>
                   <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
@@ -788,15 +841,19 @@ def check_password() -> bool:
                 <rect x="1436" y="338" width="14" height="8" rx="1" fill="#0f172a" />
               </g>
 
-              <path d="M-40,902 Q50,886 140,902 T320,902 T500,902 T680,902 T860,902 T1040,902 T1220,902 T1400,902 T1580,902 T1760,902 T1960,902 L1960,1080 L-40,1080 Z" fill="#0369a1" opacity="0.88" />
-              <path d="M-40,948 Q70,932 180,948 T400,948 T620,948 T840,948 T1060,948 T1280,948 T1500,948 T1720,948 T1960,948 L1960,1080 L-40,1080 Z" fill="#075985" opacity="0.76" />
+              <g class="port-wave-1">
+                <path d="M-40,902 Q50,886 140,902 T320,902 T500,902 T680,902 T860,902 T1040,902 T1220,902 T1400,902 T1580,902 T1760,902 T1960,902 L1960,1080 L-40,1080 Z" fill="#0369a1" opacity="0.88" />
+              </g>
+              <g class="port-wave-2">
+                <path d="M-40,948 Q70,932 180,948 T400,948 T620,948 T840,948 T1060,948 T1280,948 T1500,948 T1720,948 T1960,948 L1960,1080 L-40,1080 Z" fill="#075985" opacity="0.76" />
+              </g>
             </svg>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    _, col_form_side = st.columns([1.45, 0.95], gap="medium")
+    col_form_side, _ = st.columns([0.95, 1.45], gap="medium")
 
     with col_form_side:
         with st.form("login_form", clear_on_submit=False):
