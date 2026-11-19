@@ -1061,28 +1061,28 @@ def check_password() -> bool:
       }}
     }}
 
-    function updateDeviceModeBadge() {
-      const badge = document.getElementById('device-mode-badge');
-      if (!badge) return;
-      const w = (window.parent && window.parent.innerWidth) || window.innerWidth;
-      if (w < 1024) {
-        badge.textContent = '📱 Мобільна';
-        badge.style.background = '#fef3c7';
-        badge.style.borderColor = '#f59e0b';
-        badge.style.color = '#78350f';
-      } else {
-        badge.textContent = '🖥️ ПК';
-        badge.style.background = '#e0f2fe';
-        badge.style.borderColor = '#7dd3fc';
-        badge.style.color = '#0c4a6e';
-      }
-     }
+function updateDeviceModeBadge() {{
+  const badge = document.getElementById('device-mode-badge');
+  if (!badge) return;
+  const w = (window.parent && window.parent.innerWidth) || window.innerWidth;
+  if (w < 1024) {{
+    badge.textContent = '📱 Мобільна';
+    badge.style.background = '#fef3c7';
+    badge.style.borderColor = '#f59e0b';
+    badge.style.color = '#78350f';
+  }} else {{
+    badge.textContent = '🖥️ ПК';
+    badge.style.background = '#e0f2fe';
+    badge.style.borderColor = '#7dd3fc';
+    badge.style.color = '#0c4a6e';
+  }}
+}}
 
 updateDeviceModeBadge();
 window.addEventListener('resize', updateDeviceModeBadge);
-try {
+try {{
   window.parent.addEventListener('resize', updateDeviceModeBadge);
-} catch (_) {}
+}} catch (_) {{}}
 
     document.addEventListener('DOMContentLoaded', () => {{
       lockViewportNoScroll();
