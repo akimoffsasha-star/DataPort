@@ -686,50 +686,37 @@ def check_password() -> bool:
             [data-testid="stAppViewContainer"] > .main,
             section[data-testid="stMain"],
             [data-testid="stAppViewContainer"] > .main > .block-container {{
-                height: auto !important;
-                max-height: none !important;
-                overflow: auto !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                overflow: hidden !important;
             }}
             [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 62px 12px 16px 12px !important;
+                padding: 48px 16px 34px 16px !important;
             }}
-            .port-fixed-header {{
-                height: auto;
-                min-height: 44px;
-                padding: 5px 10px;
-                grid-template-columns: 1fr;
-                justify-items: center;
-                gap: 3px;
+            div[data-testid="stHorizontalBlock"] {{
+                height: calc(100vh - 82px) !important;
+                max-height: calc(100vh - 82px) !important;
+                overflow: hidden !important;
+                align-items: stretch !important;
             }}
-            .port-header-brand {{
-                justify-self: center;
-            }}
-            .port-header-ministry {{
-                font-size: 0.76rem !important;
-                white-space: normal;
-                text-align: center;
-            }}
-            .port-left-top-gap {{
-                height: 6px;
-            }}
-            [data-testid="stForm"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
-                width: 100% !important;
-                margin-left: 0 !important;
-                margin-right: 0 !important;
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div,
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stVerticalBlock"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stElementContainer"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stMarkdown"] {{
+                max-height: calc(100vh - 82px) !important;
+                overflow: hidden !important;
             }}
             .port-right-stack {{
-                display: flex;
-                flex-direction: column;
-                height: auto;
-                gap: 8px;
-                margin-top: 12px;
-                overflow: visible;
+                height: calc((100vh - 82px) * 0.80) !important;
+                max-height: calc((100vh - 82px) * 0.80) !important;
+                gap: 4px !important;
+                transform: none !important;
             }}
             .port-right-card {{
-                flex: none;
-                padding: 9px 12px;
+                padding: 3px 10px !important;
             }}
+        }}
             .port-login-footer {{
                 position: static;
                 height: auto;
