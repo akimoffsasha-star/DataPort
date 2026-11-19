@@ -357,269 +357,242 @@ def check_password() -> bool:
 
     bg_css = _get_login_bg_css()
     try:
-        now_str = (
-            datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%d.%m.%Y %H:%M")
-            if ZoneInfo is not None
-            else datetime.now().strftime("%d.%m.%Y %H:%M")
-        )
-    except Exception:  # noqa: BLE001
+        now_str = datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%d.%m.%Y %H:%M")
+    except Exception:
         now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
-
-    st.session_state.setdefault("login_readme_open", False)
 
     st.markdown(
         f"""
         <style>
-        /* Приховуємо сайдбар лише на екрані входу */
+        /* Приховуємо сайдбар та блокуємо прокрутку сторінки на екрані входу */
         [data-testid="stSidebar"],
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
         }}
-        [data-testid="stAppViewContainer"] {{
+        html, body, [data-testid="stAppViewContainer"] {{
             {bg_css}
-            min-height: 100vh;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
         }}
-        [data-testid="stHeader"] {{
-            background: transparent;
+        [data-testid="stAppViewContainer"] > .main {{
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
+            padding: 0 !important;
         }}
         [data-testid="stAppViewContainer"] > .main > .block-container {{
-            padding-top: 64px !important;
-            padding-bottom: 56px !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
             max-width: 100% !important;
-            padding-left: 18px !important;
-            padding-right: 18px !important;
+            width: 100% !important;
+            padding: 10px 18px 46px 18px !important;
+            margin: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            overflow: hidden !important;
+        }}
+        [data-testid="stHeader"] {{
+            background: transparent !important;
+            height: 36px !important;
         }}
 
-        /* Фіксована верхня смуга-шапка */
-        .port-fixed-topbar {{
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            z-index: 50;
+        /* Шапка сторінки входу з безпечним правим відступом від кнопок Streamlit Cloud */
+        .port-login-header {{
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            background: rgba(248, 251, 255, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.45);
-            padding: 0 20px;
-            box-shadow: 0 4px 18px rgba(2, 12, 27, 0.22);
+            background: rgba(8, 26, 51, 0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(125, 211, 252, 0.28);
+            border-radius: 14px;
+            padding: 7px 16px;
+            padding-right: 120px;
+            box-shadow: 0 8px 22px rgba(2, 10, 23, 0.35);
         }}
-        .port-topbar-brand {{
+        .port-login-brand {{
             display: flex;
             align-items: center;
             gap: 10px;
             min-width: 0;
         }}
-        .port-topbar-mark {{
+        .port-login-logo {{
             width: 30px;
             height: 30px;
             border-radius: 8px;
-            background: linear-gradient(135deg, #0F4C81, #0284C7);
+            background: linear-gradient(135deg, #0284C7, #38BDF8);
             color: #FFFFFF;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
+            font-weight: 800;
             flex-shrink: 0;
         }}
-        .port-topbar-title {{
-            font-size: 0.88rem;
+        .port-login-ministry {{
+            font-size: 0.86rem;
             font-weight: 700;
-            color: #0F172A !important;
+            color: #F8FAFC !important;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }}
-        .port-topbar-meta {{
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .port-login-clock {{
+            background: rgba(14, 165, 233, 0.16);
+            border: 1px solid rgba(125, 211, 252, 0.35);
+            color: #BAE6FD !important;
+            border-radius: 999px;
+            padding: 3px 11px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
             flex-shrink: 0;
         }}
-        .port-topbar-time {{
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #334155 !important;
-            white-space: nowrap;
-        }}
 
-        /* Кнопка «Інструкція» у правій частині фіксованої шапки */
-        .login-top-btn-wrap {{
-            position: fixed;
-            top: 9px;
-            right: 20px;
-            z-index: 60;
+        /* Основна робоча сітка: вузькі бокові колонки біля країв + центральна зона */
+        .port-login-grid {{
+            display: grid;
+            grid-template-columns: minmax(195px, 14.5vw) 1fr minmax(195px, 14.5vw);
+            gap: 16px;
+            align-items: end;
+            flex: 1 1 auto;
+            min-height: 0;
+            padding-top: 8px;
         }}
-        .login-top-btn-wrap div.stButton > button {{
-            background: #0F4C81 !important;
-            color: #FFFFFF !important;
-            border: 1px solid #0284C7 !important;
-            border-radius: 8px !important;
-            padding: 4px 12px !important;
-            min-height: 32px !important;
-            height: 32px !important;
-            font-size: 0.82rem !important;
-            font-weight: 700 !important;
-            line-height: 1 !important;
-            box-shadow: 0 2px 8px rgba(15, 76, 129, 0.25);
-        }}
-        .login-top-btn-wrap div.stButton > button:hover {{
-            background: #0B3A63 !important;
-            color: #FFFFFF !important;
-        }}
-        .login-top-btn-wrap div.stButton > button * {{
-            color: #FFFFFF !important;
-        }}
-
-        /* Залишаємо верхній банер на фоновому зображенні відкритим */
-        .login-hero-space {{
-            height: clamp(64px, 13vh, 130px);
-        }}
-
-        /* Вузькі бічні колонки-канва від шапки до футера (3 підблоки з кожного боку) */
-        .login-rail {{
-            min-height: calc(100vh - 122px);
+        .port-side-col {{
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            gap: 10px;
+            gap: 8px;
+            align-self: center;
         }}
-        .login-subcard {{
-            flex: 1 1 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: rgba(248, 251, 255, 0.92);
+        .port-subcard {{
+            background: rgba(11, 33, 62, 0.84);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(186, 214, 245, 0.88);
-            border-left: 4px solid #0284C7;
-            border-radius: 16px;
-            padding: 12px 14px;
-            box-shadow: 0 10px 24px rgba(2, 12, 27, 0.24);
+            border: 1px solid rgba(125, 211, 252, 0.25);
+            border-left: 4px solid #38BDF8;
+            border-radius: 14px;
+            padding: 9px 12px;
+            box-shadow: 0 10px 24px rgba(2, 10, 23, 0.32);
         }}
-        .login-subcard-title {{
-            font-size: 0.92rem;
+        .port-subcard-title {{
+            font-size: 0.88rem;
             font-weight: 800;
-            color: #0B3A63 !important;
-            margin: 0 0 4px 0;
-            line-height: 1.25;
+            color: #7DD3FC !important;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
         }}
-        .login-subcard-text {{
-            font-size: 0.82rem;
+        .port-subcard-text {{
+            font-size: 0.78rem;
             font-weight: 500;
-            color: #1E293B !important;
+            color: #E2E8F0 !important;
             margin: 0;
-            line-height: 1.35;
+            line-height: 1.3;
         }}
 
-        /* Центральна зона: зміщення форми ближче до нижньої третини */
-        .login-center-pad {{
-            height: clamp(36px, 9vh, 96px);
+        /* Центральна колонка: зміщення форми нижче (ближче до нижньої третини), не зачіпаючи верхній напис фону */
+        .port-center-col {{
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            height: 100%;
+            padding-bottom: 6px;
         }}
         [data-testid="stForm"] {{
-            background: rgba(252, 254, 255, 0.97);
+            background: rgba(244, 249, 255, 0.96);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(186, 214, 245, 0.95);
-            border-top: 5px solid #0F4C81;
-            border-radius: 20px;
-            padding: 22px 24px 18px 24px;
-            max-width: 440px;
-            margin: 0 auto;
-            box-shadow: 0 22px 50px rgba(2, 12, 27, 0.42);
+            border-top: 4px solid #0284C7;
+            border-radius: 18px;
+            padding: 16px 22px 14px 22px;
+            max-width: 430px;
+            width: 100%;
+            margin: 0 auto !important;
+            box-shadow: 0 20px 44px rgba(2, 10, 23, 0.48);
         }}
         [data-testid="stForm"] label,
         [data-testid="stForm"] .stTextInput label p {{
-            font-size: 1.02rem !important;
+            font-size: 0.95rem !important;
             font-weight: 700 !important;
             color: #0F172A !important;
+            margin-bottom: 2px !important;
         }}
         [data-testid="stForm"] input {{
             background-color: #FFFFFF !important;
             color: #0F172A !important;
             border: 1.5px solid #64748B !important;
-            border-radius: 10px !important;
-            font-size: 1.1rem !important;
-            padding: 9px 14px !important;
-            min-height: 44px !important;
+            border-radius: 9px !important;
+            font-size: 1.02rem !important;
+            padding: 7px 12px !important;
+            min-height: 38px !important;
+            height: 38px !important;
         }}
         [data-testid="stForm"] input::placeholder {{
-            color: #475569 !important;
-            font-size: 0.98rem !important;
+            color: #64748B !important;
+            font-size: 0.92rem !important;
         }}
         [data-testid="stForm"] button[kind="primary"],
         [data-testid="stForm"] button[kind="primary"] * {{
             background: linear-gradient(135deg, #0F4C81, #0284C7) !important;
             color: #FFFFFF !important;
             border: none !important;
-            border-radius: 10px !important;
-            font-size: 1.05rem !important;
+            border-radius: 9px !important;
+            font-size: 0.98rem !important;
             font-weight: 700 !important;
-            min-height: 44px !important;
+            min-height: 38px !important;
+            height: 38px !important;
         }}
 
-        .login-badge {{
+        .port-form-head {{
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }}
-        .login-icon {{
+        .port-form-icon {{
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #0F4C81, #0EA5E9);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0F4C81, #0284C7);
             color: #FFFFFF;
-            font-size: 21px;
-            margin-bottom: 6px;
+            font-size: 18px;
+            margin-bottom: 4px;
         }}
-        .login-ministry {{
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #334155 !important;
-            font-weight: 800;
-            line-height: 1.3;
-        }}
-        .login-title {{
-            font-size: 1.42rem;
+        .port-form-title {{
+            font-size: 1.25rem;
             font-weight: 800;
             color: #0F172A !important;
-            margin: 3px 0 2px 0;
+            margin: 0;
             line-height: 1.2;
         }}
-        .login-dept {{
-            font-size: 0.88rem;
-            color: #0F4C81 !important;
+        .port-form-dept {{
+            font-size: 0.84rem;
             font-weight: 700;
+            color: #0F4C81 !important;
+            margin: 2px 0 0 0;
             line-height: 1.25;
         }}
 
         /* Фіксований нижній футер */
-        .login-fixed-footer {{
+        .port-login-footer {{
             position: fixed;
-            bottom: 0;
             left: 0;
             right: 0;
-            height: 40px;
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(248, 251, 255, 0.96);
+            bottom: 0;
+            z-index: 20;
+            background: rgba(7, 22, 43, 0.92);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(148, 163, 184, 0.45);
-            padding: 0 18px;
-            color: #0F172A !important;
-            font-size: 0.9rem;
+            border-top: 1px solid rgba(125, 211, 252, 0.28);
+            padding: 7px 18px;
+            text-align: center;
+            color: #F1F5F9 !important;
+            font-size: 0.88rem;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
@@ -628,55 +601,62 @@ def check_password() -> bool:
 
         /* Планшети та мобільні пристрої */
         @media (max-width: 1024px) {{
-            .login-rail {{
-                min-height: auto;
+            .port-login-header {{
+                padding-right: 14px;
             }}
-            .login-hero-space,
-            .login-center-pad {{
-                height: 16px;
+            .port-login-grid {{
+                grid-template-columns: minmax(150px, 18vw) 1fr minmax(150px, 18vw);
+                gap: 10px;
             }}
-            .port-topbar-time {{
-                display: none;
+            .port-subcard {{
+                padding: 8px 10px;
             }}
-            .login-fixed-footer {{
-                font-size: 0.82rem;
+            .port-subcard-title {{
+                font-size: 0.82rem !important;
+            }}
+            .port-subcard-text {{
+                font-size: 0.73rem !important;
+            }}
+            .port-form-title {{
+                font-size: 1.14rem !important;
+            }}
+            .port-login-footer {{
+                font-size: 0.8rem !important;
             }}
         }}
 
-        @media (max-width: 640px) {{
-            [data-testid="stAppViewContainer"] {{
+        @media (max-width: 768px) {{
+            html, body, [data-testid="stAppViewContainer"],
+            [data-testid="stAppViewContainer"] > .main,
+            [data-testid="stAppViewContainer"] > .main > .block-container {{
+                height: auto !important;
+                max-height: none !important;
+                overflow: auto !important;
                 background-attachment: scroll !important;
             }}
-            [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding-top: 58px !important;
-                padding-bottom: 52px !important;
-                padding-left: 10px !important;
-                padding-right: 10px !important;
+            .port-login-header {{
+                padding-right: 12px;
             }}
-            .port-fixed-topbar {{
-                padding: 0 10px;
-            }}
-            .port-topbar-title {{
-                font-size: 0.78rem;
-            }}
-            .login-top-btn-wrap {{
-                right: 10px;
-            }}
-            .login-top-btn-wrap div.stButton > button {{
-                padding: 4px 9px !important;
+            .port-login-ministry {{
                 font-size: 0.76rem !important;
+                white-space: normal;
             }}
-            .login-rail {{
-                min-height: auto;
-                gap: 8px;
+            .port-login-grid {{
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding-top: 6px;
             }}
-            .login-subcard {{
-                padding: 10px 12px;
-                border-radius: 13px;
+            .port-center-col {{
+                order: -1;
             }}
-            .login-fixed-footer {{
-                font-size: 0.75rem;
-                padding: 0 8px;
+            .port-subcard {{
+                padding: 8px 12px;
+            }}
+            .port-login-footer {{
+                position: static;
+                margin-top: 10px;
+                white-space: normal;
+                font-size: 0.78rem !important;
             }}
         }}
         </style>
@@ -686,71 +666,66 @@ def check_password() -> bool:
 
     st.markdown(
         f"""
-        <div class="port-fixed-topbar">
-            <div class="port-topbar-brand">
-                <div class="port-topbar-mark">⚓</div>
-                <div class="port-topbar-title">
-                    Міністерство з відновлення, інфраструктури та транспорту України
+        <div class="port-login-header">
+            <div class="port-login-brand">
+                <div class="port-login-logo">⚓</div>
+                <div class="port-login-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div>
+            </div>
+            <div class="port-login-clock">🕒 Київ: {now_str}</div>
+        </div>
+
+        <div class="port-login-grid">
+            <div class="port-side-col">
+                <div class="port-subcard">
+                    <div class="port-subcard-title">📊 Вантажообіг 23-м / 25-вод</div>
+                    <p class="port-subcard-text">Порти, оператори, напрямки, YoY та сезонність.</p>
+                </div>
+                <div class="port-subcard">
+                    <div class="port-subcard-title">🧮 Конструктор матриць</div>
+                    <p class="port-subcard-text">Зведені таблиці у т, TEU, шт. та експорт у XLSX/PDF.</p>
+                </div>
+                <div class="port-subcard">
+                    <div class="port-subcard-title">⚓ Аудит операторів</div>
+                    <p class="port-subcard-text">Індекси CR3/CR5, HHI, власність причалів і причини.</p>
                 </div>
             </div>
-            <div class="port-topbar-meta">
-                <span class="port-topbar-time">🕒 Київ: {now_str}</span>
-                <span style="width: 108px; display: inline-block;"></span>
+
+            <div class="port-center-col" id="port-login-center-slot">
             </div>
+
+            <div class="port-side-col">
+                <div class="port-subcard">
+                    <div class="port-subcard-title">🛡️ Морські коридори</div>
+                    <p class="port-subcard-text">Вантажі, зерно та суднозаходи за кластерами.</p>
+                </div>
+                <div class="port-subcard">
+                    <div class="port-subcard-title">🚨 Безпека та атаки</div>
+                    <p class="port-subcard-text">Хронологія та накопичувальні пошкодження.</p>
+                </div>
+                <div class="port-subcard">
+                    <div class="port-subcard-title">📄 PDF-звіти та 3 теми</div>
+                    <p class="port-subcard-text">Аудиторські звіти, Світла, Темна та Фірмова теми.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="port-login-footer">
+            © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp;
+            Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="login-top-btn-wrap">', unsafe_allow_html=True)
-    if st.button("📘 Інструкція", key="login_open_instruction_btn"):
-        if hasattr(st, "dialog"):
-            _open_instruction_modal()
-        else:
-            st.session_state["login_readme_open"] = not st.session_state.get("login_readme_open", False)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    if st.session_state.get("login_readme_open") and not hasattr(st, "dialog"):
-        with st.expander("📘 Інструкція з README.md", expanded=True):
-            st.markdown(_load_readme_instruction_text())
-
-    st.markdown('<div class="login-hero-space"></div>', unsafe_allow_html=True)
-
-    col_left, col_center, col_right = st.columns([0.9, 1.5, 0.9], gap="medium")
-
-    with col_left:
-        st.markdown(
-            """
-            <div class="login-rail">
-                <div class="login-subcard">
-                    <div class="login-subcard-title">📊 Вантажообіг 23-м та 25-вод</div>
-                    <p class="login-subcard-text">Облік перевезень по портах, операторах, напрямках і номенклатурі з контролем YoY та сезонності.</p>
-                </div>
-                <div class="login-subcard">
-                    <div class="login-subcard-title">🧮 Конструктор матриць</div>
-                    <p class="login-subcard-text">Гнучкі зведені таблиці у тис. тонн, TEU та шт. з миттєвим експортом в Excel (.xlsx) та PDF.</p>
-                </div>
-                <div class="login-subcard">
-                    <div class="login-subcard-title">⚓ Аудит операторів і причалів</div>
-                    <p class="login-subcard-text">Індекси концентрації ринку CR3/CR5 та HHI, структура власності причалів і причини відхилень.</p>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
+    _, col_center, _ = st.columns([1.15, 1.2, 1.15])
     with col_center:
-        st.markdown('<div class="login-center-pad"></div>', unsafe_allow_html=True)
         with st.form("login_form", clear_on_submit=False):
             st.markdown(
                 """
-                <div class="login-badge">
-                    <div class="login-icon">🔐</div>
-                    <div class="login-ministry">
-                        Міністерство з відновлення, інфраструктури та транспорту України
-                    </div>
-                    <div class="login-title">Вхід до аналітичної системи</div>
-                    <div class="login-dept">Департамент морського та внутрішнього водного транспорту</div>
+                <div class="port-form-head">
+                    <div class="port-form-icon">🔐</div>
+                    <div class="port-form-title">Вхід до аналітичної системи</div>
+                    <div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -772,36 +747,6 @@ def check_password() -> bool:
                 else:
                     st.error("Невірний пароль доступу. Спробуйте ще раз.")
 
-    with col_right:
-        st.markdown(
-            """
-            <div class="login-rail">
-                <div class="login-subcard">
-                    <div class="login-subcard-title">🛡️ Морські коридори та кластери</div>
-                    <p class="login-subcard-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по кластерах.</p>
-                </div>
-                <div class="login-subcard">
-                    <div class="login-subcard-title">🚨 Безпека та статистика атак</div>
-                    <p class="login-subcard-text">Хронологія та накопичувальні показники пошкоджень портової інфраструктури, суден і постраждалих.</p>
-                </div>
-                <div class="login-subcard">
-                    <div class="login-subcard-title">📄 PDF-звіти та 3 теми інтерфейсу</div>
-                    <p class="login-subcard-text">Формування аналітичних звітів у PDF та перемикання між Світлою, Темною і Фірмовою темами.</p>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    st.markdown(
-        """
-        <div class="login-fixed-footer">
-            © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp;
-            Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
     return False
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
