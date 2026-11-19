@@ -10,8 +10,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-import json
-import streamlit.components.v1 as components
+
 from db import (
     clear_all_facts_db,
     delete_month_from_db,
@@ -398,14 +397,16 @@ def check_password() -> bool:
             margin: 0 !important;
             max-width: 100% !important;
             width: 100vw !important;
-            height: 100vh !important;
+            min-height: 100vh !important;
             overflow: hidden !important;
             background: #e0f2fe !important;
         }
-        iframe[title="streamlit.components.v1.html"] {
+        iframe[title="streamlit.components.v1.html"],
+        div[data-testid="stIFrame"] > iframe {
             display: block !important;
             width: 100vw !important;
             height: 100vh !important;
+            min-height: 100vh !important;
             border: none !important;
         }
         </style>
@@ -428,31 +429,31 @@ def check_password() -> bool:
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
       background: linear-gradient(180deg, #93c5fd 0%, #e0f2fe 62%, #0284c7 62%, #0c4a6e 100%);
       color: #0f172a;
     }}
 
-    /* Фіксована шапка зі світлою підкладкою */
+    /* Зафіксована верхня шапка зі світлою підкладкою та збільшеним шрифтом */
     .fixed-top-bar {{
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 42px;
-      z-index: 40;
+      height: 50px;
+      z-index: 50;
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: 12px;
-      padding: 0 20px;
-      background: rgba(248, 250, 252, 0.94);
+      gap: 14px;
+      padding: 0 24px;
+      background: rgba(248, 250, 252, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.45);
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
     }}
     .top-brand {{
       display: flex;
@@ -462,21 +463,21 @@ def check_password() -> bool:
       min-width: 0;
     }}
     .top-logo {{
-      width: 26px;
-      height: 26px;
-      border-radius: 7px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
       background: #fef3c7;
       border: 1px solid #f59e0b;
       color: #0c4a6e;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 800;
       flex-shrink: 0;
     }}
     .top-title {{
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 700;
       color: #0f172a;
       white-space: nowrap;
@@ -487,20 +488,20 @@ def check_password() -> bool:
       justify-self: center;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      padding: 3px 14px;
+      gap: 8px;
+      padding: 5px 18px;
       border-radius: 999px;
       background: #ffffff;
       border: 1px solid #cbd5e1;
       color: #0f172a;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 600;
       white-space: nowrap;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
     }}
     .top-clock-dot {{
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
       background: #10b981;
     }}
@@ -508,16 +509,16 @@ def check_password() -> bool:
       justify-self: end;
     }}
 
-    /* Повноекранна сцена між шапкою і футером */
+    /* Сцена між зафіксованою шапкою (50px) і зафіксованим футером (40px) */
     .scene-stage {{
       position: fixed;
-      top: 42px;
+      top: 50px;
       left: 0;
       right: 0;
-      bottom: 34px;
+      bottom: 40px;
       z-index: 10;
-      width: 100vw;
-      height: calc(100vh - 76px);
+      width: 100%;
+      height: calc(100% - 90px);
       overflow: hidden;
     }}
     #port-scene-svg {{
@@ -526,24 +527,24 @@ def check_password() -> bool:
       display: block;
     }}
 
-    /* Фіксований футер зі світлою підкладкою і текстом по центру */
+    /* Зафіксований нижній футер зі світлою підкладкою, текстом по центру та більшим шрифтом */
     .fixed-bottom-bar {{
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
-      height: 34px;
-      z-index: 40;
+      height: 40px;
+      z-index: 50;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 20px;
-      background: rgba(248, 250, 252, 0.94);
+      padding: 0 24px;
+      background: rgba(248, 250, 252, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(148, 163, 184, 0.45);
-      color: #334155;
-      font-size: 11.5px;
+      border-top: 1px solid rgba(148, 163, 184, 0.5);
+      color: #1e293b;
+      font-size: 13.5px;
       font-weight: 600;
       text-align: center;
       white-space: nowrap;
@@ -581,11 +582,11 @@ def check_password() -> bool:
       50% {{ transform: translateX(16px); }}
     }}
     .login-card {{
-      background: rgba(255, 255, 255, 0.94);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.85);
-      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(148, 163, 184, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(148, 163, 184, 0.22);
     }}
   </style>
 </head>
@@ -604,7 +605,8 @@ def check_password() -> bool:
   </header>
 
   <main class="scene-stage">
-    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMax slice" class="block select-none">
+    <!-- Кадрування з повним захопленням судна, 6 контейнерів і верхівки крана без обрізання -->
+    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="360 110 1560 910" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" class="block select-none">
       <defs>
         <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#93c5fd" />
@@ -637,13 +639,13 @@ def check_password() -> bool:
       </g>
 
       <g class="cloud-drift-slow" fill="#ffffff" opacity="0.78">
-        <circle cx="620" cy="145" r="42" />
-        <circle cx="665" cy="135" r="54" />
-        <circle cx="715" cy="145" r="44" />
-        <circle cx="755" cy="152" r="32" />
-        <circle cx="1480" cy="115" r="36" />
-        <circle cx="1518" cy="108" r="46" />
-        <circle cx="1558" cy="118" r="36" />
+        <circle cx="620" cy="165" r="42" />
+        <circle cx="665" cy="155" r="54" />
+        <circle cx="715" cy="165" r="44" />
+        <circle cx="755" cy="172" r="32" />
+        <circle cx="1480" cy="145" r="36" />
+        <circle cx="1518" cy="138" r="46" />
+        <circle cx="1558" cy="148" r="36" />
       </g>
 
       <ellipse cx="1160" cy="908" rx="710" ry="20" fill="url(#hullShadow)" />
@@ -697,7 +699,6 @@ def check_password() -> bool:
       </g>
 
       <g id="containers-group">
-        <!-- 1. Нижній лівий (IMO - TANK) -->
         <g class="cargo-container" data-module-id="security" transform="translate(775, 630)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
@@ -711,7 +712,6 @@ def check_password() -> bool:
           <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
         </g>
 
-        <!-- 2. Середній лівий (ISO - 40RF) -->
         <g class="cargo-container" data-module-id="audit" transform="translate(775, 510)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
@@ -725,7 +725,6 @@ def check_password() -> bool:
           <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
         </g>
 
-        <!-- 3. Верхній лівий (ISO - 40HC) -->
         <g class="cargo-container" data-module-id="turnover" transform="translate(775, 390)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#047857" stroke="#064e3b" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
@@ -739,7 +738,6 @@ def check_password() -> bool:
           <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
         </g>
 
-        <!-- 4. Нижній правий (ISO - 20OT) -->
         <g class="cargo-container" data-module-id="reports" transform="translate(1120, 630)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#ea580c" stroke="#9a3412" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
@@ -753,7 +751,6 @@ def check_password() -> bool:
           <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
         </g>
 
-        <!-- 5. Середній правий (ISO - 45GP) -->
         <g class="cargo-container" data-module-id="corridors" transform="translate(1120, 510)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
@@ -767,7 +764,6 @@ def check_password() -> bool:
           <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
         </g>
 
-        <!-- 6. Верхній правий (ISO - 20DV) — повернутий на своє штатне місце -->
         <g class="cargo-container" data-module-id="matrix" transform="translate(1120, 390)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
@@ -814,7 +810,7 @@ def check_password() -> bool:
       </g>
     </svg>
 
-    <aside id="login-panel" class="absolute top-3 left-4 bottom-3 w-[23vw] min-w-[275px] max-w-[400px] z-20 flex flex-col justify-between gap-2 pointer-events-none">
+    <aside id="login-panel" class="absolute top-3 left-4 bottom-3 w-[23vw] min-w-[285px] max-w-[405px] z-20 flex flex-col justify-between gap-2 pointer-events-none">
       <div class="login-card rounded-2xl p-4 pointer-events-auto border-t-[5px] border-t-amber-400">
         <div class="flex flex-col items-center text-center mb-3">
           <div class="w-10 h-10 rounded-xl bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-sky-900 shadow-sm mb-2">
@@ -828,7 +824,7 @@ def check_password() -> bool:
           <h1 class="text-base font-extrabold text-slate-900 tracking-tight leading-tight">
             Вхід до аналітичної системи
           </h1>
-          <p class="text-[11px] font-medium text-slate-600 mt-0.5 leading-snug">
+          <p class="text-xs font-medium text-slate-600 mt-0.5 leading-snug">
             Департамент морського та внутрішнього водного транспорту
           </p>
         </div>
@@ -844,7 +840,7 @@ def check_password() -> bool:
                 type="password"
                 autocomplete="current-password"
                 placeholder="Введіть пароль доступу..."
-                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-10 text-xs sm:text-sm text-slate-900 placeholder-slate-400 shadow-inner focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-600/30"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-10 text-sm text-slate-900 placeholder-slate-400 shadow-inner focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-600/30"
               />
               <button
                 type="button"
@@ -864,7 +860,7 @@ def check_password() -> bool:
 
           <button
             type="submit"
-            class="w-full rounded-xl bg-gradient-to-r from-sky-900 via-sky-800 to-blue-900 hover:from-sky-950 hover:to-blue-950 text-white font-semibold py-2.5 px-4 shadow-md flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm"
+            class="w-full rounded-xl bg-gradient-to-r from-sky-900 via-sky-800 to-blue-900 hover:from-sky-950 hover:to-blue-950 text-white font-semibold py-2.5 px-4 shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm"
           >
             <span>🔐</span>
             <span>Увійти в систему</span>
@@ -875,7 +871,7 @@ def check_password() -> bool:
           <button
             type="button"
             id="open-instruction-btn"
-            class="w-full rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-semibold py-2 px-3 flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm"
+            class="w-full rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-semibold py-2 px-3 flex items-center justify-center gap-2 cursor-pointer text-sm"
           >
             <span>📘</span>
             <span>Інструкція</span>
@@ -885,15 +881,15 @@ def check_password() -> bool:
 
       <div id="container-tooltip-box" class="login-card rounded-xl p-3 pointer-events-auto border-l-4 border-l-sky-600">
         <div class="flex items-center justify-between gap-2 mb-0.5">
-          <span id="tooltip-iso" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-100 text-sky-900">
+          <span id="tooltip-iso" class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-100 text-sky-900">
             ІНТЕРАКТИВНА СЦЕНА
           </span>
-          <span class="text-[10px] text-slate-500 font-medium">Наведіть на контейнер</span>
+          <span class="text-[11px] text-slate-500 font-medium">Наведіть на контейнер</span>
         </div>
-        <h2 id="tooltip-title" class="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+        <h2 id="tooltip-title" class="text-sm font-bold text-slate-900 leading-snug">
           Оберіть контейнер на судні для перегляду аналітики
         </h2>
-        <p id="tooltip-desc" class="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-3">
+        <p id="tooltip-desc" class="text-xs text-slate-600 mt-0.5 leading-snug line-clamp-3">
           Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Натисніть для входу або скористайтесь формою.
         </p>
       </div>
@@ -957,6 +953,20 @@ def check_password() -> bool:
       }}
     }}
 
+    function syncParentFrame() {{
+      try {{
+        const parentWin = window.parent;
+        const h = parentWin.innerHeight || window.innerHeight;
+        document.documentElement.style.height = h + 'px';
+        document.body.style.height = h + 'px';
+        if (window.frameElement) {{
+          window.frameElement.style.height = h + 'px';
+          window.frameElement.style.minHeight = h + 'px';
+          window.frameElement.style.width = '100vw';
+        }}
+      }} catch (_) {{}}
+    }}
+
     function updateKyivTime() {{
       const el = document.getElementById('kyiv-datetime');
       if (!el) return;
@@ -977,6 +987,12 @@ def check_password() -> bool:
     }}
 
     document.addEventListener('DOMContentLoaded', () => {{
+      syncParentFrame();
+      window.addEventListener('resize', syncParentFrame);
+      try {{
+        window.parent.addEventListener('resize', syncParentFrame);
+      }} catch (_) {{}}
+
       updateKyivTime();
       setInterval(updateKyivTime, 30000);
 
@@ -1048,8 +1064,9 @@ def check_password() -> bool:
 </body>
 </html>"""
 
-    components.html(login_html, height=900, scrolling=False)
+    components.html(login_html, height=1000, scrolling=False)
     return False
+
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
