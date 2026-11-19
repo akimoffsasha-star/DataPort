@@ -1,7 +1,45 @@
+import io
 import re
+import urllib.request
+import streamlit as st
+
 from datetime import date, datetime
 import openpyxl
 import pandas as pd
+
+def _build_gsheet_xlsx_export_url(sheet_url: str) -> str:
+    match = re.search(r"/spreadsheets/d/([a-zA-Z0-9-_]+)", sheet_url)
+    if not match:
+        raise ValueError("Некоректне посилання на Google Таблицю.")
+    file_id = match.group(1)
+    return f"https://docs.google.com/spreadsheets/d/{file_id}/export?format=xlsx"
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def fetch_corridors_from_gsheet(sheet_url: str) -> dict[str, pd.DataFrame]:
+    export_url = _build_gsheet_xlsx_export_url(sheet_url)
+
+    # Если в secrets настроен сервисный аккаунт (для закрытой таблицы) — авторизуемся через него
+    if "gcp_service_account" in st.secrets:
+        from google.oauth2 import service_account
+        from google.auth.transport.requests import AuthorizedSession
+
+        creds = service_account.Credentials.from_service_account_info(
+            dict(st.secrets["gcp_service_account"]),
+            scopes=["https://www.googleapis.com/auth/drive.readonly"],
+        )
+        session = AuthorizedSession(creds)
+        resp = session.get(export_url, timeout=30)
+        resp.raise_for_status()
+        raw_bytes = resp.content
+    else:
+        # Для таблицы, открытой по ссылке ("Усі, хто має посилання")
+        req = urllib.request.Request(export_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            raw_bytes = resp.read()
+
+    buf = io.BytesIO(raw_bytes)
+    return parse_corridors_file(buf)
 
 UKR_MONTHS = {
     "січень": 1, "січня": 1,
