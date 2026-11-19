@@ -24,11 +24,10 @@ from db import (
     save_corridors_to_db,
     update_operators_dict,
 )
-
 from etl_parser import parse_23m_file, parse_25vod_file, parse_corridors_file
-
 from pdf_reports import (
     build_cargo_audit_pdf,
+    build_corridors_pdf,
     build_custom_matrix_pdf,
     build_executive_pdf,
     build_operators_audit_pdf,
@@ -108,92 +107,6 @@ THEME_PALETTES = {
 
 THEMES = THEME_PALETTES
 
-THEMES = {
-    "Світла": {
-        "bg": "#F8FAFC",
-        "sidebar": "#FFFFFF",
-        "card": "#FFFFFF",
-        "border": "#CBD5E1",
-        "text": "#0F172A",
-        "muted": "#475569",
-        "btn_bg": "#0F4C81",
-        "btn_hover": "#0B3A63",
-        "btn_text": "#FFFFFF",
-        "sec_bg": "#E2E8F0",
-        "sec_text": "#0F172A",
-        "delta_bg": "#DCFCE7",
-        "delta_text": "#166534",
-        "accent": "#0F4C81",
-        "plotly": "plotly_white",
-        "grid": "#E2E8F0",
-    },
-    "Темна": {
-        "bg": "#0F172A",
-        "sidebar": "#111827",
-        "card": "#1E293B",
-        "border": "#334155",
-        "text": "#F8FAFC",
-        "muted": "#CBD5E1",
-        "btn_bg": "#2563EB",
-        "btn_hover": "#1D4ED8",
-        "btn_text": "#FFFFFF",
-        "sec_bg": "#334155",
-        "sec_text": "#F8FAFC",
-        "delta_bg": "#14532D",
-        "delta_text": "#BBF7D0",
-        "accent": "#38BDF8",
-        "plotly": "plotly_dark",
-        "grid": "#334155",
-    },
-    "Фірмова": {
-        "bg": "#0B192C",
-        "sidebar": "#071220",
-        "card": "#13294B",
-        "border": "#234578",
-        "text": "#F8FAFC",
-        "muted": "#CBD5E1",
-        "btn_bg": "#1D63B8",
-        "btn_hover": "#154E94",
-        "btn_text": "#FFFFFF",
-        "sec_bg": "#1B365D",
-        "sec_text": "#F8FAFC",
-        "delta_bg": "#134E4A",
-        "delta_text": "#99F6E4",
-        "accent": "#FBBF24",
-        "plotly": "plotly_dark",
-        "grid": "#234578",
-    },
-}
-
-selected_theme = st.sidebar.selectbox(
-    "🎨 Тема інтерфейсу",
-    list(THEMES.keys()),
-    index=0,  # 0 — Світла, 1 — Темна, 2 — Фірмова
-)
-
-active_theme_key = locals().get("selected_theme")
-raw_theme = THEMES.get(active_theme_key) or next(iter(THEMES.values()))
-
-raw_theme = THEMES.get(selected_theme) or next(iter(THEMES.values()))
-T = {
-    "bg": raw_theme.get("bg") or raw_theme.get("bg_main") or "#F8FAFC",
-    "sidebar": raw_theme.get("sidebar") or raw_theme.get("bg_sidebar") or "#FFFFFF",
-    "card": raw_theme.get("card") or raw_theme.get("bg_card") or "#FFFFFF",
-    "border": raw_theme.get("border") or raw_theme.get("border_card") or "#CBD5E1",
-    "text": raw_theme.get("text") or raw_theme.get("text_main") or "#0F172A",
-    "muted": raw_theme.get("muted") or raw_theme.get("text_muted") or "#475569",
-    "btn_bg": raw_theme.get("btn_bg") or "#0F4C81",
-    "btn_hover": raw_theme.get("btn_hover") or "#0B3A63",
-    "btn_text": raw_theme.get("btn_text") or "#FFFFFF",
-    "sec_bg": raw_theme.get("sec_bg") or raw_theme.get("sec_btn_bg") or "#E2E8F0",
-    "sec_text": raw_theme.get("sec_text") or raw_theme.get("sec_btn_text") or "#0F172A",
-    "delta_bg": raw_theme.get("delta_bg") or raw_theme.get("delta_pos_bg") or "#DCFCE7",
-    "delta_text": raw_theme.get("delta_text") or raw_theme.get("delta_pos_text") or "#166534",
-    "accent": raw_theme.get("accent") or raw_theme.get("tab_active") or "#0F4C81",
-    "plotly": raw_theme.get("plotly") or raw_theme.get("plotly_template") or "plotly_white",
-    "grid": raw_theme.get("grid") or raw_theme.get("grid_color") or "#E2E8F0",
-}
-
 
 def get_active_palette(theme_name: str) -> dict:
     if theme_name in THEME_PALETTES:
@@ -211,7 +124,7 @@ def apply_theme_styles(theme_name: str):
     st.markdown(
         f"""
         <style>
-            .stApp {{
+            [data-testid="stAppViewContainer"], .stApp {{
                 background-color: {p["bg_main"]};
                 color: {p["text_main"]};
             }}
@@ -222,7 +135,7 @@ def apply_theme_styles(theme_name: str):
             section[data-testid="stSidebar"] * {{
                 color: {p["text_main"]};
             }}
-            h1, h2, h3, h4, p, label, .stMarkdown {{
+            h1, h2, h3, h4, h5, h6, p, label, .stMarkdown {{
                 color: {p["text_main"]};
             }}
             .stCaption, small {{
@@ -233,8 +146,10 @@ def apply_theme_styles(theme_name: str):
             div[data-testid="stMetric"] {{
                 background-color: {p["bg_card"]};
                 border: 1px solid {p["border_card"]};
+                border-left: 4px solid {p["tab_active"]};
                 border-radius: 10px;
-                padding: 12px 16px;
+                padding: 14px 18px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             }}
             div[data-testid="stMetric"] label,
             div[data-testid="stMetric"] div[data-testid="stMetricValue"] {{
@@ -251,10 +166,11 @@ def apply_theme_styles(theme_name: str):
                 color: {p["delta_pos_text"]} !important;
             }}
 
-            /* Основні та вторинні кнопки / завантаження */
+            /* Основні кнопки (primary) — білий текст на насиченому фоні в усіх темах */
             button[kind="primary"],
             div.stButton > button[kind="primary"],
-            div.stDownloadButton > button[kind="primary"] {{
+            div.stDownloadButton > button[kind="primary"],
+            div[data-testid="stFormSubmitButton"] > button {{
                 background-color: {p["btn_bg"]} !important;
                 color: {p["btn_text"]} !important;
                 border: 1px solid {p["btn_border"]} !important;
@@ -262,16 +178,19 @@ def apply_theme_styles(theme_name: str):
             }}
             button[kind="primary"]:hover,
             div.stButton > button[kind="primary"]:hover,
-            div.stDownloadButton > button[kind="primary"]:hover {{
+            div.stDownloadButton > button[kind="primary"]:hover,
+            div[data-testid="stFormSubmitButton"] > button:hover {{
                 background-color: {p["btn_hover"]} !important;
                 color: {p["btn_text"]} !important;
             }}
             button[kind="primary"] *,
             div.stButton > button[kind="primary"] *,
-            div.stDownloadButton > button[kind="primary"] * {{
+            div.stDownloadButton > button[kind="primary"] *,
+            div[data-testid="stFormSubmitButton"] > button * {{
                 color: {p["btn_text"]} !important;
             }}
 
+            /* Вторинні кнопки, завантаження та кнопка Upload */
             button[kind="secondary"],
             div.stButton > button[kind="secondary"],
             div.stDownloadButton > button[kind="secondary"],
@@ -320,8 +239,9 @@ def apply_theme_styles(theme_name: str):
     )
 
 
-def style_fig(fig, theme_name: str = "Світла", height: int = 380):
-    p = get_active_palette(theme_name)
+def style_fig(fig, theme_name: str | None = None, height: int = 380):
+    active = theme_name or st.session_state.get("ui_theme", "Світла")
+    p = get_active_palette(active)
     fig.update_layout(
         template=p["plotly_template"],
         height=height,
@@ -351,6 +271,7 @@ def style_fig(fig, theme_name: str = "Світла", height: int = 380):
     )
     return fig
 
+
 def _get_login_bg_css() -> str:
     root = Path(__file__).resolve().parent
     for fname in ("login_bg.jpg", "login_bg.jpeg", "login_bg.png", "login_bg.webp"):
@@ -364,7 +285,6 @@ def _get_login_bg_css() -> str:
                 f'url("data:image/{mime};base64,{b64}") center/cover no-repeat fixed;'
             )
 
-    # Вбудований тематичний морський SVG-фон (хвилі, навігаційна сітка, силует порту)
     svg = """
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
       <defs>
@@ -493,7 +413,7 @@ def check_password() -> bool:
             submitted = st.form_submit_button(
                 "🔐 Увійти в систему",
                 type="primary",
-                use_container_width=True,
+                width="stretch",
             )
             if submitted:
                 if pwd == st.secrets["APP_PASSWORD"]:
@@ -526,18 +446,6 @@ def to_excel_bytes(df: pd.DataFrame) -> bytes:
     return buf.getvalue()
 
 
-def detect_file_type(uploaded_file) -> str:
-    fname = (getattr(uploaded_file, "name", "") or "").lower()
-    wb = openpyxl.load_workbook(uploaded_file, read_only=True)
-    sheets = [s.lower().replace("i", "і").strip() for s in wb.sheetnames]
-    uploaded_file.seek(0)
-    if "коридор" in fname or any(s in sheets for s in ("вантажі", "суднозаходи", "атаки")):
-        return "коридори"
-    if any(s in sheets for s in ("експорт", "імпорт", "транзит")):
-        return "23-м"
-    return "25-вод"
-
-
 def _blue_heatmap(val, max_val: float) -> str:
     if not isinstance(val, (int, float)) or pd.isna(val) or max_val <= 0 or val <= 0:
         return ""
@@ -548,45 +456,15 @@ def _blue_heatmap(val, max_val: float) -> str:
     return f"background-color: rgb({r}, {g}, {b}); color: #0F172A;"
 
 
-# Винесено в самий початок сайдбару, щоб працювати і на екрані входу
+# Єдиний селектор теми у сайдбарі
 st.sidebar.title("🚢 Портова аналітика")
-selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=0) # Світла за замовчуванням
-T = THEMES[selected_theme]
-
-st.markdown(
-    f"""
-    <style>
-    [data-testid="stAppViewContainer"] {{
-        background-color: {T['bg']};
-        color: {T['text']};
-    }}
-    [data-testid="stSidebar"] {{
-        background-color: {T['sidebar_bg']};
-    }}
-    div[data-testid="stMetric"] {{
-        background-color: {T['card']};
-        border: 1px solid {T['border']};
-        border-left: 4px solid {T['accent']};
-        border-radius: 10px;
-        padding: 14px 18px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-    }}
-    div[data-testid="stMetric"] label {{
-        font-size: 0.85rem;
-        color: {T['muted']};
-        font-weight: 600;
-    }}
-    div[data-testid="stMetricValue"] {{
-        font-size: 1.5rem;
-        color: {T['text']};
-    }}
-    h1, h2, h3, h4, h5, h6, p, span, label {{
-        color: {T['text']} !important;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
+selected_theme = st.sidebar.selectbox(
+    "🎨 Тема інтерфейсу",
+    list(THEME_PALETTES.keys()),
+    index=0,
+    key="ui_theme",
 )
+apply_theme_styles(selected_theme)
 
 DIR_COLORS = {
     "Експорт": "#0F4C81",
@@ -601,7 +479,6 @@ OWNERSHIP_COLORS = {
     "Приватний на власних причалах": "#10B981",
     "Не визначено": "#94A3B8",
 }
-
 
 page = st.sidebar.radio(
     "Розділ",
@@ -619,9 +496,10 @@ st.sidebar.divider()
 st.sidebar.caption(
     "© 2026, Міністерство з відновлення, інфраструктури та транспорту України\n\n"
     "Департамент морського та внутрішнього водного транспорту  \n"
-    "**Версія 1.1**"
+    "**Версія 2.1**"
 )
-if not check_password(): st.stop()
+if not check_password():
+    st.stop()
 
 elif page == "🛡️ Коридори та безпека":
     st.title("🛡️ Динаміка морських коридорів, суднозаходів та безпекових факторів")
