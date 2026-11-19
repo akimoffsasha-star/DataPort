@@ -633,11 +633,11 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }}
             [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 48px 16px 34px 16px !important;
+                padding: 44px 16px 34px 16px !important;
             }}
             div[data-testid="stHorizontalBlock"] {{
-                height: calc(100vh - 82px) !important;
-                max-height: calc(100vh - 82px) !important;
+                height: calc(100vh - 78px) !important;
+                max-height: calc(100vh - 78px) !important;
                 overflow: hidden !important;
                 align-items: stretch !important;
             }}
@@ -647,11 +647,12 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }}
             .port-right-stack {{
-                height: calc(100vh - 82px) !important;
-                max-height: calc(100vh - 82px) !important;
+                height: calc(100vh - 78px + ((100vh - 98px) / 12)) !important;
+                max-height: none !important;
+                transform: translateY(calc(-1 * ((100vh - 98px) / 12))) !important;
             }}
         }}
-
+        
         /* Планшети та мобільні пристрої */
         @media (max-width: 1024px) and (min-width: 769px) {{
             .port-fixed-header {{
