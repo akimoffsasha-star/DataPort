@@ -741,7 +741,7 @@ def check_password() -> bool:
             }}
         }}
         </style>
-        """,
+""",
         unsafe_allow_html=True,
     )
 
