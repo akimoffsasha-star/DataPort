@@ -591,39 +591,9 @@ def check_password() -> bool:
 
     .cargo-container {{
       cursor: pointer;
-      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease;
     }}
-    .cargo-container:hover {{
-      filter: brightness(1.07) drop-shadow(0 8px 16px rgba(15, 23, 42, 0.3));
-    }}
-
-    /* Анімація крана та підйому жовтого контейнера при наведенні курсора на кран */
     #deck-crane {{
       cursor: pointer;
-    }}
-    #crane-spreader-group,
-    #crane-hoist-cables,
-    #container-matrix {{
-      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-    }}
-    #crane-boom-group {{
-      transform-origin: 1595px 380px;
-      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-    }}
-    .scene-stage.crane-active #crane-boom-group {{
-      transform: rotate(-3.5deg);
-    }}
-    .scene-stage.crane-active #crane-spreader-group {{
-      transform: translateY(-210px);
-    }}
-    .scene-stage.crane-active #crane-hoist-cables {{
-      transform: scaleY(0.45);
-      transform-box: fill-box;
-      transform-origin: top center;
-    }}
-    .scene-stage.crane-active #container-matrix {{
-      transform: translate(1120px, 180px);
-      filter: drop-shadow(0 14px 22px rgba(15, 23, 42, 0.38));
     }}
 
     .cloud-drift-slow {{
@@ -669,6 +639,9 @@ def check_password() -> bool:
       justify-content: space-between;
       gap: 10px;
       pointer-events: none;
+    }}
+    #container-tooltip-box {{
+      transition: border-left-color 0.35s ease;
     }}
 
     /* Мобільні та планшети (< 1024px): шапка з годинником і "Мобільна", вхід по центру та футер */
@@ -922,6 +895,7 @@ def check_password() -> bool:
         </g>
       </g>
 
+      <!-- Судновий кран із динамічною прив'язкою стріли, тросів та траверси до висоти підйому контейнера -->
       <g id="deck-crane">
         <rect x="1552" y="485" width="96" height="263" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
         <rect x="1540" y="724" width="120" height="24" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
@@ -932,27 +906,24 @@ def check_password() -> bool:
         <polygon points="1508,425 1554,425 1554,362 1522,362" fill="#38bdf8" stroke="#0f172a" stroke-width="3.5" />
         <line x1="1531" y1="362" x2="1526" y2="425" stroke="#0f172a" stroke-width="2.5" />
 
-        <g id="crane-boom-group">
-          <polygon points="1572,382 1592,418 1278,244 1290,218" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
-          <circle cx="1285" cy="234" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
-          <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
-          <line x1="1604" y1="340" x2="1285" y2="222" stroke="#1e293b" stroke-width="4.5" />
-          <line x1="1604" y1="350" x2="1285" y2="230" stroke="#1e293b" stroke-width="3" />
-        </g>
+        <!-- Стріла та верхні троси підвісу стріли -->
+        <polygon id="crane-boom-body" points="1572,382 1592,418 1278,244 1290,218" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
+        <line id="crane-stay-top" x1="1604" y1="340" x2="1285" y2="222" stroke="#1e293b" stroke-width="4.5" />
+        <line id="crane-stay-mid" x1="1604" y1="350" x2="1285" y2="230" stroke="#1e293b" stroke-width="3" />
+        <circle id="crane-tip-sheave" cx="1285" cy="234" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
+        <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
 
-        <g id="crane-hoist-cables">
-          <line x1="1279" y1="244" x2="1279" y2="342" stroke="#0f172a" stroke-width="4" />
-          <line x1="1291" y1="244" x2="1291" y2="342" stroke="#0f172a" stroke-width="4" />
-        </g>
+        <!-- Вертикальні троси підйому (динамічна довжина від блока стріли до каретки гака) -->
+        <line id="crane-hoist-left" x1="1279" y1="244" x2="1279" y2="342" stroke="#0f172a" stroke-width="4" />
+        <line id="crane-hoist-right" x1="1291" y1="244" x2="1291" y2="342" stroke="#0f172a" stroke-width="4" />
 
-        <g id="crane-spreader-group">
-          <rect x="1270" y="338" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
-          <line x1="1285" y1="360" x2="1132" y2="376" stroke="#334155" stroke-width="4.5" />
-          <line x1="1285" y1="360" x2="1438" y2="376" stroke="#334155" stroke-width="4.5" />
-          <rect x="1116" y="374" width="338" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
-          <rect x="1120" y="386" width="14" height="8" rx="1" fill="#0f172a" />
-          <rect x="1436" y="386" width="14" height="8" rx="1" fill="#0f172a" />
-        </g>
+        <!-- Каретка гака, розтяжки та траверса (спредер), що лягає на дах контейнера -->
+        <rect id="crane-hook-block" x="1270" y="338" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+        <line id="crane-sling-left" x1="1285" y1="360" x2="1132" y2="376" stroke="#334155" stroke-width="4.5" />
+        <line id="crane-sling-right" x1="1285" y1="360" x2="1438" y2="376" stroke="#334155" stroke-width="4.5" />
+        <rect id="crane-spreader-bar" x="1116" y="374" width="338" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
+        <rect id="crane-twistlock-left" x="1120" y="386" width="14" height="8" rx="1" fill="#0f172a" />
+        <rect id="crane-twistlock-right" x="1436" y="386" width="14" height="8" rx="1" fill="#0f172a" />
       </g>
 
       <g class="wave-shift-1">
@@ -1043,7 +1014,7 @@ def check_password() -> bool:
           Оберіть контейнер на судні для перегляду аналітики
         </h2>
         <p id="tooltip-desc" class="text-xs text-slate-600 mt-0.5 leading-snug line-clamp-3">
-          Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран, щоб підняти жовтий контейнер.
+          Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран для плавного підйому жовтого контейнера.
         </p>
       </div>
     </aside>
@@ -1167,6 +1138,118 @@ def check_password() -> bool:
       }}
     }}
 
+    // Плавна, дуже повільна синхронна геометрія крана та жовтого контейнера (lift 0..1)
+    function applyCraneLiftGeometry(lift) {{
+      const clamped = Math.max(0, Math.min(1, lift));
+
+      // Базові координати жовтого контейнера: x=1120, y=390, ширина=330, висота=118
+      // Підйом вгору на 115 одиниць SVG (від y=390 до y=275)
+      const containerX = 1120;
+      const containerY = 390 - clamped * 115;
+      const containerEl = document.getElementById('container-matrix');
+      if (containerEl) {{
+        containerEl.setAttribute('transform', `translate(${{containerX.toFixed(2)}}, ${{containerY.toFixed(2)}})`);
+      }}
+
+      // Траверса (спредер) спирається безпосередньо на верхню грань контейнера (y = containerY - 16)
+      const spreaderY = containerY - 16;
+      const spreaderLeftX = 1116;
+      const spreaderRightX = 1454;
+      const spreaderMidX = (spreaderLeftX + spreaderRightX) / 2; // 1285
+
+      const spreaderBar = document.getElementById('crane-spreader-bar');
+      if (spreaderBar) {{
+        spreaderBar.setAttribute('x', spreaderLeftX.toFixed(2));
+        spreaderBar.setAttribute('y', spreaderY.toFixed(2));
+        spreaderBar.setAttribute('width', (spreaderRightX - spreaderLeftX).toFixed(2));
+      }}
+
+      const twistLeft = document.getElementById('crane-twistlock-left');
+      const twistRight = document.getElementById('crane-twistlock-right');
+      if (twistLeft) {{
+        twistLeft.setAttribute('x', (spreaderLeftX + 4).toFixed(2));
+        twistLeft.setAttribute('y', (spreaderY + 12).toFixed(2));
+      }}
+      if (twistRight) {{
+        twistRight.setAttribute('x', (spreaderRightX - 18).toFixed(2));
+        twistRight.setAttribute('y', (spreaderY + 12).toFixed(2));
+      }}
+
+      // Каретка гака піднімається пропорційно над траверсою (відстань зменшується при підйомі)
+      const hookY = spreaderY - (36 - clamped * 14);
+      const hookBlock = document.getElementById('crane-hook-block');
+      if (hookBlock) {{
+        hookBlock.setAttribute('x', (spreaderMidX - 15).toFixed(2));
+        hookBlock.setAttribute('y', (hookY - 18).toFixed(2));
+      }}
+
+      // Розтяжки від гака до країв траверси — змінюють довжину і кут без розриву
+      const slingLeft = document.getElementById('crane-sling-left');
+      const slingRight = document.getElementById('crane-sling-right');
+      if (slingLeft) {{
+        slingLeft.setAttribute('x1', spreaderMidX.toFixed(2));
+        slingLeft.setAttribute('y1', hookY.toFixed(2));
+        slingLeft.setAttribute('x2', (spreaderLeftX + 16).toFixed(2));
+        slingLeft.setAttribute('y2', (spreaderY + 2).toFixed(2));
+      }}
+      if (slingRight) {{
+        slingRight.setAttribute('x1', spreaderMidX.toFixed(2));
+        slingRight.setAttribute('y1', hookY.toFixed(2));
+        slingRight.setAttribute('x2', (spreaderRightX - 16).toFixed(2));
+        slingRight.setAttribute('y2', (spreaderY + 2).toFixed(2));
+      }}
+
+      // Вершина стріли та блоки піднімаються вище слідом за вантажем
+      // Базова вершина стріли: (1285, 234) -> піднімається до (1285, 174)
+      const tipX = 1285;
+      const tipY = 234 - clamped * 60;
+      const tipSheave = document.getElementById('crane-tip-sheave');
+      if (tipSheave) {{
+        tipSheave.setAttribute('cx', tipX.toFixed(2));
+        tipSheave.setAttribute('cy', tipY.toFixed(2));
+      }}
+
+      // Вертикальні троси підйому з'єднують верхній блок стріли та каретку гака
+      const hoistLeft = document.getElementById('crane-hoist-left');
+      const hoistRight = document.getElementById('crane-hoist-right');
+      const cableTopY = tipY + 10;
+      const cableBotY = hookY - 16;
+      if (hoistLeft) {{
+        hoistLeft.setAttribute('x1', (tipX - 6).toFixed(2));
+        hoistLeft.setAttribute('y1', cableTopY.toFixed(2));
+        hoistLeft.setAttribute('x2', (tipX - 6).toFixed(2));
+        hoistLeft.setAttribute('y2', cableBotY.toFixed(2));
+      }}
+      if (hoistRight) {{
+        hoistRight.setAttribute('x1', (tipX + 6).toFixed(2));
+        hoistRight.setAttribute('y1', cableTopY.toFixed(2));
+        hoistRight.setAttribute('x2', (tipX + 6).toFixed(2));
+        hoistRight.setAttribute('y2', cableBotY.toFixed(2));
+      }}
+
+      // Стріла крана (шарнір біля основи: 1582, 400) перераховується від вершини (tipX, tipY)
+      const boomBody = document.getElementById('crane-boom-body');
+      if (boomBody) {{
+        const p1 = '1572,382';
+        const p2 = '1592,418';
+        const p3 = `${{(tipX - 7).toFixed(2)}},${{(tipY + 10).toFixed(2)}}`;
+        const p4 = `${{(tipX + 5).toFixed(2)}},${{(tipY - 16).toFixed(2)}}`;
+        boomBody.setAttribute('points', `${{p1}} ${{p2}} ${{p3}} ${{p4}}`);
+      }}
+
+      // Верхні троси стріли від вежі (1604, 340 / 1604, 350) до оголовка стріли
+      const stayTop = document.getElementById('crane-stay-top');
+      const stayMid = document.getElementById('crane-stay-mid');
+      if (stayTop) {{
+        stayTop.setAttribute('x2', tipX.toFixed(2));
+        stayTop.setAttribute('y2', (tipY - 12).toFixed(2));
+      }}
+      if (stayMid) {{
+        stayMid.setAttribute('x2', tipX.toFixed(2));
+        stayMid.setAttribute('y2', (tipY - 4).toFixed(2));
+      }}
+    }}
+
     document.addEventListener('DOMContentLoaded', () => {{
       lockViewportNoScroll();
       updateDeviceModeBadge();
@@ -1227,29 +1310,65 @@ def check_password() -> bool:
       const tooltipTitle = document.getElementById('tooltip-title');
       const tooltipDesc = document.getElementById('tooltip-desc');
       const tooltipBox = document.getElementById('container-tooltip-box');
-      const sceneStage = document.getElementById('scene-stage');
       const deckCrane = document.getElementById('deck-crane');
 
-      const resetTooltip = () => {{
+      let currentLift = 0;
+      let targetLift = 0;
+      let lastFrameTime = null;
+      let leaveTimer = null;
+
+      // Дуже повільна швидкість: повний хід займає ~3.2 сек
+      const LIFT_SPEED = 0.31;
+
+      const stepLiftAnimation = (timestamp) => {{
+        if (lastFrameTime === null) {{
+          lastFrameTime = timestamp;
+        }}
+        const dt = Math.min((timestamp - lastFrameTime) / 1000, 0.05);
+        lastFrameTime = timestamp;
+
+        if (Math.abs(targetLift - currentLift) > 0.0005) {{
+          const maxStep = LIFT_SPEED * dt;
+          if (targetLift > currentLift) {{
+            currentLift = Math.min(targetLift, currentLift + maxStep);
+          }} else {{
+            currentLift = Math.max(targetLift, currentLift - maxStep);
+          }}
+          applyCraneLiftGeometry(currentLift);
+        }}
+        requestAnimationFrame(stepLiftAnimation);
+      }};
+      requestAnimationFrame(stepLiftAnimation);
+
+      const setDefaultTooltip = () => {{
         tooltipIso.textContent = 'ІНТЕРАКТИВНА СЦЕНА';
         tooltipTitle.textContent = 'Оберіть контейнер на судні для перегляду аналітики';
-        tooltipDesc.textContent = 'Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран, щоб підняти жовтий контейнер.';
+        tooltipDesc.textContent = 'Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран для плавного підйому жовтого контейнера.';
         tooltipBox.style.borderLeftColor = '#0284c7';
       }};
 
-      deckCrane?.addEventListener('mouseenter', () => {{
-        sceneStage?.classList.add('crane-active');
+      const activateCraneLift = () => {{
+        if (leaveTimer) {{
+          clearTimeout(leaveTimer);
+          leaveTimer = null;
+        }}
+        targetLift = 1;
         tooltipIso.textContent = 'КРАН + ISO - 20DV';
-        tooltipTitle.textContent = 'Підйом жовтого контейнера (Конструктор матриць)';
-        tooltipDesc.textContent = 'Судновий кран піднімає жовтий контейнер ISO - 20DV. Натисніть для переходу до форми входу.';
+        tooltipTitle.textContent = 'Повільний підйом жовтого контейнера (Конструктор матриць)';
+        tooltipDesc.textContent = 'Стріла, троси та траверса синхронно піднімають контейнер ISO - 20DV. Натисніть для переходу до форми входу.';
         tooltipBox.style.borderLeftColor = '#eab308';
-      }});
+      }};
 
-      deckCrane?.addEventListener('mouseleave', () => {{
-        sceneStage?.classList.remove('crane-active');
-        resetTooltip();
-      }});
+      const scheduleReleaseLift = () => {{
+        if (leaveTimer) clearTimeout(leaveTimer);
+        leaveTimer = setTimeout(() => {{
+          targetLift = 0;
+          setDefaultTooltip();
+        }}, 180);
+      }};
 
+      deckCrane?.addEventListener('mouseenter', activateCraneLift);
+      deckCrane?.addEventListener('mouseleave', scheduleReleaseLift);
       deckCrane?.addEventListener('click', () => {{
         pwdInput?.focus();
       }});
@@ -1260,8 +1379,14 @@ def check_password() -> bool:
         if (!mod) return;
         el.addEventListener('mouseenter', () => {{
           if (modId === 'matrix') {{
-            sceneStage?.classList.add('crane-active');
+            activateCraneLift();
+            return;
           }}
+          if (leaveTimer) {{
+            clearTimeout(leaveTimer);
+            leaveTimer = null;
+          }}
+          targetLift = 0;
           tooltipIso.textContent = mod.code;
           tooltipTitle.textContent = mod.title;
           tooltipDesc.textContent = mod.desc;
@@ -1269,9 +1394,10 @@ def check_password() -> bool:
         }});
         el.addEventListener('mouseleave', () => {{
           if (modId === 'matrix') {{
-            sceneStage?.classList.remove('crane-active');
+            scheduleReleaseLift();
+          }} else {{
+            setDefaultTooltip();
           }}
-          resetTooltip();
         }});
         el.addEventListener('click', () => {{
           pwdInput?.focus();
