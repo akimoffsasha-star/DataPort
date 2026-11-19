@@ -1,22 +1,16 @@
 import base64
 from datetime import datetime
 import io
+import json
 from pathlib import Path
 from zoneinfo import ZoneInfo
-import json
-import streamlit.components.v1 as components
+
 from openpyxl.utils import get_column_letter
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
-from etl_parser import (
-    fetch_corridors_from_gsheet,
-    parse_23m_file,
-    parse_25vod_file,
-    parse_corridors_file,
-)
+import streamlit.components.v1 as components
 
 from db import (
     clear_all_facts_db,
@@ -34,7 +28,12 @@ from db import (
     save_corridors_to_db,
     update_operators_dict,
 )
-from etl_parser import parse_23m_file, parse_25vod_file, parse_corridors_file
+from etl_parser import (
+    fetch_corridors_from_gsheet,
+    parse_23m_file,
+    parse_25vod_file,
+    parse_corridors_file,
+)
 from pdf_reports import (
     build_cargo_audit_pdf,
     build_corridors_pdf,
@@ -368,6 +367,7 @@ else:
     def _show_full_manual_dialog():
         st.markdown(_load_full_manual_text())
 
+
 def check_password() -> bool:
     if st.session_state.get("authenticated"):
         return True
@@ -553,7 +553,10 @@ def check_password() -> bool:
       overflow: hidden !important;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
+      padding-left: 382px;
+      padding-right: 12px;
+      background: linear-gradient(180deg, #93c5fd 0%, #e0f2fe 65%, #0284c7 65%, #0c4a6e 100%);
     }}
     #port-scene-svg {{
       width: 100%;
@@ -588,11 +591,41 @@ def check_password() -> bool:
 
     .cargo-container {{
       cursor: pointer;
-      transition: filter 0.2s ease;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease;
     }}
     .cargo-container:hover {{
       filter: brightness(1.07) drop-shadow(0 8px 16px rgba(15, 23, 42, 0.3));
     }}
+
+    /* Анімація крана та підйому жовтого контейнера при наведенні курсора на кран */
+    #deck-crane {{
+      cursor: pointer;
+    }}
+    #crane-spreader-group,
+    #crane-hoist-cables,
+    #container-matrix {{
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }}
+    #crane-boom-group {{
+      transform-origin: 1595px 380px;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }}
+    .scene-stage.crane-active #crane-boom-group {{
+      transform: rotate(-3.5deg);
+    }}
+    .scene-stage.crane-active #crane-spreader-group {{
+      transform: translateY(-210px);
+    }}
+    .scene-stage.crane-active #crane-hoist-cables {{
+      transform: scaleY(0.45);
+      transform-box: fill-box;
+      transform-origin: top center;
+    }}
+    .scene-stage.crane-active #container-matrix {{
+      transform: translate(1120px, 180px);
+      filter: drop-shadow(0 14px 22px rgba(15, 23, 42, 0.38));
+    }}
+
     .cloud-drift-slow {{
       animation: cloudDrift 36s linear infinite;
     }}
@@ -623,7 +656,7 @@ def check_password() -> bool:
       box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(148, 163, 184, 0.22);
     }}
 
-    /* Десктоп (>= 1024px): блок входу + підказка ліворуч, пропорційна сцена судна з краном */
+    /* Десктоп (>= 1024px): блок входу + підказка ліворуч, сцена праворуч */
     #login-panel {{
       position: absolute;
       top: 14px;
@@ -671,6 +704,9 @@ def check_password() -> bool:
         top: 44px;
         bottom: 36px;
         height: calc(100vh - 80px);
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
       }}
       #login-panel {{
         top: 0 !important;
@@ -712,8 +748,8 @@ def check_password() -> bool:
     <div id="device-mode-badge" class="top-device-badge">🖥️ ПК</div>
   </header>
 
-  <main class="scene-stage">
-    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="420 130 1480 860" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" class="block select-none">
+  <main id="scene-stage" class="scene-stage">
+    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="420 130 1560 860" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" class="block select-none">
       <defs>
         <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#93c5fd" />
@@ -735,9 +771,10 @@ def check_password() -> bool:
         </linearGradient>
       </defs>
 
-      <rect x="0" y="0" width="1920" height="860" fill="url(#skyGrad)" />
-      <rect x="0" y="860" width="1920" height="220" fill="url(#seaGrad)" />
-      <line x1="0" y1="860" x2="1920" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.7" />
+      <!-- Рівний горизонт неба і моря по всій ширині сцени -->
+      <rect x="-200" y="130" width="2500" height="730" fill="url(#skyGrad)" />
+      <rect x="-200" y="860" width="2500" height="300" fill="url(#seaGrad)" />
+      <line x1="-200" y1="860" x2="2300" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.75" />
       <g fill="#bae6fd" opacity="0.25">
         <rect x="760" y="885" width="180" height="4" rx="2" />
         <rect x="1120" y="910" width="240" height="5" rx="2.5" />
@@ -871,7 +908,7 @@ def check_password() -> bool:
           <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
         </g>
 
-        <g class="cargo-container" data-module-id="matrix" transform="translate(1120, 390)" tabindex="0" role="button">
+        <g id="container-matrix" class="cargo-container" data-module-id="matrix" transform="translate(1120, 390)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
           <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
@@ -894,26 +931,35 @@ def check_password() -> bool:
         <polygon points="1550,468 1652,468 1638,340 1562,340" fill="#fbbf24" stroke="#b45309" stroke-width="3.5" />
         <polygon points="1508,425 1554,425 1554,362 1522,362" fill="#38bdf8" stroke="#0f172a" stroke-width="3.5" />
         <line x1="1531" y1="362" x2="1526" y2="425" stroke="#0f172a" stroke-width="2.5" />
-        <polygon points="1572,382 1592,418 1278,244 1290,218" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
-        <circle cx="1285" cy="234" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
-        <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
-        <line x1="1604" y1="340" x2="1285" y2="222" stroke="#1e293b" stroke-width="4.5" />
-        <line x1="1604" y1="350" x2="1285" y2="230" stroke="#1e293b" stroke-width="3" />
-        <line x1="1279" y1="244" x2="1279" y2="342" stroke="#0f172a" stroke-width="4" />
-        <line x1="1291" y1="244" x2="1291" y2="342" stroke="#0f172a" stroke-width="4" />
-        <rect x="1270" y="338" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
-        <line x1="1285" y1="360" x2="1132" y2="376" stroke="#334155" stroke-width="4.5" />
-        <line x1="1285" y1="360" x2="1438" y2="376" stroke="#334155" stroke-width="4.5" />
-        <rect x="1116" y="374" width="338" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
-        <rect x="1120" y="386" width="14" height="8" rx="1" fill="#0f172a" />
-        <rect x="1436" y="386" width="14" height="8" rx="1" fill="#0f172a" />
+
+        <g id="crane-boom-group">
+          <polygon points="1572,382 1592,418 1278,244 1290,218" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
+          <circle cx="1285" cy="234" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
+          <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+          <line x1="1604" y1="340" x2="1285" y2="222" stroke="#1e293b" stroke-width="4.5" />
+          <line x1="1604" y1="350" x2="1285" y2="230" stroke="#1e293b" stroke-width="3" />
+        </g>
+
+        <g id="crane-hoist-cables">
+          <line x1="1279" y1="244" x2="1279" y2="342" stroke="#0f172a" stroke-width="4" />
+          <line x1="1291" y1="244" x2="1291" y2="342" stroke="#0f172a" stroke-width="4" />
+        </g>
+
+        <g id="crane-spreader-group">
+          <rect x="1270" y="338" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+          <line x1="1285" y1="360" x2="1132" y2="376" stroke="#334155" stroke-width="4.5" />
+          <line x1="1285" y1="360" x2="1438" y2="376" stroke="#334155" stroke-width="4.5" />
+          <rect x="1116" y="374" width="338" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
+          <rect x="1120" y="386" width="14" height="8" rx="1" fill="#0f172a" />
+          <rect x="1436" y="386" width="14" height="8" rx="1" fill="#0f172a" />
+        </g>
       </g>
 
       <g class="wave-shift-1">
-        <path d="M-40,902 Q50,886 140,902 T320,902 T500,902 T680,902 T860,902 T1040,902 T1220,902 T1400,902 T1580,902 T1760,902 T1960,902 L1960,1080 L-40,1080 Z" fill="#0369a1" opacity="0.88" />
+        <path d="M-240,902 Q-150,886 -60,902 T120,902 T300,902 T480,902 T660,902 T840,902 T1020,902 T1200,902 T1380,902 T1560,902 T1740,902 T1920,902 T2100,902 T2280,902 L2280,1160 L-240,1160 Z" fill="#0369a1" opacity="0.88" />
       </g>
       <g class="wave-shift-2">
-        <path d="M-40,948 Q70,932 180,948 T400,948 T620,948 T840,948 T1060,948 T1280,948 T1500,948 T1720,948 T1960,948 L1960,1080 L-40,1080 Z" fill="#075985" opacity="0.76" />
+        <path d="M-240,948 Q-130,932 -20,948 T200,948 T420,948 T640,948 T860,948 T1080,948 T1300,948 T1520,948 T1740,948 T1960,948 T2180,948 L2180,1160 L-240,1160 Z" fill="#075985" opacity="0.76" />
       </g>
     </svg>
 
@@ -991,13 +1037,13 @@ def check_password() -> bool:
           <span id="tooltip-iso" class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-100 text-sky-900">
             ІНТЕРАКТИВНА СЦЕНА
           </span>
-          <span class="text-[11px] text-slate-500 font-medium">Наведіть на контейнер</span>
+          <span class="text-[11px] text-slate-500 font-medium">Наведіть на контейнер або кран</span>
         </div>
         <h2 id="tooltip-title" class="text-sm font-bold text-slate-900 leading-snug">
           Оберіть контейнер на судні для перегляду аналітики
         </h2>
         <p id="tooltip-desc" class="text-xs text-slate-600 mt-0.5 leading-snug line-clamp-3">
-          Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Натисніть для входу або скористайтесь формою.
+          Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран, щоб підняти жовтий контейнер.
         </p>
       </div>
     </aside>
@@ -1181,21 +1227,51 @@ def check_password() -> bool:
       const tooltipTitle = document.getElementById('tooltip-title');
       const tooltipDesc = document.getElementById('tooltip-desc');
       const tooltipBox = document.getElementById('container-tooltip-box');
+      const sceneStage = document.getElementById('scene-stage');
+      const deckCrane = document.getElementById('deck-crane');
+
+      const resetTooltip = () => {{
+        tooltipIso.textContent = 'ІНТЕРАКТИВНА СЦЕНА';
+        tooltipTitle.textContent = 'Оберіть контейнер на судні для перегляду аналітики';
+        tooltipDesc.textContent = 'Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран, щоб підняти жовтий контейнер.';
+        tooltipBox.style.borderLeftColor = '#0284c7';
+      }};
+
+      deckCrane?.addEventListener('mouseenter', () => {{
+        sceneStage?.classList.add('crane-active');
+        tooltipIso.textContent = 'КРАН + ISO - 20DV';
+        tooltipTitle.textContent = 'Підйом жовтого контейнера (Конструктор матриць)';
+        tooltipDesc.textContent = 'Судновий кран піднімає жовтий контейнер ISO - 20DV. Натисніть для переходу до форми входу.';
+        tooltipBox.style.borderLeftColor = '#eab308';
+      }});
+
+      deckCrane?.addEventListener('mouseleave', () => {{
+        sceneStage?.classList.remove('crane-active');
+        resetTooltip();
+      }});
+
+      deckCrane?.addEventListener('click', () => {{
+        pwdInput?.focus();
+      }});
 
       document.querySelectorAll('.cargo-container').forEach((el) => {{
-        const mod = MODULE_HINTS[el.getAttribute('data-module-id')];
+        const modId = el.getAttribute('data-module-id');
+        const mod = MODULE_HINTS[modId];
         if (!mod) return;
         el.addEventListener('mouseenter', () => {{
+          if (modId === 'matrix') {{
+            sceneStage?.classList.add('crane-active');
+          }}
           tooltipIso.textContent = mod.code;
           tooltipTitle.textContent = mod.title;
           tooltipDesc.textContent = mod.desc;
           tooltipBox.style.borderLeftColor = mod.accent;
         }});
         el.addEventListener('mouseleave', () => {{
-          tooltipIso.textContent = 'ІНТЕРАКТИВНА СЦЕНА';
-          tooltipTitle.textContent = 'Оберіть контейнер на судні для перегляду аналітики';
-          tooltipDesc.textContent = 'Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Натисніть для входу або скористайтесь формою.';
-          tooltipBox.style.borderLeftColor = '#0284c7';
+          if (modId === 'matrix') {{
+            sceneStage?.classList.remove('crane-active');
+          }}
+          resetTooltip();
         }});
         el.addEventListener('click', () => {{
           pwdInput?.focus();
@@ -1208,6 +1284,7 @@ def check_password() -> bool:
 
     components.html(login_html, height=900, scrolling=False)
     return False
+
 
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
@@ -1277,6 +1354,10 @@ if not check_password():
     st.stop()
 if st.sidebar.button("📖 Повна інструкція (вікно)", use_container_width=True):
     _show_full_manual_dialog()
+if st.sidebar.button("🚪 Вихід із системи", use_container_width=True):
+    st.session_state["authenticated"] = False
+    st.query_params.clear()
+    st.rerun()
 
 if page == "📘 Інструкція":
     st.title("📘 Інструкція користувача та адміністратора")
@@ -2125,6 +2206,7 @@ elif page == "📤 Завантаження Excel":
                     status.update(label=f"✅ {uf.name} успішно завантажено", state="complete")
                 except Exception as e:
                     status.update(label=f"❌ Помилка в {uf.name}: {e}", state="error")
+
 
 # =====================================================================
 # СТОРІНКА 6: ПРИЧИНИ ПАДІННЯ, ДОВІДНИКИ ТА КЕРУВАННЯ МІСЯЦЯМИ
