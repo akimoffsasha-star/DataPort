@@ -960,7 +960,7 @@ if uploaded_files and st.button("🚀 Обробити та зберегти в 
                     if ftype == "коридори":
                         corridors_data = parse_corridors_file(uf)
                         saved_counts = save_corridors_to_db(corridors_data)
-                        st.write(f"Успішно збережено в БД: вантажів — {saved_counts.get('cargo', 0)}, суднозаходів — {saved_counts.get('vessels', 0)}, атак — {saved_counts.get('attacks', 0)}")
+                        st.write(f"Збережено коридори: {saved}")
                     elif ftype == "23-м":
                         df_c, warnings = parse_23m_file(uf, include_prev_year=include_prev)
                         inserted = save_cargo_to_db(df_c)
