@@ -3,7 +3,8 @@ from datetime import datetime
 import io
 from pathlib import Path
 from zoneinfo import ZoneInfo
-
+import json
+import streamlit.components.v1 as components
 from openpyxl.utils import get_column_letter
 import pandas as pd
 import plotly.express as px
@@ -355,546 +356,619 @@ def check_password() -> bool:
     if st.session_state.get("authenticated"):
         return True
 
+    # Перевірка входу з кастомного HTML-вікна через query param
+    if st.query_params.get("auth") == "ok":
+        st.session_state["authenticated"] = True
+        st.query_params.clear()
+        st.rerun()
+
+    if st.query_params.get("manual") == "1":
+        st.query_params.clear()
+        _show_login_manual_dialog()
+
     try:
         now_str = datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%d.%m.%Y %H:%M")
     except Exception:
         now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
 
+    expected_pwd = str(st.secrets.get("APP_PASSWORD", "PORT-2026"))
+    expected_pwd_json = json.dumps(expected_pwd)
+    now_str_json = json.dumps(now_str)
+
     st.markdown(
         """
         <style>
         [data-testid="stSidebar"],
-        [data-testid="stSidebarCollapsedControl"] {
+        [data-testid="stSidebarCollapsedControl"],
+        [data-testid="stHeader"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"] {
             display: none !important;
         }
         [data-testid="stAppViewContainer"],
-        .stApp {
-            background: radial-gradient(circle at 65% 40%, #17355a 0%, #0b192c 100%) !important;
-        }
-        [data-testid="stAppViewContainer"] > .main {
-            padding: 0 !important;
-            position: relative !important;
-            z-index: 5 !important;
-        }
+        .stApp,
+        [data-testid="stAppViewContainer"] > .main,
         [data-testid="stAppViewContainer"] > .main > .block-container {
+            padding: 0 !important;
+            margin: 0 !important;
             max-width: 100% !important;
             width: 100% !important;
-            margin: 0 !important;
-            position: relative !important;
-            z-index: 6 !important;
+            background: #020617 !important;
+            overflow: hidden !important;
         }
-        [data-testid="stHeader"] {
-            background: transparent !important;
-            height: 44px !important;
-            z-index: 50 !important;
-        }
-
-        /* Фіксована верхня панель з актуальною назвою міністерства та часом Києва */
-        .port-fixed-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 44px;
-            z-index: 999;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            gap: 10px;
-            background: rgba(15, 23, 42, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(51, 65, 85, 0.9);
-            padding: 4px 16px;
-            padding-right: 135px;
-            box-shadow: 0 4px 16px rgba(2, 12, 27, 0.35);
-        }
-        .port-header-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-self: start;
-            min-width: 0;
-        }
-        .port-header-logo {
-            width: 26px;
-            height: 26px;
-            border-radius: 7px;
-            background: rgba(251, 191, 36, 0.16);
-            border: 1px solid rgba(251, 191, 36, 0.45);
-            color: #fbbf24 !important;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 800;
-            flex-shrink: 0;
-        }
-        .port-header-ministry {
-            font-size: 0.84rem;
-            font-weight: 700;
-            color: #f8fafc !important;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .port-header-clock {
-            justify-self: center;
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid rgba(71, 85, 105, 0.9);
-            color: #7dd3fc !important;
-            border-radius: 999px;
-            padding: 2px 14px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-        .port-header-spacer {
-            justify-self: end;
-        }
-
-        /* Сцена 1920x1080: контейнеровоз, 6 контейнерів та палубний кран */
-        .port-ship-scene-wrap {
-            position: fixed;
-            top: 44px;
-            left: 0;
-            right: 0;
-            bottom: 30px;
-            z-index: 1;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .port-ship-scene-wrap svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        @keyframes portCraneSway {
-            0%, 100% {
-                transform: rotate(0deg);
-            }
-            50% {
-                transform: rotate(0.45deg);
-            }
-        }
-        .port-lifted-assembly {
-            transform-origin: 1285px 186px;
-            animation: portCraneSway 5s ease-in-out infinite;
-        }
-
-        @keyframes portCloudDrift {
-            0% {
-                transform: translateX(0px);
-            }
-            50% {
-                transform: translateX(24px);
-            }
-            100% {
-                transform: translateX(0px);
-            }
-        }
-        .port-cloud-drift {
-            animation: portCloudDrift 36s linear infinite;
-        }
-
-        @keyframes portWave1 {
-            0%, 100% {
-                transform: translateX(0px);
-            }
-            50% {
-                transform: translateX(-14px);
-            }
-        }
-        @keyframes portWave2 {
-            0%, 100% {
-                transform: translateX(0px);
-            }
-            50% {
-                transform: translateX(16px);
-            }
-        }
-        .port-wave-1 {
-            animation: portWave1 7s ease-in-out infinite;
-        }
-        .port-wave-2 {
-            animation: portWave2 9.5s ease-in-out infinite;
-        }
-
-        /* Картка форми входу */
-        .port-form-head {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .port-form-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: #fef3c7;
-            border: 2px solid #fbbf24;
-            color: #0c4a6e !important;
-            font-size: 1.25rem;
-            margin-bottom: 6px;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
-        }
-        .port-form-title {
-            font-size: 1.18rem;
-            font-weight: 800;
-            color: #0f172a !important;
-            line-height: 1.2;
-            letter-spacing: -0.01em;
-        }
-        .port-form-dept {
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: #475569 !important;
-            line-height: 1.3;
-            margin-top: 3px;
-        }
-        [data-testid="stForm"] {
-            width: 410px !important;
-            max-width: 100% !important;
-            background: rgba(255, 255, 255, 0.94) !important;
-            backdrop-filter: blur(14px) !important;
-            -webkit-backdrop-filter: blur(14px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.85) !important;
-            border-top: 5px solid #fbbf24 !important;
-            border-radius: 22px !important;
-            padding: 18px 20px 14px 20px !important;
-            box-shadow: 0 22px 50px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(148, 163, 184, 0.2) !important;
-        }
-        [data-testid="stForm"] label,
-        [data-testid="stForm"] label p {
-            color: #1e293b !important;
-            font-weight: 600 !important;
-            font-size: 0.84rem !important;
-        }
-
-        /* Фіксований нижній колонтитул */
-        .port-login-footer {
-            position: fixed;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 30px;
-            z-index: 999;
-            background: rgba(2, 6, 23, 0.96);
-            color: #94a3b8 !important;
-            border-top: 1px solid rgba(30, 41, 59, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.74rem;
-            font-weight: 600;
-            padding: 0 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* На десктопі: без зайвої прокрутки, форма ліворуч */
-        @media (min-width: 769px) {
-            html, body,
-            [data-testid="stAppViewContainer"],
-            [data-testid="stAppViewContainer"] > .main,
-            section[data-testid="stMain"],
-            [data-testid="stAppViewContainer"] > .main > .block-container {
-                height: 100vh !important;
-                max-height: 100vh !important;
-                overflow: hidden !important;
-            }
-            [data-testid="stAppViewContainer"] > .main > .block-container {
-                padding: 56px 24px 38px 24px !important;
-            }
-            div[data-testid="stHorizontalBlock"] {
-                height: calc(100vh - 94px) !important;
-                max-height: calc(100vh - 94px) !important;
-                overflow: hidden !important;
-                align-items: center !important;
-            }
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: center !important;
-                align-items: flex-start !important;
-            }
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {
-                width: 410px !important;
-                max-width: 100% !important;
-                margin-top: 8px !important;
-            }
+        iframe[title="streamlit.components.v1.html"] {
+            display: block !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        f"""
-        <div class="port-fixed-header">
-            <div class="port-header-brand">
-                <div class="port-header-logo">⚓</div>
-                <div class="port-header-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div>
+    login_html = f"""<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * {{ box-sizing: border-box; }}
+    html, body {{
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #020617;
+      color: #0f172a;
+      overflow: hidden;
+    }}
+    .portal-shell {{
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #020617;
+    }}
+    .stage-wrapper {{
+      position: relative;
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 65% 40%, #17355a 0%, #0b192c 100%);
+      padding: 8px 14px;
+    }}
+    .scene-1920 {{
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: calc((100vh - 86px) * 16 / 9);
+      max-height: calc((100vw - 28px) * 9 / 16);
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 58%, #f0f9ff 76%, #0284c7 76%, #0369a1 100%);
+      border-radius: 18px;
+      box-shadow: 0 22px 60px rgba(2, 6, 23, 0.65);
+      overflow: hidden;
+    }}
+    .cargo-container {{
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.22s ease;
+    }}
+    .cargo-container:hover {{
+      filter: brightness(1.08) drop-shadow(0 10px 18px rgba(15, 23, 42, 0.35));
+    }}
+    .lifted-assembly {{
+      transform-origin: 1285px 186px;
+      animation: craneSway 5s ease-in-out infinite;
+    }}
+    @keyframes craneSway {{
+      0%, 100% {{ transform: rotate(0deg); }}
+      50% {{ transform: rotate(0.45deg); }}
+    }}
+    .cloud-drift-slow {{
+      animation: cloudDrift 36s linear infinite;
+    }}
+    @keyframes cloudDrift {{
+      0% {{ transform: translateX(0px); }}
+      50% {{ transform: translateX(24px); }}
+      100% {{ transform: translateX(0px); }}
+    }}
+    .wave-shift-1 {{
+      animation: waveMove1 7s ease-in-out infinite;
+    }}
+    .wave-shift-2 {{
+      animation: waveMove2 9.5s ease-in-out infinite;
+    }}
+    @keyframes waveMove1 {{
+      0%, 100% {{ transform: translateX(0px); }}
+      50% {{ transform: translateX(-14px); }}
+    }}
+    @keyframes waveMove2 {{
+      0%, 100% {{ transform: translateX(0px); }}
+      50% {{ transform: translateX(16px); }}
+    }}
+    .login-card {{
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(148, 163, 184, 0.2);
+    }}
+  </style>
+</head>
+<body>
+  <div class="portal-shell">
+    <header class="w-full h-[38px] bg-slate-900/95 border-b border-slate-800 text-slate-100 px-5 flex items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-6 h-6 rounded-md bg-amber-400/15 border border-amber-400/40 flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">⚓</div>
+        <span class="text-xs sm:text-sm font-semibold tracking-wide text-slate-100 truncate">
+          Міністерство з відновлення, інфраструктури та транспорту України
+        </span>
+      </div>
+      <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 px-3 py-0.5 rounded-full text-sky-300 text-xs shrink-0">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span>Київ:</span>
+        <span id="kyiv-datetime" class="font-semibold text-white tabular-nums"></span>
+      </div>
+    </header>
+
+    <main class="stage-wrapper">
+      <div id="scene1920" class="scene-1920">
+        <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%" class="block select-none">
+          <defs>
+            <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#93c5fd" />
+              <stop offset="55%" stop-color="#e0f2fe" />
+              <stop offset="100%" stop-color="#f8fafc" />
+            </linearGradient>
+            <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#0284c7" />
+              <stop offset="45%" stop-color="#0369a1" />
+              <stop offset="100%" stop-color="#0c4a6e" />
+            </linearGradient>
+            <pattern id="corrugation" width="18" height="14" patternUnits="userSpaceOnUse">
+              <line x1="6" y1="0" x2="6" y2="14" stroke="#000000" stroke-opacity="0.2" stroke-width="4" />
+              <line x1="12" y1="0" x2="12" y2="14" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" />
+            </pattern>
+            <linearGradient id="hullShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#0f172a" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+
+          <rect x="0" y="0" width="1920" height="860" fill="url(#skyGrad)" />
+          <rect x="0" y="860" width="1920" height="220" fill="url(#seaGrad)" />
+          <line x1="0" y1="860" x2="1920" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.7" />
+          <g fill="#bae6fd" opacity="0.25">
+            <rect x="760" y="885" width="180" height="4" rx="2" />
+            <rect x="1120" y="910" width="240" height="5" rx="2.5" />
+            <rect x="850" y="945" width="140" height="4" rx="2" />
+            <rect x="1480" y="895" width="210" height="4" rx="2" />
+          </g>
+
+          <g class="cloud-drift-slow" fill="#ffffff" opacity="0.78">
+            <circle cx="620" cy="145" r="42" />
+            <circle cx="665" cy="135" r="54" />
+            <circle cx="715" cy="145" r="44" />
+            <circle cx="755" cy="152" r="32" />
+            <circle cx="1480" cy="115" r="36" />
+            <circle cx="1518" cy="108" r="46" />
+            <circle cx="1558" cy="118" r="36" />
+          </g>
+
+          <ellipse cx="1160" cy="908" rx="710" ry="20" fill="url(#hullShadow)" />
+
+          <g id="ship-hull">
+            <polygon points="560,765 560,465 735,465 775,765" fill="#f8fafc" stroke="#94a3b8" stroke-width="3.5" />
+            <rect x="548" y="442" width="198" height="30" rx="5" fill="#e2e8f0" stroke="#64748b" stroke-width="3" />
+            <rect x="572" y="450" width="150" height="14" rx="2" fill="#0f172a" />
+            <g fill="#38bdf8" opacity="0.55">
+              <rect x="578" y="453" width="22" height="8" rx="1" />
+              <rect x="606" y="453" width="22" height="8" rx="1" />
+              <rect x="634" y="453" width="22" height="8" rx="1" />
+              <rect x="662" y="453" width="22" height="8" rx="1" />
+              <rect x="690" y="453" width="24" height="8" rx="1" />
+            </g>
+            <g fill="#334155">
+              <rect x="595" y="505" width="24" height="20" rx="3" />
+              <rect x="640" y="505" width="24" height="20" rx="3" />
+              <rect x="685" y="505" width="24" height="20" rx="3" />
+              <rect x="595" y="555" width="24" height="20" rx="3" />
+              <rect x="640" y="555" width="24" height="20" rx="3" />
+              <rect x="685" y="555" width="24" height="20" rx="3" />
+              <rect x="595" y="610" width="24" height="20" rx="3" />
+              <rect x="640" y="610" width="24" height="20" rx="3" />
+              <rect x="685" y="610" width="24" height="20" rx="3" />
+            </g>
+            <line x1="648" y1="442" x2="648" y2="355" stroke="#475569" stroke-width="6" stroke-linecap="round" />
+            <line x1="612" y1="382" x2="684" y2="382" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+            <rect x="628" y="366" width="40" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+            <circle cx="648" cy="348" r="5" fill="#ef4444" />
+
+            <polygon points="480,765 1785,765 1885,902 480,902" fill="#1e293b" stroke="#0f172a" stroke-width="3" />
+            <polygon points="480,862 1856,862 1885,902 480,902" fill="#991b1b" />
+            <rect x="480" y="748" width="1305" height="17" fill="#475569" />
+
+            <line x1="480" y1="726" x2="1775" y2="726" stroke="#cbd5e1" stroke-width="3.5" />
+            <g stroke="#cbd5e1" stroke-width="2.5">
+              <line x1="510" y1="726" x2="510" y2="748" />
+              <line x1="550" y1="726" x2="550" y2="748" />
+              <line x1="780" y1="726" x2="780" y2="748" />
+              <line x1="1460" y1="726" x2="1460" y2="748" />
+              <line x1="1540" y1="726" x2="1540" y2="748" />
+              <line x1="1620" y1="726" x2="1620" y2="748" />
+              <line x1="1700" y1="726" x2="1700" y2="748" />
+              <line x1="1765" y1="726" x2="1765" y2="748" />
+            </g>
+            <g fill="#64748b" stroke="#1e293b" stroke-width="2">
+              <rect x="1635" y="736" width="18" height="12" rx="3" />
+              <rect x="1715" y="736" width="18" height="12" rx="3" />
+            </g>
+          </g>
+
+          <g id="containers-group">
+            <g class="cargo-container" data-module-id="security" transform="translate(775, 630)" tabindex="0" role="button">
+              <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
+              <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+              <rect x="216" y="14" width="100" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+              <text x="266" y="33" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">IMO - TANK</text>
+              <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+              <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">🚨 Безпека та статистика атак</text>
+              <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+            </g>
+
+            <g class="cargo-container" data-module-id="audit" transform="translate(775, 510)" tabindex="0" role="button">
+              <rect width="330" height="118" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3.5" />
+              <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+              <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+              <text x="268" y="33" text-anchor="middle" fill="#fecaca" font-size="14" font-weight="700">ISO - 40RF</text>
+              <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+              <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">⚓ Аудит операторів і причалів</text>
+              <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+            </g>
+
+            <g class="cargo-container" data-module-id="turnover" transform="translate(775, 390)" tabindex="0" role="button">
+              <rect width="330" height="118" rx="6" fill="#047857" stroke="#064e3b" stroke-width="3.5" />
+              <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+              <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+              <text x="268" y="33" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">ISO - 40HC</text>
+              <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+              <text x="28" y="83" fill="#ffffff" font-size="20" font-weight="700">📊 Вантажообіг</text>
+              <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+            </g>
+
+            <g class="cargo-container" data-module-id="reports" transform="translate(1120, 630)" tabindex="0" role="button">
+              <rect width="330" height="118" rx="6" fill="#ea580c" stroke="#9a3412" stroke-width="3.5" />
+              <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+              <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+              <text x="268" y="33" text-anchor="middle" fill="#fed7aa" font-size="14" font-weight="700">ISO - 20OT</text>
+              <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+              <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">📄 PDF-звіти, періоди</text>
+              <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+            </g>
+
+            <g class="cargo-container" data-module-id="corridors" transform="translate(1120, 510)" tabindex="0" role="button">
+              <rect width="330" height="118" rx="6" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
+              <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+              <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.86" />
+              <text x="268" y="33" text-anchor="middle" fill="#cbd5e1" font-size="14" font-weight="700">ISO - 45GP</text>
+              <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.75" />
+              <text x="28" y="83" fill="#ffffff" font-size="17.5" font-weight="700">🧭 Морські коридори та кластери</text>
+              <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+            </g>
+
+            <g class="cargo-container lifted-assembly" data-module-id="matrix" transform="translate(1120, 342)" tabindex="0" role="button">
+              <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
+              <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+              <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
+              <text x="268" y="33" text-anchor="middle" fill="#fef08a" font-size="14" font-weight="700">ISO - 20DV</text>
+              <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.82" />
+              <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">🧮 Конструктор матриць</text>
+              <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+              <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+              <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+            </g>
+          </g>
+
+          <g id="deck-crane">
+            <rect x="1552" y="485" width="96" height="263" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
+            <rect x="1540" y="724" width="120" height="24" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+            <line x1="1584" y1="495" x2="1584" y2="720" stroke="#d97706" stroke-width="3" />
+            <line x1="1616" y1="495" x2="1616" y2="720" stroke="#d97706" stroke-width="3" />
+            <rect x="1546" y="468" width="108" height="18" rx="4" fill="#1e293b" />
+            <polygon points="1550,468 1652,468 1638,340 1562,340" fill="#fbbf24" stroke="#b45309" stroke-width="3.5" />
+            <polygon points="1508,425 1554,425 1554,362 1522,362" fill="#38bdf8" stroke="#0f172a" stroke-width="3.5" />
+            <line x1="1531" y1="362" x2="1526" y2="425" stroke="#0f172a" stroke-width="2.5" />
+            <polygon points="1572,382 1592,418 1278,196 1290,170" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
+            <circle cx="1285" cy="186" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
+            <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+            <line x1="1604" y1="340" x2="1285" y2="174" stroke="#1e293b" stroke-width="4.5" />
+            <line x1="1604" y1="350" x2="1285" y2="182" stroke="#1e293b" stroke-width="3" />
+            <line x1="1279" y1="196" x2="1279" y2="294" stroke="#0f172a" stroke-width="4" />
+            <line x1="1291" y1="196" x2="1291" y2="294" stroke="#0f172a" stroke-width="4" />
+            <rect x="1270" y="290" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+            <line x1="1285" y1="312" x2="1132" y2="328" stroke="#334155" stroke-width="4.5" />
+            <line x1="1285" y1="312" x2="1438" y2="328" stroke="#334155" stroke-width="4.5" />
+            <rect x="1116" y="326" width="338" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
+            <rect x="1120" y="338" width="14" height="8" rx="1" fill="#0f172a" />
+            <rect x="1436" y="338" width="14" height="8" rx="1" fill="#0f172a" />
+          </g>
+
+          <g class="wave-shift-1">
+            <path d="M-40,902 Q50,886 140,902 T320,902 T500,902 T680,902 T860,902 T1040,902 T1220,902 T1400,902 T1580,902 T1760,902 T1960,902 L1960,1080 L-40,1080 Z" fill="#0369a1" opacity="0.88" />
+          </g>
+          <g class="wave-shift-2">
+            <path d="M-40,948 Q70,932 180,948 T400,948 T620,948 T840,948 T1060,948 T1280,948 T1500,948 T1720,948 T1960,948 L1960,1080 L-40,1080 Z" fill="#075985" opacity="0.76" />
+          </g>
+        </svg>
+
+        <aside id="login-panel" class="absolute top-4 left-4 bottom-4 w-[24%] min-w-[270px] max-w-[420px] z-20 flex flex-col justify-between gap-2 pointer-events-none">
+          <div class="login-card rounded-2xl p-4 pointer-events-auto border-t-[5px] border-t-amber-400">
+            <div class="flex flex-col items-center text-center mb-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-sky-900 shadow-sm mb-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="5.5" r="2.2"></circle>
+                  <path d="M12 7.7V20"></path>
+                  <path d="M6.5 12.5H17.5"></path>
+                  <path d="M5 13.5a7 7 0 0 0 14 0"></path>
+                </svg>
+              </div>
+              <h1 class="text-base font-extrabold text-slate-900 tracking-tight leading-tight">
+                Вхід до аналітичної системи
+              </h1>
+              <p class="text-[11px] font-medium text-slate-600 mt-0.5 leading-snug">
+                Департамент морського та внутрішнього водного транспорту
+              </p>
             </div>
-            <div class="port-header-clock">🕒 Київ: {now_str}</div>
-            <div class="port-header-spacer"></div>
-        </div>
 
-        <div class="port-ship-scene-wrap" aria-hidden="true">
-            <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
-              <defs>
-                <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#93c5fd" />
-                  <stop offset="55%" stop-color="#e0f2fe" />
-                  <stop offset="100%" stop-color="#f8fafc" />
-                </linearGradient>
-                <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#0284c7" />
-                  <stop offset="45%" stop-color="#0369a1" />
-                  <stop offset="100%" stop-color="#0c4a6e" />
-                </linearGradient>
-                <pattern id="corrugation" width="18" height="14" patternUnits="userSpaceOnUse">
-                  <line x1="6" y1="0" x2="6" y2="14" stroke="#000000" stroke-opacity="0.2" stroke-width="4" />
-                  <line x1="12" y1="0" x2="12" y2="14" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" />
-                </pattern>
-                <linearGradient id="hullShadow" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#0f172a" stop-opacity="0.45" />
-                  <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
-                </linearGradient>
-              </defs>
-
-              <rect x="0" y="0" width="1920" height="860" fill="url(#skyGrad)" />
-              <rect x="0" y="860" width="1920" height="220" fill="url(#seaGrad)" />
-              <line x1="0" y1="860" x2="1920" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.7" />
-
-              <g fill="#bae6fd" opacity="0.25">
-                <rect x="760" y="885" width="180" height="4" rx="2" />
-                <rect x="1120" y="910" width="240" height="5" rx="2.5" />
-                <rect x="850" y="945" width="140" height="4" rx="2" />
-                <rect x="1480" y="895" width="210" height="4" rx="2" />
-              </g>
-
-              <g class="port-cloud-drift" fill="#ffffff" opacity="0.78">
-                <circle cx="620" cy="145" r="42" />
-                <circle cx="665" cy="135" r="54" />
-                <circle cx="715" cy="145" r="44" />
-                <circle cx="755" cy="152" r="32" />
-                <circle cx="1480" cy="115" r="36" />
-                <circle cx="1518" cy="108" r="46" />
-                <circle cx="1558" cy="118" r="36" />
-              </g>
-
-              <ellipse cx="1160" cy="908" rx="710" ry="20" fill="url(#hullShadow)" />
-
-              <g id="ship-hull">
-                <polygon points="560,765 560,465 735,465 775,765" fill="#f8fafc" stroke="#94a3b8" stroke-width="3.5" />
-                <rect x="548" y="442" width="198" height="30" rx="5" fill="#e2e8f0" stroke="#64748b" stroke-width="3" />
-                <rect x="572" y="450" width="150" height="14" rx="2" fill="#0f172a" />
-                <g fill="#38bdf8" opacity="0.55">
-                  <rect x="578" y="453" width="22" height="8" rx="1" />
-                  <rect x="606" y="453" width="22" height="8" rx="1" />
-                  <rect x="634" y="453" width="22" height="8" rx="1" />
-                  <rect x="662" y="453" width="22" height="8" rx="1" />
-                  <rect x="690" y="453" width="24" height="8" rx="1" />
-                </g>
-                <g fill="#334155">
-                  <rect x="595" y="505" width="24" height="20" rx="3" />
-                  <rect x="640" y="505" width="24" height="20" rx="3" />
-                  <rect x="685" y="505" width="24" height="20" rx="3" />
-                  <rect x="595" y="555" width="24" height="20" rx="3" />
-                  <rect x="640" y="555" width="24" height="20" rx="3" />
-                  <rect x="685" y="555" width="24" height="20" rx="3" />
-                  <rect x="595" y="610" width="24" height="20" rx="3" />
-                  <rect x="640" y="610" width="24" height="20" rx="3" />
-                  <rect x="685" y="610" width="24" height="20" rx="3" />
-                </g>
-                <line x1="648" y1="442" x2="648" y2="355" stroke="#475569" stroke-width="6" stroke-linecap="round" />
-                <line x1="612" y1="382" x2="684" y2="382" stroke="#475569" stroke-width="4" stroke-linecap="round" />
-                <rect x="628" y="366" width="40" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
-                <circle cx="648" cy="348" r="5" fill="#ef4444" />
-
-                <polygon points="480,765 1785,765 1885,902 480,902" fill="#1e293b" stroke="#0f172a" stroke-width="3" />
-                <polygon points="480,862 1856,862 1885,902 480,902" fill="#991b1b" />
-                <rect x="480" y="748" width="1305" height="17" fill="#475569" />
-
-                <line x1="480" y1="726" x2="1775" y2="726" stroke="#cbd5e1" stroke-width="3.5" />
-                <g stroke="#cbd5e1" stroke-width="2.5">
-                  <line x1="510" y1="726" x2="510" y2="748" />
-                  <line x1="550" y1="726" x2="550" y2="748" />
-                  <line x1="780" y1="726" x2="780" y2="748" />
-                  <line x1="1460" y1="726" x2="1460" y2="748" />
-                  <line x1="1540" y1="726" x2="1540" y2="748" />
-                  <line x1="1620" y1="726" x2="1620" y2="748" />
-                  <line x1="1700" y1="726" x2="1700" y2="748" />
-                  <line x1="1765" y1="726" x2="1765" y2="748" />
-                </g>
-                <g fill="#64748b" stroke="#1e293b" stroke-width="2">
-                  <rect x="1635" y="736" width="18" height="12" rx="3" />
-                  <rect x="1715" y="736" width="18" height="12" rx="3" />
-                </g>
-              </g>
-
-              <g id="containers-group">
-                <g transform="translate(775, 630)">
-                  <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
-                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-                  <rect x="216" y="14" width="100" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="266" y="33" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700" letter-spacing="0.5">IMO - TANK</text>
-                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-                  <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">🚨 Безпека та статистика атак</text>
-                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
-                </g>
-
-                <g transform="translate(775, 510)">
-                  <rect width="330" height="118" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3.5" />
-                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="268" y="33" text-anchor="middle" fill="#fecaca" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 40RF</text>
-                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-                  <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">⚓ Аудит операторів і причалів</text>
-                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
-                </g>
-
-                <g transform="translate(775, 390)">
-                  <rect width="330" height="118" rx="6" fill="#047857" stroke="#064e3b" stroke-width="3.5" />
-                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="268" y="33" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 40HC</text>
-                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-                  <text x="28" y="83" fill="#ffffff" font-size="20" font-weight="700">📊 Вантажообіг</text>
-                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
-                </g>
-
-                <g transform="translate(1120, 630)">
-                  <rect width="330" height="118" rx="6" fill="#ea580c" stroke="#9a3412" stroke-width="3.5" />
-                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="268" y="33" text-anchor="middle" fill="#fed7aa" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 20OT</text>
-                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-                  <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">📄 PDF-звіти, періоди</text>
-                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
-                </g>
-
-                <g transform="translate(1120, 510)">
-                  <rect width="330" height="118" rx="6" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
-                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.86" />
-                  <text x="268" y="33" text-anchor="middle" fill="#cbd5e1" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 45GP</text>
-                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.75" />
-                  <text x="28" y="83" fill="#ffffff" font-size="17.5" font-weight="700">🧭 Морські коридори та кластери</text>
-                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
-                </g>
-
-                <g class="port-lifted-assembly" transform="translate(1120, 342)">
-                  <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
-                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
-                  <text x="268" y="33" text-anchor="middle" fill="#fef08a" font-size="14" font-weight="700" letter-spacing="0.5">ISO - 20DV</text>
-                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.82" />
-                  <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">🧮 Конструктор матриць</text>
-                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
-                </g>
-              </g>
-
-              <g id="deck-crane">
-                <rect x="1552" y="485" width="96" height="263" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
-                <rect x="1540" y="724" width="120" height="24" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
-                <line x1="1584" y1="495" x2="1584" y2="720" stroke="#d97706" stroke-width="3" />
-                <line x1="1616" y1="495" x2="1616" y2="720" stroke="#d97706" stroke-width="3" />
-                <rect x="1546" y="468" width="108" height="18" rx="4" fill="#1e293b" />
-                <polygon points="1550,468 1652,468 1638,340 1562,340" fill="#fbbf24" stroke="#b45309" stroke-width="3.5" />
-                <polygon points="1508,425 1554,425 1554,362 1522,362" fill="#38bdf8" stroke="#0f172a" stroke-width="3.5" />
-                <line x1="1531" y1="362" x2="1526" y2="425" stroke="#0f172a" stroke-width="2.5" />
-                <polygon points="1572,382 1592,418 1278,196 1290,170" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
-                <circle cx="1285" cy="186" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
-                <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
-                <line x1="1604" y1="340" x2="1285" y2="174" stroke="#1e293b" stroke-width="4.5" />
-                <line x1="1604" y1="350" x2="1285" y2="182" stroke="#1e293b" stroke-width="3" />
-                <line x1="1279" y1="196" x2="1279" y2="294" stroke="#0f172a" stroke-width="4" />
-                <line x1="1291" y1="196" x2="1291" y2="294" stroke="#0f172a" stroke-width="4" />
-                <rect x="1270" y="290" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
-                <line x1="1285" y1="312" x2="1132" y2="328" stroke="#334155" stroke-width="4.5" />
-                <line x1="1285" y1="312" x2="1438" y2="328" stroke="#334155" stroke-width="4.5" />
-                <rect x="1116" y="326" width="338" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
-                <rect x="1120" y="338" width="14" height="8" rx="1" fill="#0f172a" />
-                <rect x="1436" y="338" width="14" height="8" rx="1" fill="#0f172a" />
-              </g>
-
-              <g class="port-wave-1">
-                <path d="M-40,902 Q50,886 140,902 T320,902 T500,902 T680,902 T860,902 T1040,902 T1220,902 T1400,902 T1580,902 T1760,902 T1960,902 L1960,1080 L-40,1080 Z" fill="#0369a1" opacity="0.88" />
-              </g>
-              <g class="port-wave-2">
-                <path d="M-40,948 Q70,932 180,948 T400,948 T620,948 T840,948 T1060,948 T1280,948 T1500,948 T1720,948 T1960,948 L1960,1080 L-40,1080 Z" fill="#075985" opacity="0.76" />
-              </g>
-            </svg>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    col_form_side, _ = st.columns([0.95, 1.45], gap="medium")
-
-    with col_form_side:
-        with st.form("login_form", clear_on_submit=False):
-            st.markdown(
-                """
-                <div class="port-form-head">
-                    <div class="port-form-icon">⚓</div>
-                    <div class="port-form-title">Вхід до аналітичної системи</div>
-                    <div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div>
+            <form id="login-form" class="space-y-2.5" novalidate>
+              <div>
+                <label for="access-password" class="block text-xs font-semibold text-slate-800 mb-1">
+                  Пароль доступу
+                </label>
+                <div class="relative flex items-center">
+                  <input
+                    id="access-password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="Введіть пароль доступу..."
+                    class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-10 text-xs sm:text-sm text-slate-900 placeholder-slate-400 shadow-inner focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-600/30"
+                  />
+                  <button
+                    type="button"
+                    id="toggle-password-btn"
+                    aria-label="Показати або приховати пароль"
+                    class="absolute right-2 p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
+                  >
+                    <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
                 </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            pwd = st.text_input(
-                "Пароль доступу",
-                type="password",
-                placeholder="Введіть пароль доступу...",
-            )
-            submitted = st.form_submit_button(
-                "🔐 Увійти в систему",
-                type="primary",
-                width="stretch",
-            )
-            if submitted:
-                if pwd == st.secrets["APP_PASSWORD"]:
-                    st.session_state["authenticated"] = True
-                    st.rerun()
-                else:
-                    st.error("Невірний пароль доступу. Спробуйте ще раз.")
+              </div>
 
-        if st.button("📘 Інструкція", key="login_manual_btn", width="stretch"):
-            _show_login_manual_dialog()
+              <div id="login-feedback" class="hidden rounded-xl px-3 py-1.5 text-xs font-medium"></div>
 
-    st.markdown(
-        """
-        <div class="port-login-footer">
-            © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.3
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-gradient-to-r from-sky-900 via-sky-800 to-blue-900 hover:from-sky-950 hover:to-blue-950 text-white font-semibold py-2.5 px-4 shadow-md flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm"
+              >
+                <span>🔐</span>
+                <span>Увійти в систему</span>
+              </button>
+            </form>
+
+            <div class="mt-2.5 pt-2.5 border-t border-slate-200/80">
+              <button
+                type="button"
+                id="open-instruction-btn"
+                class="w-full rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-semibold py-2 px-3 flex items-center justify-center gap-2 cursor-pointer text-xs sm:text-sm"
+              >
+                <span>📘</span>
+                <span>Інструкція</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="container-tooltip-box" class="login-card rounded-xl p-3 pointer-events-auto border-l-4 border-l-sky-600">
+            <div class="flex items-center justify-between gap-2 mb-0.5">
+              <span id="tooltip-iso" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-100 text-sky-900">
+                ІНТЕРАКТИВНА СЦЕНА
+              </span>
+              <span class="text-[10px] text-slate-500 font-medium">Наведіть на контейнер</span>
+            </div>
+            <h2 id="tooltip-title" class="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+              Оберіть контейнер на судні для перегляду аналітики
+            </h2>
+            <p id="tooltip-desc" class="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-3">
+              Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Натисніть для входу або скористайтесь формою.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="w-full h-[28px] bg-slate-950 border-t border-slate-800/90 text-slate-400 px-5 flex items-center justify-between gap-2 text-[11px] shrink-0">
+      <div class="truncate">
+        © 2026, Міністерство з відновлення, інфраструктури та транспорту України || Департамент морського та внутрішнього водного транспорту || Версія 2.3
+      </div>
+      <div class="hidden sm:flex items-center gap-3 shrink-0">
+        <span>1920×1080</span>
+        <span class="text-emerald-400 font-medium">● Активно</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const EXPECTED_PWD = {expected_pwd_json};
+    const INITIAL_KYIV_TIME = {now_str_json};
+
+    const MODULE_HINTS = {{
+      turnover: {{
+        code: 'ISO - 40HC · ВАНТАЖООБІГ',
+        title: 'Вантажообіг',
+        desc: 'Щомісячний моніторинг перевалки вантажів у тис. тонн і TEU за портами, напрямками та номенклатурою.',
+        accent: '#047857'
+      }},
+      audit: {{
+        code: 'ISO - 40RF · АУДИТ ОПЕРАТОРІВ',
+        title: 'Аудит операторів і причалів',
+        desc: 'Частки ринку, індекси концентрації CR3/CR5 та HHI, структура причалів і пояснення відхилень.',
+        accent: '#b91c1c'
+      }},
+      security: {{
+        code: 'IMO - TANK · БЕЗПЕКА',
+        title: 'Безпека та статистика атак',
+        desc: 'Хронологія фіксації та накопичувальна динаміка пошкоджень інфраструктури, суден і постраждалих.',
+        accent: '#1d4ed8'
+      }},
+      matrix: {{
+        code: 'ISO - 20DV · МАТРИЦІ',
+        title: 'Конструктор матриць',
+        desc: 'Гнучкі зведені таблиці у тис. тонн, TEU та шт. з миттєвим експортом у Excel (.xlsx) та PDF.',
+        accent: '#ca8a04'
+      }},
+      corridors: {{
+        code: 'ISO - 45GP · КОРИДОРИ',
+        title: 'Морські коридори та кластери',
+        desc: 'Багаторічна динаміка перевезень, зернових і незернових вантажів та суднозаходів по кластерах.',
+        accent: '#334155'
+      }},
+      reports: {{
+        code: 'ISO - 20OT · ЗВІТИ',
+        title: 'PDF-звіти, періоди',
+        desc: 'Виконавчі, аудиторські та коридорні PDF-звіти, керування періодами в БД і теми оформлення.',
+        accent: '#ea580c'
+      }}
+    }};
+
+    function setParentUrl(params) {{
+      try {{
+        const url = new URL(window.parent.location.href);
+        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+        window.parent.location.href = url.toString();
+      }} catch (e) {{
+        window.location.href = '?' + new URLSearchParams(params).toString();
+      }}
+    }}
+
+    function updateKyivTime() {{
+      const el = document.getElementById('kyiv-datetime');
+      if (!el) return;
+      try {{
+        const now = new Date();
+        const formatted = new Intl.DateTimeFormat('uk-UA', {{
+          timeZone: 'Europe/Kyiv',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }}).format(now);
+        el.textContent = formatted.replace(',', '');
+      }} catch (_) {{
+        el.textContent = INITIAL_KYIV_TIME;
+      }}
+    }}
+
+    document.addEventListener('DOMContentLoaded', () => {{
+      updateKyivTime();
+      setInterval(updateKyivTime, 30000);
+
+      const toggleBtn = document.getElementById('toggle-password-btn');
+      const pwdInput = document.getElementById('access-password');
+      const eyeIcon = document.getElementById('eye-icon');
+      toggleBtn?.addEventListener('click', () => {{
+        const isPwd = pwdInput.type === 'password';
+        pwdInput.type = isPwd ? 'text' : 'password';
+        eyeIcon.innerHTML = isPwd
+          ? '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.77 21.77 0 0 1 5.06-5.94"></path><path d="M9.9 4.24A10.94 10.94 0 0 1 12 5c7 0 11 7 11 7a21.8 21.8 0 0 1-3.22 4.49"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
+          : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle>';
+      }});
+
+      const form = document.getElementById('login-form');
+      const feedback = document.getElementById('login-feedback');
+      form?.addEventListener('submit', (e) => {{
+        e.preventDefault();
+        const entered = (pwdInput.value || '').trim();
+        if (!entered) {{
+          feedback.className = 'rounded-xl px-3 py-1.5 text-xs font-medium bg-red-50 text-red-800 border border-red-200';
+          feedback.textContent = 'Введіть пароль доступу.';
+          feedback.classList.remove('hidden');
+          pwdInput.focus();
+          return;
+        }}
+        if (entered === EXPECTED_PWD) {{
+          feedback.className = 'rounded-xl px-3 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200';
+          feedback.textContent = 'Доступ підтверджено. Відкриваємо систему...';
+          feedback.classList.remove('hidden');
+          setParentUrl({{ auth: 'ok' }});
+        }} else {{
+          feedback.className = 'rounded-xl px-3 py-1.5 text-xs font-medium bg-red-50 text-red-800 border border-red-200';
+          feedback.textContent = 'Невірний пароль доступу. Спробуйте ще раз.';
+          feedback.classList.remove('hidden');
+        }}
+      }});
+
+      document.getElementById('open-instruction-btn')?.addEventListener('click', () => {{
+        setParentUrl({{ manual: '1' }});
+      }});
+
+      const tooltipIso = document.getElementById('tooltip-iso');
+      const tooltipTitle = document.getElementById('tooltip-title');
+      const tooltipDesc = document.getElementById('tooltip-desc');
+      const tooltipBox = document.getElementById('container-tooltip-box');
+
+      document.querySelectorAll('.cargo-container').forEach((el) => {{
+        const mod = MODULE_HINTS[el.getAttribute('data-module-id')];
+        if (!mod) return;
+        el.addEventListener('mouseenter', () => {{
+          tooltipIso.textContent = mod.code;
+          tooltipTitle.textContent = mod.title;
+          tooltipDesc.textContent = mod.desc;
+          tooltipBox.style.borderLeftColor = mod.accent;
+        }});
+        el.addEventListener('mouseleave', () => {{
+          tooltipIso.textContent = 'ІНТЕРАКТИВНА СЦЕНА';
+          tooltipTitle.textContent = 'Оберіть контейнер на судні для перегляду аналітики';
+          tooltipDesc.textContent = 'Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Натисніть для входу або скористайтесь формою.';
+          tooltipBox.style.borderLeftColor = '#0284c7';
+        }});
+        el.addEventListener('click', () => {{
+          pwdInput?.focus();
+        }});
+      }});
+    }});
+  </script>
+</body>
+</html>"""
+
+    components.html(login_html, height=900, scrolling=False)
     return False
 
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
