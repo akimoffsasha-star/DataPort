@@ -73,61 +73,6 @@ THEMES = {
     },
 }
 
-# Винесено в самий початок сайдбару, щоб працювати і на екрані входу
-st.sidebar.title("🚢 Портова аналітика")
-selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=1) # Світла за замовчуванням
-T = THEMES[selected_theme]
-
-st.markdown(
-    f"""
-    <style>
-    [data-testid="stAppViewContainer"] {{
-        background-color: {T['bg']};
-        color: {T['text']};
-    }}
-    [data-testid="stSidebar"] {{
-        background-color: {T['sidebar_bg']};
-    }}
-    div[data-testid="stMetric"] {{
-        background-color: {T['card']};
-        border: 1px solid {T['border']};
-        border-left: 4px solid {T['accent']};
-        border-radius: 10px;
-        padding: 14px 18px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-    }}
-    div[data-testid="stMetric"] label {{
-        font-size: 0.85rem;
-        color: {T['muted']};
-        font-weight: 600;
-    }}
-    div[data-testid="stMetricValue"] {{
-        font-size: 1.5rem;
-        color: {T['text']};
-    }}
-    h1, h2, h3, h4, h5, h6, p, span, label {{
-        color: {T['text']} !important;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-DIR_COLORS = {
-    "Експорт": "#0F4C81",
-    "Імпорт": "#0EA5E9",
-    "Транзит": "#F59E0B",
-    "Внутрішнє сполучення": "#64748B",
-}
-
-OWNERSHIP_COLORS = {
-    "Державний": "#0F4C81",
-    "Приватний на причалах АМПУ": "#0EA5E9",
-    "Приватний на власних причалах": "#10B981",
-    "Не визначено": "#94A3B8",
-}
-
-
 def style_fig(fig, height: int = 380):
     fig.update_layout(
         height=height,
@@ -340,7 +285,61 @@ def _blue_heatmap(val, max_val: float) -> str:
     return f"background-color: rgb({r}, {g}, {b}); color: #0F172A;"
 
 
+# Винесено в самий початок сайдбару, щоб працювати і на екрані входу
 st.sidebar.title("🚢 Портова аналітика")
+selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=1) # Світла за замовчуванням
+T = THEMES[selected_theme]
+
+st.markdown(
+    f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-color: {T['bg']};
+        color: {T['text']};
+    }}
+    [data-testid="stSidebar"] {{
+        background-color: {T['sidebar_bg']};
+    }}
+    div[data-testid="stMetric"] {{
+        background-color: {T['card']};
+        border: 1px solid {T['border']};
+        border-left: 4px solid {T['accent']};
+        border-radius: 10px;
+        padding: 14px 18px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }}
+    div[data-testid="stMetric"] label {{
+        font-size: 0.85rem;
+        color: {T['muted']};
+        font-weight: 600;
+    }}
+    div[data-testid="stMetricValue"] {{
+        font-size: 1.5rem;
+        color: {T['text']};
+    }}
+    h1, h2, h3, h4, h5, h6, p, span, label {{
+        color: {T['text']} !important;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+DIR_COLORS = {
+    "Експорт": "#0F4C81",
+    "Імпорт": "#0EA5E9",
+    "Транзит": "#F59E0B",
+    "Внутрішнє сполучення": "#64748B",
+}
+
+OWNERSHIP_COLORS = {
+    "Державний": "#0F4C81",
+    "Приватний на причалах АМПУ": "#0EA5E9",
+    "Приватний на власних причалах": "#10B981",
+    "Не визначено": "#94A3B8",
+}
+
+
 page = st.sidebar.radio(
     "Розділ",
     [
@@ -948,13 +947,13 @@ elif page == "📤 Завантаження Excel":
         value=False,
     )
 
-    uploaded_files = st.file_uploader(
+uploaded_files = st.file_uploader(
         "Оберіть файли Excel (.xlsx)",
         type=["xlsx"],
         accept_multiple_files=True,
     )
 
-if uploaded_files and st.button("🚀 Обробити та зберегти в хмарну базу", type="primary"):
+    if uploaded_files and st.button("🚀 Обробити та зберегти в хмарну базу", type="primary"):
         for uf in uploaded_files:
             with st.status(f"Обробка {uf.name}...", expanded=True) as status:
                 try:
@@ -963,8 +962,11 @@ if uploaded_files and st.button("🚀 Обробити та зберегти в 
 
                     if ftype == "коридори":
                         corridors_data = parse_corridors_file(uf)
-                        saved_counts = save_corridors_to_db(corridors_data)
-                        st.write(f"Збережено коридори: вантажів — **{saved.get('cargo', 0)}**, "f"суднозаходів — **{saved.get('vessels', 0)}**, атак — **{saved.get('attacks', 0)}**")
+                        saved = save_corridors_to_db(corridors_data)
+                        st.write(
+                            f"Збережено коридори: вантажів — **{saved.get('cargo', 0)}**, "
+                            f"суднозаходів — **{saved.get('vessels', 0)}**, атак — **{saved.get('attacks', 0)}**"
+                        )
                     elif ftype == "23-м":
                         df_c, warnings = parse_23m_file(uf, include_prev_year=include_prev)
                         inserted = save_cargo_to_db(df_c)
@@ -981,7 +983,6 @@ if uploaded_files and st.button("🚀 Обробити та зберегти в 
                     status.update(label=f"✅ {uf.name} успішно завантажено", state="complete")
                 except Exception as e:
                     status.update(label=f"❌ Помилка в {uf.name}: {e}", state="error")
-
 
 # =====================================================================
 # СТОРІНКА 5: ПРИЧИНИ ПАДІННЯ, ДОВІДНИКИ ТА КЕРУВАННЯ МІСЯЦЯМИ
