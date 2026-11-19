@@ -437,15 +437,16 @@ def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
     return result
     
 def detect_file_type(uploaded_file) -> str:
+    fname = (getattr(uploaded_file, "name", "") or "").lower()
     wb = openpyxl.load_workbook(uploaded_file, read_only=True)
-    sheets = [s.lower().replace("і", "i") for s in wb.sheetnames]
+    sheets = [s.lower().replace("i", "і").strip() for s in wb.sheetnames]
     uploaded_file.seek(0)
-    if any("антажі" in s or "коридор" in s for s in sheets) or "коридор" in uploaded_file.name.lower():
+
+    if "коридор" in fname or any(s in sheets for s in ("вантажі", "суднозаходи", "атаки")):
         return "коридори"
     if any(s in sheets for s in ("експорт", "імпорт", "транзит")):
         return "23-м"
     return "25-вод"
-
 
 def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
     """
