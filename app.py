@@ -329,36 +329,37 @@ def _get_login_bg_css() -> str:
     return f'background: url("data:image/svg+xml;base64,{b64_svg}") center/cover no-repeat fixed;'
 
 
-def _load_readme_instruction_text() -> str:
-    root = Path(__file__).resolve().parent
-    for candidate in (root / "README.md", root.parent / "README.md"):
-        if candidate.exists():
-            raw = candidate.read_text(encoding="utf-8", errors="replace")
-            return raw.replace("<!-- PART_2 -->", "").replace("<!-- PART_3 -->", "").strip()
+def _load_short_login_manual() -> str:
     return """
-### Швидкий старт у системі «Аналітика морських портів»
-1. **Вхід:** введіть пароль доступу та натисніть **«🔐 Увійти в систему»**.
-2. **Завантаження даних (`📤 Завантаження Excel`):** підтримуються звіти **23-м**, **25-вод** та **Коридори.xlsx** (*Вантажі*, *Суднозаходи*, *Атаки*).
-3. **Аналітика та звіти:** використовуйте **Дашборд та KPI**, **Конструктор матриць**, **Коридори та безпека** та генерацію **PDF / Excel**-звітів.
-4. **Теми інтерфейсу:** у бічному меню доступні **Світла**, **Темна** та **Фірмова** теми.
+### Короткий старт
+* **Вхід:** введіть пароль доступу та натисніть **«Увійти в систему»** або оберіть потрібний контейнер на судні.
+* **Основні модулі:** *Вантажообіг*, *Аудит операторів і причалів*, *Безпека та статистика атак*, *Конструктор матриць*, *Морські коридори та кластери*, *PDF-звіти та періоди*.
+* **Повна інструкція:** доступна в розділі **«📘 Інструкція»** та у вікні повної інструкції вже після входу в систему.
 """.strip()
 
 
+def _load_full_manual_text() -> str:
+    root = Path(__file__).resolve().parent
+    for candidate in (root / "README.md", root.parent / "README.md"):
+        if candidate.exists():
+            return candidate.read_text(encoding="utf-8", errors="replace").strip()
+    return "Повний файл інструкції `README.md` не знайдено."
+
+
 if hasattr(st, "dialog"):
-    @st.dialog("📘 Інструкція користувача", width="large")
+    @st.dialog("📘 Коротка інструкція до входу", width="medium")
     def _show_login_manual_dialog():
-        st.markdown(_load_readme_instruction_text())
+        st.markdown(_load_short_login_manual())
+
+    @st.dialog("📘 Повна інструкція користувача", width="large")
+    def _show_full_manual_dialog():
+        st.markdown(_load_full_manual_text())
 else:
     def _show_login_manual_dialog():
-        st.markdown(_load_readme_instruction_text())
+        st.markdown(_load_short_login_manual())
 
-import json
-import streamlit.components.v1 as components
-
-
-import json
-import streamlit.components.v1 as components
-
+    def _show_full_manual_dialog():
+        st.markdown(_load_full_manual_text())
 
 def check_password() -> bool:
     if st.session_state.get("authenticated"):
@@ -1244,15 +1245,12 @@ st.sidebar.caption(
 )
 if not check_password():
     st.stop()
+if st.sidebar.button("📖 Повна інструкція (вікно)", use_container_width=True):
+    _show_full_manual_dialog()
 
 if page == "📘 Інструкція":
     st.title("📘 Інструкція користувача та адміністратора")
-    manual_path = Path(__file__).resolve().parent / "README.md"
-    if not manual_path.exists():
-        st.warning("Файл інструкції README.md не знайдено в репозиторії.")
-        st.stop()
-
-    raw_md = manual_path.read_text(encoding="utf-8")
+    raw_md = _load_full_manual_text()
     st.download_button(
         label="📥 Завантажити інструкцію (.md)",
         data=raw_md.encode("utf-8"),
