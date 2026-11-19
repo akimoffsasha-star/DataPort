@@ -413,6 +413,37 @@ def save_corridors_to_db(corridors_data: dict) -> dict:
             
     return results
 
+@st.cache_data(ttl=300)
+def load_corridors_cargo() -> pd.DataFrame:
+    engine = get_engine()
+    try:
+        df = pd.read_sql("SELECT * FROM fact_corridors_cargo", engine)
+        if not df.empty:
+            df["report_date"] = pd.to_datetime(df["report_date"])
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=300)
+def load_corridors_vessels() -> pd.DataFrame:
+    engine = get_engine()
+    try:
+        df = pd.read_sql("SELECT * FROM fact_corridors_vessels", engine)
+        if not df.empty:
+            df["report_date"] = pd.to_datetime(df["report_date"])
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=300)
+def load_corridors_attacks() -> pd.DataFrame:
+    engine = get_engine()
+    try:
+        return pd.read_sql("SELECT * FROM fact_corridors_attacks ORDER BY attack_date", engine)
+    except Exception:
+        return pd.DataFrame()
 
 
 def save_corridors_to_db(corridors_data: dict) -> dict:
