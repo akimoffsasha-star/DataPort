@@ -356,6 +356,10 @@ import json
 import streamlit.components.v1 as components
 
 
+import json
+import streamlit.components.v1 as components
+
+
 def check_password() -> bool:
     if st.session_state.get("authenticated"):
         return True
@@ -385,7 +389,9 @@ def check_password() -> bool:
         [data-testid="stSidebarCollapsedControl"],
         [data-testid="stHeader"],
         [data-testid="stToolbar"],
-        [data-testid="stDecoration"] {
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        .stDeployButton {
             display: none !important;
         }
         html, body,
@@ -395,19 +401,25 @@ def check_password() -> bool:
         [data-testid="stAppViewContainer"] > .main > .block-container {
             padding: 0 !important;
             margin: 0 !important;
-            max-width: 100% !important;
+            max-width: 100vw !important;
             width: 100vw !important;
-            min-height: 100vh !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
             overflow: hidden !important;
             background: #e0f2fe !important;
         }
-        iframe[title="streamlit.components.v1.html"],
-        div[data-testid="stIFrame"] > iframe {
-            display: block !important;
+        div[data-testid="stIFrame"],
+        div[data-testid="stIFrame"] > iframe,
+        iframe[title="streamlit.components.v1.html"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
             width: 100vw !important;
             height: 100vh !important;
-            min-height: 100vh !important;
+            max-height: 100vh !important;
             border: none !important;
+            overflow: hidden !important;
+            z-index: 10 !important;
         }
         </style>
         """,
@@ -429,31 +441,31 @@ def check_password() -> bool:
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0;
       padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: linear-gradient(180deg, #93c5fd 0%, #e0f2fe 62%, #0284c7 62%, #0c4a6e 100%);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden !important;
+      background: linear-gradient(180deg, #93c5fd 0%, #e0f2fe 65%, #0284c7 65%, #0c4a6e 100%);
       color: #0f172a;
     }}
 
-    /* Зафіксована верхня шапка зі світлою підкладкою та збільшеним шрифтом */
+    /* Зафіксована шапка зі світлою підкладкою та годинником по центру */
     .fixed-top-bar {{
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 50px;
-      z-index: 50;
+      height: 48px;
+      z-index: 40;
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       padding: 0 24px;
-      background: rgba(248, 250, 252, 0.95);
+      background: rgba(248, 250, 252, 0.96);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
-      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.55);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.07);
     }}
     .top-brand {{
       display: flex;
@@ -463,8 +475,8 @@ def check_password() -> bool:
       min-width: 0;
     }}
     .top-logo {{
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       border-radius: 8px;
       background: #fef3c7;
       border: 1px solid #f59e0b;
@@ -472,12 +484,12 @@ def check_password() -> bool:
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       flex-shrink: 0;
     }}
     .top-title {{
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 700;
       color: #0f172a;
       white-space: nowrap;
@@ -489,16 +501,30 @@ def check_password() -> bool:
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 18px;
+      padding: 4px 18px;
       border-radius: 999px;
       background: #ffffff;
       border: 1px solid #cbd5e1;
       color: #0f172a;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
       white-space: nowrap;
       box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
     }}
+    .top-device-badge {
+      justify-self: end;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      font-size: 12.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
     .top-clock-dot {{
       width: 8px;
       height: 8px;
@@ -508,18 +534,18 @@ def check_password() -> bool:
     .top-spacer {{
       justify-self: end;
     }}
-
-    /* Сцена між зафіксованою шапкою (50px) і зафіксованим футером (40px) */
+    
+    /* Сцена без прокруток між зафіксованою шапкою (48px) і футером (38px) */
     .scene-stage {{
       position: fixed;
-      top: 50px;
+      top: 48px;
       left: 0;
       right: 0;
-      bottom: 40px;
+      bottom: 38px;
       z-index: 10;
-      width: 100%;
-      height: calc(100% - 90px);
-      overflow: hidden;
+      width: 100vw;
+      height: calc(100vh - 86px);
+      overflow: hidden !important;
     }}
     #port-scene-svg {{
       width: 100%;
@@ -527,24 +553,24 @@ def check_password() -> bool:
       display: block;
     }}
 
-    /* Зафіксований нижній футер зі світлою підкладкою, текстом по центру та більшим шрифтом */
+    /* Зафіксований футер зі світлою підкладкою і текстом строго по центру */
     .fixed-bottom-bar {{
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
-      height: 40px;
-      z-index: 50;
+      height: 38px;
+      z-index: 40;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0 24px;
-      background: rgba(248, 250, 252, 0.95);
+      background: rgba(248, 250, 252, 0.96);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(148, 163, 184, 0.5);
+      border-top: 1px solid rgba(148, 163, 184, 0.55);
       color: #1e293b;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 600;
       text-align: center;
       white-space: nowrap;
@@ -582,11 +608,56 @@ def check_password() -> bool:
       50% {{ transform: translateX(16px); }}
     }}
     .login-card {{
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(148, 163, 184, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(148, 163, 184, 0.22);
+    }}
+
+    /* Десктоп (>= 1024px): блок входу + підказка ліворуч, пропорційна сцена судна з краном */
+    #login-panel {{
+      position: absolute;
+      top: 16px;
+      left: 24px;
+      bottom: 16px;
+      width: 360px;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+    }}
+
+    /* Мобільні та планшети (< 1024px): без адаптації сітки — лише блок входу на фоні контейнеровозу */
+    @media (max-width: 1023px) {{
+      .fixed-top-bar,
+      .fixed-bottom-bar,
+      #container-tooltip-box {{
+        display: none !important;
+      }}
+      .scene-stage {{
+        top: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+      }}
+      #login-panel {{
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 16px !important;
+        gap: 0 !important;
+      }}
+      #login-box {{
+        width: 100% !important;
+        max-width: 360px !important;
+      }}
     }}
   </style>
 </head>
@@ -605,8 +676,7 @@ def check_password() -> bool:
   </header>
 
   <main class="scene-stage">
-    <!-- Кадрування з повним захопленням судна, 6 контейнерів і верхівки крана без обрізання -->
-    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="360 110 1560 910" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" class="block select-none">
+    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="420 130 1480 860" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" class="block select-none">
       <defs>
         <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#93c5fd" />
@@ -639,13 +709,13 @@ def check_password() -> bool:
       </g>
 
       <g class="cloud-drift-slow" fill="#ffffff" opacity="0.78">
-        <circle cx="620" cy="165" r="42" />
-        <circle cx="665" cy="155" r="54" />
-        <circle cx="715" cy="165" r="44" />
-        <circle cx="755" cy="172" r="32" />
-        <circle cx="1480" cy="145" r="36" />
-        <circle cx="1518" cy="138" r="46" />
-        <circle cx="1558" cy="148" r="36" />
+        <circle cx="620" cy="175" r="42" />
+        <circle cx="665" cy="165" r="54" />
+        <circle cx="715" cy="175" r="44" />
+        <circle cx="755" cy="182" r="32" />
+        <circle cx="1480" cy="155" r="36" />
+        <circle cx="1518" cy="148" r="46" />
+        <circle cx="1558" cy="158" r="36" />
       </g>
 
       <ellipse cx="1160" cy="908" rx="710" ry="20" fill="url(#hullShadow)" />
@@ -810,8 +880,8 @@ def check_password() -> bool:
       </g>
     </svg>
 
-    <aside id="login-panel" class="absolute top-3 left-4 bottom-3 w-[23vw] min-w-[285px] max-w-[405px] z-20 flex flex-col justify-between gap-2 pointer-events-none">
-      <div class="login-card rounded-2xl p-4 pointer-events-auto border-t-[5px] border-t-amber-400">
+    <aside id="login-panel">
+      <div id="login-box" class="login-card rounded-2xl p-4 pointer-events-auto border-t-[5px] border-t-amber-400">
         <div class="flex flex-col items-center text-center mb-3">
           <div class="w-10 h-10 rounded-xl bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-sky-900 shadow-sm mb-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -953,16 +1023,21 @@ def check_password() -> bool:
       }}
     }}
 
-    function syncParentFrame() {{
+    function lockViewportNoScroll() {{
       try {{
-        const parentWin = window.parent;
-        const h = parentWin.innerHeight || window.innerHeight;
+        const h = (window.parent && window.parent.innerHeight) || window.innerHeight;
         document.documentElement.style.height = h + 'px';
+        document.documentElement.style.overflow = 'hidden';
         document.body.style.height = h + 'px';
+        document.body.style.overflow = 'hidden';
         if (window.frameElement) {{
+          window.frameElement.style.top = '0px';
+          window.frameElement.style.left = '0px';
+          window.frameElement.style.width = '100vw';
           window.frameElement.style.height = h + 'px';
           window.frameElement.style.minHeight = h + 'px';
-          window.frameElement.style.width = '100vw';
+          window.frameElement.style.maxHeight = h + 'px';
+          window.frameElement.style.overflow = 'hidden';
         }}
       }} catch (_) {{}}
     }}
@@ -987,10 +1062,10 @@ def check_password() -> bool:
     }}
 
     document.addEventListener('DOMContentLoaded', () => {{
-      syncParentFrame();
-      window.addEventListener('resize', syncParentFrame);
+      lockViewportNoScroll();
+      window.addEventListener('resize', lockViewportNoScroll);
       try {{
-        window.parent.addEventListener('resize', syncParentFrame);
+        window.parent.addEventListener('resize', lockViewportNoScroll);
       }} catch (_) {{}}
 
       updateKyivTime();
@@ -1064,9 +1139,8 @@ def check_password() -> bool:
 </body>
 </html>"""
 
-    components.html(login_html, height=1000, scrolling=False)
+    components.html(login_html, height=900, scrolling=False)
     return False
-
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
