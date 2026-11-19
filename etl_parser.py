@@ -451,9 +451,9 @@ def detect_file_type(uploaded_file) -> str:
 def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
     """
     Парсить файл 'Коридори.xlsx' із 3 аркушами:
-    - 'Вантажі' (історія по портах і кластерах)
-    - 'Суднозаходи' (статистика по портах)
-    - 'Атаки' (накопичувальна статистика пошкоджень)
+    - 'Вантажі'
+    - 'Суднозаходи'
+    - 'Атаки'
     """
     wb = openpyxl.load_workbook(file_obj, data_only=True)
     result = {}
@@ -482,8 +482,7 @@ def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
                     current_year = int(y_match.group(1))
             if not m_val or str(m_val).strip().upper() == "РІК" or not current_year:
                 continue
-            m_clean = str(m_val).strip().lower()
-            m_num = UKR_MONTHS.get(m_clean)
+            m_num = UKR_MONTHS.get(str(m_val).strip().lower())
             if not m_num:
                 continue
             rep_date = date(current_year, m_num, 1)
