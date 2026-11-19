@@ -337,28 +337,22 @@ def _load_readme_instruction_text() -> str:
         if candidate.exists():
             raw = candidate.read_text(encoding="utf-8", errors="replace")
             return raw.replace("<!-- PART_2 -->", "").replace("<!-- PART_3 -->", "").strip()
-    return "Файл інструкції `README.md` не знайдено."
+    return """
+### Швидкий старт у системі «Аналітика морських портів»
+1. **Вхід:** введіть пароль доступу та натисніть **«🔐 Увійти в систему»**.
+2. **Завантаження даних (`📤 Завантаження Excel`):** підтримуються звіти **23-м**, **25-вод** та **Коридори.xlsx** (*Вантажі*, *Суднозаходи*, *Атаки*).
+3. **Аналітика та звіти:** використовуйте **Дашборд та KPI**, **Конструктор матриць**, **Коридори та безпека** та генерацію **PDF / Excel**-звітів.
+4. **Теми інтерфейсу:** у бічному меню доступні **Світла**, **Темна** та **Фірмова** теми.
+""".strip()
 
 
 if hasattr(st, "dialog"):
-
-@st.dialog("📘 Інструкція користувача", width="large")
-def _show_login_manual_dialog():
-    manual_path = Path(__file__).resolve().parent / "README.md"
-    if manual_path.exists():
-        raw_md = manual_path.read_text(encoding="utf-8", errors="replace")
-        clean_md = raw_md.replace("<!-- PART_2 -->", "").replace("<!-- PART_3 -->", "")
-        st.markdown(clean_md)
-    else:
-        st.markdown(
-            """
-            ### Швидкий старт у системі «Аналітика морських портів»
-            1. **Вхід:** введіть пароль доступу та натисніть **«🔐 Увійти в систему»**.
-            2. **Завантаження даних (`📤 Завантаження Excel`):** підтримуються звіти **23-м**, **25-вод** та **Коридори.xlsx** (*Вантажі*, *Суднозаходи*, *Атаки*).
-            3. **Аналітика та звіти:** використовуйте **Дашборд та KPI**, **Конструктор матриць**, **Коридори та безпека** та генерацію **PDF / Excel**-звітів.
-            4. **Теми інтерфейсу:** у бічному меню доступні **Світла**, **Темна** та **Фірмова** теми.
-            """
-        )
+    @st.dialog("📘 Інструкція користувача", width="large")
+    def _show_login_manual_dialog():
+        st.markdown(_load_readme_instruction_text())
+else:
+    def _show_login_manual_dialog():
+        st.markdown(_load_readme_instruction_text())
 
 def check_password() -> bool:
     if st.session_state.get("authenticated"):
