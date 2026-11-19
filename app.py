@@ -511,6 +511,12 @@ def check_password() -> bool:
       white-space: nowrap;
       box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
     }}
+    .top-clock-dot {{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #10b981;
+    }}
     .top-device-badge {{
       justify-self: end;
       display: inline-flex;
@@ -518,23 +524,14 @@ def check_password() -> bool:
       gap: 6px;
       padding: 4px 12px;
       border-radius: 999px;
-      background: #e2e8f0;
-      border: 1px solid #cbd5e1;
-      color: #0f172a;
+      background: #e0f2fe;
+      border: 1px solid #7dd3fc;
+      color: #0c4a6e;
       font-size: 12.5px;
       font-weight: 700;
       white-space: nowrap;
     }}
-    .top-clock-dot {{
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #10b981;
-    }}
-    .top-spacer {{
-      justify-self: end;
-    }}
-    
+
     /* Сцена без прокруток між зафіксованою шапкою (48px) і футером (38px) */
     .scene-stage {{
       position: fixed;
@@ -546,6 +543,9 @@ def check_password() -> bool:
       width: 100vw;
       height: calc(100vh - 86px);
       overflow: hidden !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }}
     #port-scene-svg {{
       width: 100%;
@@ -618,29 +618,35 @@ def check_password() -> bool:
     /* Десктоп (>= 1024px): блок входу + підказка ліворуч, пропорційна сцена судна з краном */
     #login-panel {{
       position: absolute;
-      top: 16px;
+      top: 14px;
       left: 24px;
-      bottom: 16px;
-      width: 360px;
+      bottom: 14px;
+      width: 350px;
       z-index: 20;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       pointer-events: none;
     }}
 
-    /* Мобільні та планшети (< 1024px): без адаптації сітки — лише блок входу на фоні контейнеровозу */
+    /* Мобільні та планшети (< 1024px): лише блок входу по центру на фоні контейнеровозу */
     @media (max-width: 1023px) {{
-      .fixed-top-bar,
       .fixed-bottom-bar,
       #container-tooltip-box {{
         display: none !important;
       }}
+      .top-title {{
+        font-size: 12.5px;
+      }}
+      .top-clock {{
+        padding: 3px 10px;
+        font-size: 12px;
+      }}
       .scene-stage {{
-        top: 0 !important;
-        bottom: 0 !important;
-        height: 100vh !important;
+        top: 48px;
+        bottom: 0;
+        height: calc(100vh - 48px);
       }}
       #login-panel {{
         top: 0 !important;
@@ -648,7 +654,7 @@ def check_password() -> bool:
         right: 0 !important;
         bottom: 0 !important;
         width: 100vw !important;
-        height: 100vh !important;
+        height: 100% !important;
         justify-content: center !important;
         align-items: center !important;
         padding: 16px !important;
@@ -656,7 +662,7 @@ def check_password() -> bool:
       }}
       #login-box {{
         width: 100% !important;
-        max-width: 360px !important;
+        max-width: 350px !important;
       }}
     }}
   </style>
@@ -882,8 +888,8 @@ def check_password() -> bool:
 
     <aside id="login-panel">
       <div id="login-box" class="login-card rounded-2xl p-4 pointer-events-auto border-t-[5px] border-t-amber-400">
-        <div class="flex flex-col items-center text-center mb-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-sky-900 shadow-sm mb-2">
+        <div class="flex flex-col items-center text-center mb-2.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 border-2 border-amber-400 flex items-center justify-center text-sky-900 shadow-sm mb-1.5">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <circle cx="12" cy="5.5" r="2.2"></circle>
               <path d="M12 7.7V20"></path>
@@ -899,7 +905,7 @@ def check_password() -> bool:
           </p>
         </div>
 
-        <form id="login-form" class="space-y-2.5" novalidate>
+        <form id="login-form" class="space-y-2" novalidate>
           <div>
             <label for="access-password" class="block text-xs font-semibold text-slate-800 mb-1">
               Пароль доступу
@@ -930,14 +936,14 @@ def check_password() -> bool:
 
           <button
             type="submit"
-            class="w-full rounded-xl bg-gradient-to-r from-sky-900 via-sky-800 to-blue-900 hover:from-sky-950 hover:to-blue-950 text-white font-semibold py-2.5 px-4 shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm"
+            class="w-full rounded-xl bg-gradient-to-r from-sky-900 via-sky-800 to-blue-900 hover:from-sky-950 hover:to-blue-950 text-white font-semibold py-2 px-4 shadow-md flex items-center justify-center gap-2 cursor-pointer text-sm"
           >
             <span>🔐</span>
             <span>Увійти в систему</span>
           </button>
         </form>
 
-        <div class="mt-2.5 pt-2.5 border-t border-slate-200/80">
+        <div class="mt-2 pt-2 border-t border-slate-200/80">
           <button
             type="button"
             id="open-instruction-btn"
@@ -1025,12 +1031,18 @@ def check_password() -> bool:
 
     function lockViewportNoScroll() {{
       try {{
+        const pDoc = window.parent && window.parent.document;
+        if (pDoc && pDoc.documentElement && pDoc.body) {{
+          pDoc.documentElement.style.overflow = 'hidden';
+          pDoc.body.style.overflow = 'hidden';
+        }}
         const h = (window.parent && window.parent.innerHeight) || window.innerHeight;
         document.documentElement.style.height = h + 'px';
         document.documentElement.style.overflow = 'hidden';
         document.body.style.height = h + 'px';
         document.body.style.overflow = 'hidden';
         if (window.frameElement) {{
+          window.frameElement.style.position = 'fixed';
           window.frameElement.style.top = '0px';
           window.frameElement.style.left = '0px';
           window.frameElement.style.width = '100vw';
@@ -1061,34 +1073,35 @@ def check_password() -> bool:
       }}
     }}
 
-function updateDeviceModeBadge() {{
-  const badge = document.getElementById('device-mode-badge');
-  if (!badge) return;
-  const w = (window.parent && window.parent.innerWidth) || window.innerWidth;
-  if (w < 1024) {{
-    badge.textContent = '📱 Мобільна';
-    badge.style.background = '#fef3c7';
-    badge.style.borderColor = '#f59e0b';
-    badge.style.color = '#78350f';
-  }} else {{
-    badge.textContent = '🖥️ ПК';
-    badge.style.background = '#e0f2fe';
-    badge.style.borderColor = '#7dd3fc';
-    badge.style.color = '#0c4a6e';
-  }}
-}}
-
-updateDeviceModeBadge();
-window.addEventListener('resize', updateDeviceModeBadge);
-try {{
-  window.parent.addEventListener('resize', updateDeviceModeBadge);
-}} catch (_) {{}}
+    function updateDeviceModeBadge() {{
+      const badge = document.getElementById('device-mode-badge');
+      if (!badge) return;
+      const w = (window.parent && window.parent.innerWidth) || window.innerWidth;
+      if (w < 1024) {{
+        badge.textContent = '📱 Мобільна';
+        badge.style.background = '#fef3c7';
+        badge.style.borderColor = '#f59e0b';
+        badge.style.color = '#78350f';
+      }} else {{
+        badge.textContent = '🖥️ ПК';
+        badge.style.background = '#e0f2fe';
+        badge.style.borderColor = '#7dd3fc';
+        badge.style.color = '#0c4a6e';
+      }}
+    }}
 
     document.addEventListener('DOMContentLoaded', () => {{
       lockViewportNoScroll();
-      window.addEventListener('resize', lockViewportNoScroll);
+      updateDeviceModeBadge();
+      window.addEventListener('resize', () => {{
+        lockViewportNoScroll();
+        updateDeviceModeBadge();
+      }});
       try {{
-        window.parent.addEventListener('resize', lockViewportNoScroll);
+        window.parent.addEventListener('resize', () => {{
+          lockViewportNoScroll();
+          updateDeviceModeBadge();
+        }});
       }} catch (_) {{}}
 
       updateKyivTime();
@@ -1164,6 +1177,7 @@ try {{
 
     components.html(login_html, height=900, scrolling=False)
     return False
+
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
