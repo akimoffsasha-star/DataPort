@@ -1,5 +1,12 @@
 import io
 from datetime import datetime
+import pandas as pd
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+
 from pathlib import Path
 
 import matplotlib
@@ -8,6 +15,157 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from fpdf import FPDF
 from fpdf.fonts import FontFace
+
+
+
+def build_corridors_pdf(
+    df_cargo: pd.DataFrame,
+    df_vessels: pd.DataFrame,
+    df_attacks: pd.DataFrame,
+    filters_desc: str,
+) -> bytes:
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=landscape(A4),
+        leftMargin=28,
+        rightMargin=28,
+        topMargin=28,
+        bottomMargin=28,
+    )
+    styles = getSampleStyleSheet()
+    font_name = "DejaVuSans" if "DejaVuSans" in styles["Normal"].fontName else "Helvetica"
+
+    title_style = ParagraphStyle(
+        "CorTitle",
+        parent=styles["Heading1"],
+        fontName=font_name,
+        fontSize=15,
+        textColor=colors.HexColor("#0F4C81"),
+        spaceAfter=6,
+    )
+    sub_style = ParagraphStyle(
+        "CorSub",
+        parent=styles["Normal"],
+        fontName=font_name,
+        fontSize=9,
+        textColor=colors.HexColor("#475569"),
+        spaceAfter=12,
+    )
+    h2_style = ParagraphStyle(
+        "CorH2",
+        parent=styles["Heading2"],
+        fontName=font_name,
+        fontSize=11,
+        textColor=colors.HexColor("#0F172A"),
+        spaceBefore=10,
+        spaceAfter=6,
+    )
+
+    elements = [
+        Paragraph("АНАЛІТИЧНИЙ ЗВІТ: МОРСЬКІ КОРИДОРИ, ДИНАМІКА ПЕРЕРОБКИ ТА БЕЗПЕКА", title_style),
+        Paragraph(
+            f"Міністерство з відновлення, інфраструктури та транспорту України | "
+            f"Сформовано: {datetime.now().strftime('%d.%m.%Y %H:%M')}<br/>Параметри вибірки: {filters_desc}",
+            sub_style,
+        ),
+    ]
+
+    # 1. Зведення вантажообігу по портах (Всього vs Зерно)
+    if not df_cargo.empty:
+        elements.append(Paragraph("1. Вантажообіг по портах (тис. тонн)", h2_style))
+        piv = (
+            df_cargo[df_cargo["metric_type"].isin(["Всього", "Зерно", "Інші вантажі (незернові)"])]
+            .pivot_table(index=["cluster", "port_name"], columns="metric_type", values="volume", aggfunc="sum", fill_value=0)
+            .reset_index()
+        )
+        for col in ["Всього", "Зерно", "Інші вантажі (незернові)"]:
+            if col not in piv.columns:
+                piv[col] = 0.0
+        piv["Частка зерна, %"] = piv.apply(
+            lambda r: f"{(r['Зерно'] / r['Всього'] * 100):.1f}%" if r["Всього"] > 0 else "0.0%", axis=1
+        )
+        piv = piv.sort_values("Всього", ascending=False)
+
+        t_data = [["Кластер", "Морський порт", "Всього, тис. т", "Зерно, тис. т", "Інші, тис. т", "Частка зерна"]]
+        for _, r in piv.iterrows():
+            t_data.append([
+                str(r["cluster"]),
+                str(r["port_name"]),
+                f"{r['Всього']:,.2f}".replace(",", " "),
+                f"{r['Зерно']:,.2f}".replace(",", " "),
+                f"{r['Інші вантажі (незернові)']:,.2f}".replace(",", " "),
+                r["Частка зерна, %"],
+            ])
+
+        tbl = Table(t_data, repeatRows=1)
+        tbl.setStyle(TableStyle([
+            ("FONTNAME", (0, 0), (-1, -1), font_name),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F4C81")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("ALIGN", (2, 1), (-1, -1), "RIGHT"),
+            ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#CBD5E1")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8FAFC")]),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(tbl)
+        elements.append(Spacer(1, 10))
+
+    # 2. Суднозаходи по портах
+    if not df_vessels.empty:
+        elements.append(Paragraph("2. Суднозаходи по портах (одиниць)", h2_style))
+        v_piv = (
+            df_vessels.groupby(["cluster", "port_name"], as_index=False)["vessels_count"]
+            .sum()
+            .sort_values("vessels_count", ascending=False)
+        )
+        v_data = [["Кластер", "Морський порт", "Кількість суднозаходів, од."]]
+        for _, r in v_piv.iterrows():
+            v_data.append([str(r["cluster"]), str(r["port_name"]), f"{int(r['vessels_count']):,}".replace(",", " ")])
+
+        vtbl = Table(v_data, repeatRows=1)
+        vtbl.setStyle(TableStyle([
+            ("FONTNAME", (0, 0), (-1, -1), font_name),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F4C81")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("ALIGN", (2, 1), (-1, -1), "RIGHT"),
+            ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#CBD5E1")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ]))
+        elements.append(vtbl)
+        elements.append(Spacer(1, 10))
+
+    # 3. Хронологія атак та пошкоджень
+    if not df_attacks.empty:
+        elements.append(Paragraph("3. Накопичувальна статистика пошкоджень портової інфраструктури та суден", h2_style))
+        a_data = [["Дата фіксації", "Об'єкти (всього)", "Приріст об'єктів", "Судна (всього)", "Приріст суден", "Постраждалі особи", "Приріст осіб"]]
+        for _, r in df_attacks.iterrows():
+            a_data.append([
+                str(r["attack_date"]),
+                str(int(r["objects_damaged"])),
+                f"{int(r.get('delta_objects', 0)):+d}",
+                str(int(r["vessels_damaged"])),
+                f"{int(r.get('delta_vessels', 0)):+d}",
+                str(int(r["casualties"])),
+                f"{int(r.get('delta_casualties', 0)):+d}",
+            ])
+        atbl = Table(a_data, repeatRows=1)
+        atbl.setStyle(TableStyle([
+            ("FONTNAME", (0, 0), (-1, -1), font_name),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#991B1B")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+            ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#CBD5E1")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#FEF2F2")]),
+        ]))
+        elements.append(atbl)
+
+    doc.build(elements)
+    return buf.getvalue()
 
 # Автопошук DejaVu шрифтів із повною підтримкою української кирилиці
 _MPL_TTF = Path(matplotlib.__file__).resolve().parent / "mpl-data" / "fonts" / "ttf"
