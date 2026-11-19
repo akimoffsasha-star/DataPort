@@ -937,21 +937,11 @@ elif page == "📄 PDF-звіти (Аудит)":
 # =====================================================================
 elif page == "📤 Завантаження Excel":
     st.title("📤 Автоматичне завантаження щомісячних файлів")
-    st.markdown(
-        "Перетягніть сюди один або одразу кілька файлів форматів **`23-м ... з ПО`** та **`25-вод ... з ПО`**. "
-        "Система сама визначить тип файлу та звітний місяць."
-    )
+    st.markdown("Перетягніть сюди один або одразу кілька файлів форматів **`23-м ... з ПО`** та **`25-вод ... з ПО`**. ""Система сама визначить тип файлу та звітний місяць.")
 
-    include_prev = st.checkbox(
-        "Імпортувати також колонку минулого року з файлу (корисно для первинного заповнення історії 2025 р.)",
-        value=False,
-    )
+    include_prev = st.checkbox("Імпортувати також колонку минулого року з файлу (корисно для первинного заповнення історії 2025 р.)",value=False,)
 
-uploaded_files = st.file_uploader(
-        "Оберіть файли Excel (.xlsx)",
-        type=["xlsx"],
-        accept_multiple_files=True,
-    )
+    uploaded_files = st.file_uploader("Оберіть файли Excel (.xlsx)",type=["xlsx"],accept_multiple_files=True,)
 
     if uploaded_files and st.button("🚀 Обробити та зберегти в хмарну базу", type="primary"):
         for uf in uploaded_files:
@@ -963,10 +953,7 @@ uploaded_files = st.file_uploader(
                     if ftype == "коридори":
                         corridors_data = parse_corridors_file(uf)
                         saved = save_corridors_to_db(corridors_data)
-                        st.write(
-                            f"Збережено коридори: вантажів — **{saved.get('cargo', 0)}**, "
-                            f"суднозаходів — **{saved.get('vessels', 0)}**, атак — **{saved.get('attacks', 0)}**"
-                        )
+                        st.write(f"Збережено коридори: вантажів — **{saved.get('cargo', 0)}**, "f"суднозаходів — **{saved.get('vessels', 0)}**, атак — **{saved.get('attacks', 0)}**")
                     elif ftype == "23-м":
                         df_c, warnings = parse_23m_file(uf, include_prev_year=include_prev)
                         inserted = save_cargo_to_db(df_c)
