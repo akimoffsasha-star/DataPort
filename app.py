@@ -16,23 +16,18 @@ from db import (
     clear_all_facts_db,
     delete_month_from_db,
     load_cargo_view,
-    load_corridors_attacks,
-    load_corridors_cargo,
-    load_corridors_vessels,
     load_months_summary,
     load_notes,
     load_operators_dict,
     load_vessels,
     save_25vod_to_db,
     save_cargo_to_db,
-    save_corridors_to_db,
     update_operators_dict,
 )
 from etl_parser import (
     fetch_corridors_from_gsheet,
     parse_23m_file,
     parse_25vod_file,
-    parse_corridors_file,
 )
 from pdf_reports import (
     build_cargo_audit_pdf,
@@ -159,8 +154,6 @@ def apply_theme_styles(theme_name: str):
             .stCaption, small {{
                 color: {p["text_muted"]} !important;
             }}
-
-            /* Картки метрик та контрастність delta */
             div[data-testid="stMetric"] {{
                 background-color: {p["bg_card"]};
                 border: 1px solid {p["border_card"]};
@@ -183,8 +176,6 @@ def apply_theme_styles(theme_name: str):
             div[data-testid="stMetric"] div[data-testid="stMetricDelta"] * {{
                 color: {p["delta_pos_text"]} !important;
             }}
-
-            /* Основні кнопки (primary) — білий текст на насиченому фоні в усіх темах */
             button[kind="primary"],
             div.stButton > button[kind="primary"],
             div.stDownloadButton > button[kind="primary"],
@@ -194,21 +185,6 @@ def apply_theme_styles(theme_name: str):
                 border: 1px solid {p["btn_border"]} !important;
                 font-weight: 600 !important;
             }}
-            button[kind="primary"]:hover,
-            div.stButton > button[kind="primary"]:hover,
-            div.stDownloadButton > button[kind="primary"]:hover,
-            div[data-testid="stFormSubmitButton"] > button:hover {{
-                background-color: {p["btn_hover"]} !important;
-                color: {p["btn_text"]} !important;
-            }}
-            button[kind="primary"] *,
-            div.stButton > button[kind="primary"] *,
-            div.stDownloadButton > button[kind="primary"] *,
-            div[data-testid="stFormSubmitButton"] > button * {{
-                color: {p["btn_text"]} !important;
-            }}
-
-            /* Вторинні кнопки, завантаження та кнопка Upload */
             button[kind="secondary"],
             div.stButton > button[kind="secondary"],
             div.stDownloadButton > button[kind="secondary"],
@@ -218,24 +194,6 @@ def apply_theme_styles(theme_name: str):
                 border: 1px solid {p["sec_btn_border"]} !important;
                 font-weight: 600 !important;
             }}
-            button[kind="secondary"] *,
-            div.stButton > button[kind="secondary"] *,
-            div.stDownloadButton > button[kind="secondary"] *,
-            div[data-testid="stFileUploader"] button * {{
-                color: {p["sec_btn_text"]} !important;
-            }}
-
-            /* Зона завантаження файлів */
-            div[data-testid="stFileUploader"] section {{
-                background-color: {p["bg_card"]} !important;
-                border: 1px dashed {p["border_card"]} !important;
-                color: {p["text_main"]} !important;
-            }}
-            div[data-testid="stFileUploader"] section * {{
-                color: {p["text_main"]} !important;
-            }}
-
-            /* Вкладки */
             button[data-baseweb="tab"] {{
                 color: {p["text_muted"]} !important;
                 font-weight: 600;
@@ -243,13 +201,6 @@ def apply_theme_styles(theme_name: str):
             button[data-baseweb="tab"][aria-selected="true"] {{
                 color: {p["text_main"]} !important;
                 border-bottom-color: {p["tab_active"]} !important;
-            }}
-
-            /* Таблиці / dataframes */
-            div[data-testid="stDataFrame"] {{
-                border: 1px solid {p["border_card"]};
-                border-radius: 8px;
-                overflow: hidden;
             }}
         </style>
         """,
@@ -267,10 +218,7 @@ def style_fig(fig, theme_name: str | None = None, height: int = 380):
         plot_bgcolor=p["bg_card"],
         font=dict(color=p["text_main"], size=12),
         title=dict(font=dict(color=p["text_main"], size=14)),
-        legend=dict(
-            font=dict(color=p["text_main"]),
-            bgcolor="rgba(0,0,0,0)",
-        ),
+        legend=dict(font=dict(color=p["text_main"]), bgcolor="rgba(0,0,0,0)"),
         margin=dict(l=40, r=20, t=48, b=40),
     )
     fig.update_xaxes(
@@ -415,7 +363,6 @@ def check_password() -> bool:
       background: #0f172a;
       color: #0f172a;
     }}
-
     .fixed-top-bar {{
       position: fixed;
       top: 0;
@@ -498,7 +445,6 @@ def check_password() -> bool:
       font-weight: 700;
       white-space: nowrap;
     }}
-
     .scene-stage {{
       position: fixed;
       top: 48px;
@@ -525,7 +471,6 @@ def check_password() -> bool:
       height: 100%;
       display: block;
     }}
-
     .fixed-bottom-bar {{
       position: fixed;
       left: 0;
@@ -549,20 +494,11 @@ def check_password() -> bool:
       overflow: hidden;
       text-overflow: ellipsis;
     }}
-
-    .cargo-container {{
+    .cargo-container, #deck-crane {{
       cursor: pointer;
     }}
-    #deck-crane {{
-      cursor: pointer;
-    }}
-
-    .cloud-stream-1 {{
-      animation: cloudRightToLeft1 68s linear infinite;
-    }}
-    .cloud-stream-2 {{
-      animation: cloudRightToLeft2 86s linear infinite;
-    }}
+    .cloud-stream-1 {{ animation: cloudRightToLeft1 68s linear infinite; }}
+    .cloud-stream-2 {{ animation: cloudRightToLeft2 86s linear infinite; }}
     @keyframes cloudRightToLeft1 {{
       0% {{ transform: translateX(720px); }}
       100% {{ transform: translateX(-1450px); }}
@@ -571,16 +507,9 @@ def check_password() -> bool:
       0% {{ transform: translateX(920px); }}
       100% {{ transform: translateX(-1450px); }}
     }}
-
-    .star-twinkle-a {{
-      animation: starTwinkleA 3.8s ease-in-out infinite;
-    }}
-    .star-twinkle-b {{
-      animation: starTwinkleB 5.4s ease-in-out infinite;
-    }}
-    .star-twinkle-c {{
-      animation: starTwinkleC 7.1s ease-in-out infinite;
-    }}
+    .star-twinkle-a {{ animation: starTwinkleA 3.8s ease-in-out infinite; }}
+    .star-twinkle-b {{ animation: starTwinkleB 5.4s ease-in-out infinite; }}
+    .star-twinkle-c {{ animation: starTwinkleC 7.1s ease-in-out infinite; }}
     @keyframes starTwinkleA {{
       0%, 100% {{ opacity: 0.45; }}
       50% {{ opacity: 1; }}
@@ -594,16 +523,9 @@ def check_password() -> bool:
       45% {{ opacity: 1; }}
       80% {{ opacity: 0.38; }}
     }}
-
-    .wave-shift-1 {{
-      animation: waveMove1 6.5s ease-in-out infinite;
-    }}
-    .wave-shift-2 {{
-      animation: waveMove2 8.8s ease-in-out infinite;
-    }}
-    .wave-crest-ripple {{
-      animation: waveRipple 5.2s ease-in-out infinite;
-    }}
+    .wave-shift-1 {{ animation: waveMove1 6.5s ease-in-out infinite; }}
+    .wave-shift-2 {{ animation: waveMove2 8.8s ease-in-out infinite; }}
+    .wave-crest-ripple {{ animation: waveRipple 5.2s ease-in-out infinite; }}
     @keyframes waveMove1 {{
       0%, 100% {{ transform: translate(0px, 0px); }}
       50% {{ transform: translate(-22px, 3px); }}
@@ -616,7 +538,6 @@ def check_password() -> bool:
       0%, 100% {{ transform: translateX(0px); opacity: 0.45; }}
       50% {{ transform: translateX(-18px); opacity: 0.75; }}
     }}
-
     .propeller-spin {{
       animation: propSpin 0.42s linear infinite;
       transform-box: fill-box;
@@ -637,43 +558,34 @@ def check_password() -> bool:
       50% {{ transform: scaleX(0.2); }}
       100% {{ transform: scaleX(1); }}
     }}
-
-    .stern-wake-spread {{
-      animation: sternWakePulse 3.4s ease-in-out infinite;
-    }}
+    .stern-wake-spread {{ animation: sternWakePulse 3.4s ease-in-out infinite; }}
     @keyframes sternWakePulse {{
       0%, 100% {{ transform: translate(0px, 0px); opacity: 0.78; }}
       50% {{ transform: translate(-12px, 3px); opacity: 1; }}
     }}
-    .bow-wave-spread {{
-      animation: bowWavePulse 3.1s ease-in-out infinite;
-    }}
+    .bow-wave-spread {{ animation: bowWavePulse 3.1s ease-in-out infinite; }}
     @keyframes bowWavePulse {{
       0%, 100% {{ transform: translate(0px, 0px); opacity: 0.82; }}
       50% {{ transform: translate(11px, 3px); opacity: 1; }}
     }}
-    .prop-wash-foam {{
-      animation: propWashAnim 1.4s ease-in-out infinite;
-    }}
+    .prop-wash-foam {{ animation: propWashAnim 1.4s ease-in-out infinite; }}
     @keyframes propWashAnim {{
       0%, 100% {{ transform: translateX(0px) scaleX(1); opacity: 0.75; }}
       50% {{ transform: translateX(-10px) scaleX(1.08); opacity: 0.95; }}
     }}
-
-    /* Дим над вищою центральною димовою трубою (x ≈ 648, y ≈ 286) */
     .smoke-puff-1 {{
       animation: smokeRise1 7.5s ease-out infinite;
-      transform-origin: 648px 286px;
+      transform-origin: 648px 268px;
     }}
     .smoke-puff-2 {{
       animation: smokeRise2 9.2s ease-out infinite;
       animation-delay: -3.1s;
-      transform-origin: 648px 286px;
+      transform-origin: 648px 268px;
     }}
     .smoke-puff-3 {{
       animation: smokeRise3 10.8s ease-out infinite;
       animation-delay: -6.4s;
-      transform-origin: 648px 286px;
+      transform-origin: 648px 268px;
     }}
     @keyframes smokeRise1 {{
       0% {{ transform: translate(0px, 0px) scale(0.45); opacity: 0; }}
@@ -693,7 +605,6 @@ def check_password() -> bool:
       72% {{ transform: translate(-36px, -74px) scale(1.3); opacity: 0.22; }}
       100% {{ transform: translate(-68px, -118px) scale(1.7); opacity: 0; }}
     }}
-
     .login-card {{
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(14px);
@@ -701,7 +612,6 @@ def check_password() -> bool:
       border: 1px solid rgba(255, 255, 255, 0.92);
       box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(148, 163, 184, 0.22);
     }}
-
     #login-panel {{
       position: absolute;
       top: 14px;
@@ -718,34 +628,13 @@ def check_password() -> bool:
     #container-tooltip-box {{
       transition: border-left-color 0.35s ease;
     }}
-
     @media (max-width: 1023px) {{
-      #container-tooltip-box,
-      .top-title {{
-        display: none !important;
-      }}
+      #container-tooltip-box, .top-title {{ display: none !important; }}
       .fixed-top-bar {{
         grid-template-columns: auto 1fr auto;
         gap: 6px;
         padding: 0 8px 0 4px;
         height: 44px;
-      }}
-      .top-logo {{
-        width: 24px;
-        height: 24px;
-        font-size: 12.5px;
-        margin-left: 0;
-        transform: translateX(-1px);
-      }}
-      .top-clock {{
-        justify-self: center;
-        padding: 3px 8px;
-        font-size: 11px;
-        gap: 5px;
-      }}
-      .top-device-badge {{
-        padding: 3px 8px;
-        font-size: 11px;
       }}
       .scene-stage {{
         top: 44px;
@@ -767,10 +656,7 @@ def check_password() -> bool:
         padding: 12px !important;
         gap: 0 !important;
       }}
-      #login-box {{
-        width: 100% !important;
-        max-width: 350px !important;
-      }}
+      #login-box {{ width: 100% !important; max-width: 350px !important; }}
       .fixed-bottom-bar {{
         height: 36px;
         padding: 0 8px;
@@ -834,16 +720,21 @@ def check_password() -> bool:
           <stop offset="100%" stop-color="#ffffff" />
         </linearGradient>
         <linearGradient id="funnelBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#0f172a" />
-          <stop offset="50%" stop-color="#1e293b" />
-          <stop offset="100%" stop-color="#334155" />
+          <stop offset="0%" stop-color="#0f294a" />
+          <stop offset="55%" stop-color="#173b68" />
+          <stop offset="100%" stop-color="#1e497d" />
+        </linearGradient>
+        <linearGradient id="craneSteelGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#d97706" />
+          <stop offset="50%" stop-color="#f59e0b" />
+          <stop offset="100%" stop-color="#fbbf24" />
         </linearGradient>
         <clipPath id="funnelClipPath">
-          <polygon points="632,335 664,335 659,288 637,288" />
+          <polygon points="632,335 664,335 660,268 636,268" />
         </clipPath>
-        <pattern id="corrugation" width="18" height="14" patternUnits="userSpaceOnUse">
-          <line x1="6" y1="0" x2="6" y2="14" stroke="#000000" stroke-opacity="0.2" stroke-width="4" />
-          <line x1="12" y1="0" x2="12" y2="14" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" />
+        <pattern id="corrugation" width="14" height="12" patternUnits="userSpaceOnUse">
+          <line x1="4" y1="0" x2="4" y2="12" stroke="#000000" stroke-opacity="0.2" stroke-width="3" />
+          <line x1="9" y1="0" x2="9" y2="12" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" />
         </pattern>
         <linearGradient id="hullShadow" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#0f172a" stop-opacity="0.45" />
@@ -851,85 +742,53 @@ def check_password() -> bool:
         </linearGradient>
       </defs>
 
-      <!-- 1. Рівний горизонт неба і моря (денний та нічний режими) -->
+      <!-- 1. Горизонт неба і моря -->
       <rect id="sky-rect" x="-400" y="85" width="3200" height="775" fill="url(#skyGradDay)" />
       <rect id="sea-rect" x="-400" y="860" width="3200" height="320" fill="url(#seaGradDay)" />
       <line id="horizon-line" x1="-400" y1="860" x2="2800" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.75" />
 
-      <!-- Зоряне нічне небо (видиме у темну пору доби) -->
+      <!-- Зоряне нічне небо -->
       <g id="night-sky-stars" opacity="0" pointer-events="none">
         <circle cx="1780" cy="182" r="24" fill="#fef9c3" opacity="0.88" />
         <circle cx="1780" cy="182" r="44" fill="#fef08a" opacity="0.14" />
-
         <g class="star-twinkle-a">
-          <circle cx="560" cy="155" r="7" fill="url(#starGlow)" />
-          <circle cx="560" cy="155" r="1.8" fill="#ffffff" />
-          <circle cx="940" cy="138" r="8" fill="url(#starGlow)" />
-          <circle cx="940" cy="138" r="2.0" fill="#f8fafc" />
-          <circle cx="1360" cy="162" r="7.5" fill="url(#starGlow)" />
-          <circle cx="1360" cy="162" r="1.9" fill="#ffffff" />
-          <circle cx="1620" cy="245" r="6.5" fill="url(#starGlow)" />
-          <circle cx="1620" cy="245" r="1.7" fill="#e0f2fe" />
+          <circle cx="560" cy="155" r="7" fill="url(#starGlow)" /><circle cx="560" cy="155" r="1.8" fill="#ffffff" />
+          <circle cx="940" cy="138" r="8" fill="url(#starGlow)" /><circle cx="940" cy="138" r="2.0" fill="#f8fafc" />
+          <circle cx="1360" cy="162" r="7.5" fill="url(#starGlow)" /><circle cx="1360" cy="162" r="1.9" fill="#ffffff" />
+          <circle cx="1620" cy="245" r="6.5" fill="url(#starGlow)" /><circle cx="1620" cy="245" r="1.7" fill="#e0f2fe" />
         </g>
-
         <g class="star-twinkle-b">
-          <circle cx="780" cy="215" r="6.5" fill="url(#starGlow)" />
-          <circle cx="780" cy="215" r="1.6" fill="#ffffff" />
-          <circle cx="1140" cy="192" r="8.5" fill="url(#starGlow)" />
-          <circle cx="1140" cy="192" r="2.1" fill="#fef9c3" />
-          <circle cx="1510" cy="128" r="7" fill="url(#starGlow)" />
-          <circle cx="1510" cy="128" r="1.8" fill="#ffffff" />
-          <circle cx="1950" cy="218" r="7.5" fill="url(#starGlow)" />
-          <circle cx="1950" cy="218" r="1.8" fill="#e0f2fe" />
+          <circle cx="780" cy="215" r="6.5" fill="url(#starGlow)" /><circle cx="780" cy="215" r="1.6" fill="#ffffff" />
+          <circle cx="1140" cy="192" r="8.5" fill="url(#starGlow)" /><circle cx="1140" cy="192" r="2.1" fill="#fef9c3" />
+          <circle cx="1510" cy="128" r="7" fill="url(#starGlow)" /><circle cx="1510" cy="128" r="1.8" fill="#ffffff" />
+          <circle cx="1950" cy="218" r="7.5" fill="url(#starGlow)" /><circle cx="1950" cy="218" r="1.8" fill="#e0f2fe" />
         </g>
-
         <g class="star-twinkle-c">
-          <circle cx="485" cy="268" r="1.3" fill="#e2e8f0" />
-          <circle cx="645" cy="196" r="1.5" fill="#ffffff" />
-          <circle cx="865" cy="164" r="1.2" fill="#bae6fd" />
-          <circle cx="1025" cy="248" r="1.4" fill="#ffffff" />
-          <circle cx="1250" cy="134" r="1.3" fill="#f8fafc" />
-          <circle cx="1445" cy="252" r="1.2" fill="#bae6fd" />
-          <circle cx="1690" cy="146" r="1.5" fill="#ffffff" />
-          <circle cx="1865" cy="272" r="1.3" fill="#e2e8f0" />
-          <circle cx="520" cy="420" r="1.2" fill="#cbd5e1" />
-          <circle cx="845" cy="310" r="1.1" fill="#e2e8f0" />
-          <circle cx="1065" cy="315" r="1.2" fill="#bae6fd" />
-          <circle cx="1495" cy="308" r="1.2" fill="#ffffff" />
-          <circle cx="1745" cy="325" r="1.3" fill="#e2e8f0" />
-          <circle cx="1985" cy="360" r="1.2" fill="#cbd5e1" />
+          <circle cx="485" cy="268" r="1.3" fill="#e2e8f0" /><circle cx="645" cy="196" r="1.5" fill="#ffffff" />
+          <circle cx="865" cy="164" r="1.2" fill="#bae6fd" /><circle cx="1025" cy="248" r="1.4" fill="#ffffff" />
+          <circle cx="1250" cy="134" r="1.3" fill="#f8fafc" /><circle cx="1445" cy="252" r="1.2" fill="#bae6fd" />
+          <circle cx="1690" cy="146" r="1.5" fill="#ffffff" /><circle cx="1865" cy="272" r="1.3" fill="#e2e8f0" />
+          <circle cx="520" cy="420" r="1.2" fill="#cbd5e1" /><circle cx="845" cy="310" r="1.1" fill="#e2e8f0" />
         </g>
       </g>
 
-      <!-- 2. Хмари на фоні (денний режим) -->
+      <!-- 2. Хмари -->
       <g id="sky-clouds-bg" pointer-events="none">
         <g class="cloud-stream-1" fill="#ffffff" opacity="0.82">
-          <circle cx="1180" cy="185" r="42" />
-          <circle cx="1225" cy="174" r="56" />
-          <circle cx="1276" cy="184" r="46" />
-          <circle cx="1318" cy="192" r="32" />
-
-          <circle cx="1640" cy="225" r="36" />
-          <circle cx="1678" cy="216" r="48" />
-          <circle cx="1722" cy="226" r="38" />
+          <circle cx="1180" cy="185" r="42" /><circle cx="1225" cy="174" r="56" />
+          <circle cx="1276" cy="184" r="46" /><circle cx="1318" cy="192" r="32" />
+          <circle cx="1640" cy="225" r="36" /><circle cx="1678" cy="216" r="48" /><circle cx="1722" cy="226" r="38" />
         </g>
         <g class="cloud-stream-2" fill="#f8fafc" opacity="0.72">
-          <circle cx="1420" cy="145" r="34" />
-          <circle cx="1456" cy="138" r="44" />
-          <circle cx="1494" cy="147" r="34" />
-
-          <circle cx="1880" cy="172" r="40" />
-          <circle cx="1922" cy="162" r="52" />
-          <circle cx="1968" cy="174" r="42" />
+          <circle cx="1420" cy="145" r="34" /><circle cx="1456" cy="138" r="44" /><circle cx="1494" cy="147" r="34" />
+          <circle cx="1880" cy="172" r="40" /><circle cx="1922" cy="162" r="52" /><circle cx="1968" cy="174" r="42" />
         </g>
       </g>
 
-      <!-- Тінь корпусу на воді -->
       <ellipse cx="1195" cy="914" rx="760" ry="20" fill="url(#hullShadow)" />
 
-      <!-- 3. Корпус контейнеровоза: вища димова труба з фіксованим прапором на обшивці -->
+      <!-- 3. Корпус судна та вища димова труба з фіксованим прапором -->
       <g id="ship-hull">
-        <!-- Працюючий гребний гвинт та перо керма у кормовій підводній частині -->
         <g id="stern-propulsion">
           <polygon points="482,862 504,862 504,904 484,904" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
           <line x1="504" y1="882" x2="526" y2="882" stroke="#64748b" stroke-width="5" stroke-linecap="round" />
@@ -944,107 +803,60 @@ def check_password() -> bool:
             <path d="M515,873 Q485,868 455,874" stroke-width="3" opacity="0.85" />
             <path d="M515,882 Q478,880 442,884" stroke-width="3.5" opacity="0.9" />
             <path d="M515,891 Q484,895 452,891" stroke-width="3" opacity="0.8" />
-            <circle cx="468" cy="878" r="3" fill="#ffffff" stroke="none" opacity="0.7" />
-            <circle cx="450" cy="887" r="2.5" fill="#bae6fd" stroke="none" opacity="0.75" />
           </g>
         </g>
 
-        <!-- Світлий дим над вищою центральною димовою трубою (x ≈ 648, y ≈ 286) -->
         <g id="exhaust-smoke" pointer-events="none">
           <g class="smoke-puff-1">
-            <circle cx="648" cy="284" r="14" fill="#f1f5f9" opacity="0.85" />
-            <circle cx="660" cy="278" r="11" fill="#e2e8f0" opacity="0.75" />
-            <circle cx="638" cy="277" r="10" fill="#ffffff" opacity="0.8" />
+            <circle cx="648" cy="266" r="14" fill="#f1f5f9" opacity="0.85" />
+            <circle cx="660" cy="260" r="11" fill="#e2e8f0" opacity="0.75" />
+            <circle cx="638" cy="259" r="10" fill="#ffffff" opacity="0.8" />
           </g>
           <g class="smoke-puff-2">
-            <circle cx="648" cy="282" r="16" fill="#f8fafc" opacity="0.8" />
-            <circle cx="662" cy="274" r="12" fill="#e2e8f0" opacity="0.7" />
-            <circle cx="636" cy="274" r="11" fill="#ffffff" opacity="0.75" />
+            <circle cx="648" cy="264" r="16" fill="#f8fafc" opacity="0.8" />
+            <circle cx="662" cy="256" r="12" fill="#e2e8f0" opacity="0.7" />
           </g>
           <g class="smoke-puff-3">
-            <circle cx="648" cy="280" r="15" fill="#f1f5f9" opacity="0.75" />
-            <circle cx="659" cy="272" r="11" fill="#cbd5e1" opacity="0.65" />
+            <circle cx="648" cy="262" r="15" fill="#f1f5f9" opacity="0.75" />
           </g>
         </g>
 
-        <!-- Вища димова труба по центру надбудови з фіксованим намальованим прапором -->
         <g id="ship-funnel">
           <g clip-path="url(#funnelClipPath)">
-            <rect x="630" y="286" width="36" height="52" fill="url(#funnelBodyGrad)" />
-            <!-- Фіксований прапор, нанесений безпосередньо на трубу -->
-            <rect x="632" y="295" width="32" height="9" fill="#0057b7" />
-            <rect x="632" y="304" width="32" height="9" fill="#ffd700" />
-            <!-- Легкий металевий відблиск поверх прапора без анімації -->
-            <rect x="646" y="294" width="5" height="20" fill="#ffffff" opacity="0.14" />
-            <!-- Декоративна червона смуга в нижній частині труби -->
-            <rect x="631" y="319" width="34" height="6" fill="#dc2626" />
+            <rect x="630" y="266" width="36" height="72" fill="url(#funnelBodyGrad)" />
+            <rect x="632" y="278" width="32" height="10" fill="#0057b7" />
+            <rect x="632" y="288" width="32" height="10" fill="#ffd700" />
+            <rect x="646" y="277" width="5" height="22" fill="#ffffff" opacity="0.14" />
+            <rect x="631" y="314" width="34" height="6" fill="#dc2626" />
           </g>
-          <polygon points="632,335 664,335 659,288 637,288" fill="none" stroke="#0f172a" stroke-width="2.6" stroke-linejoin="round" />
-          <rect x="635" y="283" width="26" height="5.5" rx="1.5" fill="#475569" stroke="#0f172a" stroke-width="1.5" />
-          <rect x="641" y="279" width="4" height="5" fill="#0f172a" />
-          <rect x="651" y="279" width="4" height="5" fill="#0f172a" />
+          <polygon points="632,335 664,335 660,268 636,268" fill="none" stroke="#0f172a" stroke-width="2.6" stroke-linejoin="round" />
+          <rect x="635" y="263" width="26" height="5.5" rx="1.5" fill="#475569" stroke="#0f172a" stroke-width="1.5" />
         </g>
 
-        <!-- Багатоярусна надбудова -->
         <g id="ship-superstructure">
           <polygon points="560,748 564,466 748,466 774,748" fill="url(#superstructureGrad)" stroke="#64748b" stroke-width="3" />
           <polygon points="564,466 568,414 742,414 748,466" fill="#f1f5f9" stroke="#64748b" stroke-width="2.8" />
           <polygon points="568,414 572,362 736,362 742,414" fill="#f8fafc" stroke="#64748b" stroke-width="2.8" />
-
-          <line x1="556" y1="466" x2="752" y2="466" stroke="#475569" stroke-width="4" />
-          <line x1="560" y1="414" x2="746" y2="414" stroke="#475569" stroke-width="3.5" />
-          <line x1="564" y1="362" x2="740" y2="362" stroke="#475569" stroke-width="3.5" />
-          <g stroke="#94a3b8" stroke-width="1.6">
-            <line x1="564" y1="454" x2="748" y2="454" />
-            <line x1="568" y1="402" x2="742" y2="402" />
-            <line x1="572" y1="350" x2="736" y2="350" />
-          </g>
-
           <polygon points="532,335 760,335 746,362 544,362" fill="#e2e8f0" stroke="#475569" stroke-width="3" />
           <rect x="558" y="340" width="180" height="14" rx="2.5" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
           <g fill="#38bdf8" opacity="0.78">
-            <rect x="564" y="343" width="26" height="8" rx="1" />
-            <rect x="595" y="343" width="26" height="8" rx="1" />
-            <rect x="626" y="343" width="26" height="8" rx="1" />
-            <rect x="657" y="343" width="26" height="8" rx="1" />
-            <rect x="688" y="343" width="26" height="8" rx="1" />
-            <rect x="718" y="343" width="14" height="8" rx="1" />
+            <rect x="564" y="343" width="26" height="8" rx="1" /><rect x="595" y="343" width="26" height="8" rx="1" />
+            <rect x="626" y="343" width="26" height="8" rx="1" /><rect x="657" y="343" width="26" height="8" rx="1" />
+            <rect x="688" y="343" width="26" height="8" rx="1" /><rect x="718" y="343" width="14" height="8" rx="1" />
           </g>
-          <g stroke="#ffffff" stroke-width="1.5" opacity="0.65">
-            <line x1="567" y1="350" x2="573" y2="344" />
-            <line x1="629" y1="350" x2="635" y2="344" />
-            <line x1="691" y1="350" x2="697" y2="344" />
-          </g>
-
           <g fill="#1e293b" stroke="#64748b" stroke-width="1.2">
-            <rect x="586" y="376" width="20" height="14" rx="2.5" />
-            <rect x="618" y="376" width="20" height="14" rx="2.5" />
-            <rect x="650" y="376" width="20" height="14" rx="2.5" />
-            <rect x="682" y="376" width="20" height="14" rx="2.5" />
-            <rect x="584" y="428" width="20" height="14" rx="2.5" />
-            <rect x="616" y="428" width="20" height="14" rx="2.5" />
-            <rect x="648" y="428" width="20" height="14" rx="2.5" />
-            <rect x="680" y="428" width="20" height="14" rx="2.5" />
-            <rect x="712" y="428" width="18" height="14" rx="2.5" />
-            <rect x="582" y="480" width="20" height="14" rx="2.5" />
-            <rect x="614" y="480" width="20" height="14" rx="2.5" />
-            <rect x="646" y="480" width="20" height="14" rx="2.5" />
-            <rect x="678" y="480" width="20" height="14" rx="2.5" />
-            <rect x="710" y="480" width="18" height="14" rx="2.5" />
+            <rect x="586" y="376" width="20" height="14" rx="2.5" /><rect x="618" y="376" width="20" height="14" rx="2.5" />
+            <rect x="650" y="376" width="20" height="14" rx="2.5" /><rect x="682" y="376" width="20" height="14" rx="2.5" />
+            <rect x="584" y="428" width="20" height="14" rx="2.5" /><rect x="616" y="428" width="20" height="14" rx="2.5" />
+            <rect x="648" y="428" width="20" height="14" rx="2.5" /><rect x="680" y="428" width="20" height="14" rx="2.5" />
+            <rect x="582" y="480" width="20" height="14" rx="2.5" /><rect x="614" y="480" width="20" height="14" rx="2.5" />
+            <rect x="646" y="480" width="20" height="14" rx="2.5" /><rect x="678" y="480" width="20" height="14" rx="2.5" />
           </g>
+          <circle cx="574" cy="388" r="8" fill="#f97316" stroke="#7c2d12" stroke-width="2.2" />
+          <circle cx="574" cy="388" r="3.2" fill="#f8fafc" />
+          <circle cx="728" cy="388" r="8" fill="#f97316" stroke="#7c2d12" stroke-width="2.2" />
+          <circle cx="728" cy="388" r="3.2" fill="#f8fafc" />
 
-          <g id="superstructure-lifebuoys">
-            <circle cx="574" cy="388" r="8" fill="#f97316" stroke="#7c2d12" stroke-width="2.2" />
-            <circle cx="574" cy="388" r="3.2" fill="#f8fafc" />
-            <circle cx="728" cy="388" r="8" fill="#f97316" stroke="#7c2d12" stroke-width="2.2" />
-            <circle cx="728" cy="388" r="3.2" fill="#f8fafc" />
-          </g>
-          <rect x="714" y="514" width="28" height="36" rx="3" fill="#cbd5e1" stroke="#64748b" stroke-width="2" />
-          <line x1="718" y1="522" x2="738" y2="522" stroke="#475569" stroke-width="2" />
-          <line x1="718" y1="530" x2="738" y2="530" stroke="#475569" stroke-width="2" />
-          <line x1="718" y1="538" x2="738" y2="538" stroke="#475569" stroke-width="2" />
-
-          <!-- Щогла ближче до переднього краю надбудови (x ≈ 705) -->
           <g id="ship-mast" transform="translate(705, 0)">
             <line x1="0" y1="335" x2="0" y2="242" stroke="#475569" stroke-width="6" stroke-linecap="round" />
             <line x1="-34" y1="280" x2="34" y2="280" stroke="#475569" stroke-width="4" stroke-linecap="round" />
@@ -1056,71 +868,31 @@ def check_password() -> bool:
           </g>
         </g>
 
-        <!-- Реалістична рятувальна шлюпка з кран-балками та тросами -->
         <g id="lifeboat-davit">
-          <path d="M500,748 L500,682 L526,672 Q536,670 540,680" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M548,748 L548,682 L522,672" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M500,748 L500,682 L526,672 Q536,670 540,680" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" />
+          <path d="M548,748 L548,682 L522,672" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" />
           <line x1="510" y1="678" x2="510" y2="708" stroke="#0f172a" stroke-width="2" />
           <line x1="538" y1="678" x2="538" y2="708" stroke="#0f172a" stroke-width="2" />
-          <path
-            d="M488,712 Q524,701 562,711 L555,734 Q524,740 494,733 Z"
-            fill="#f97316"
-            stroke="#7c2d12"
-            stroke-width="2.5"
-            stroke-linejoin="round"
-          />
+          <path d="M488,712 Q524,701 562,711 L555,734 Q524,740 494,733 Z" fill="#f97316" stroke="#7c2d12" stroke-width="2.5" />
           <path d="M491,722 Q524,727 558,722" fill="none" stroke="#ffffff" stroke-width="2.4" opacity="0.9" />
-          <path d="M493,728 Q524,733 556,728" fill="none" stroke="#9a3412" stroke-width="1.8" />
           <path d="M510,707 L515,698 L538,698 L543,707 Z" fill="#fff7ed" stroke="#7c2d12" stroke-width="2" />
-          <rect x="518" y="701" width="7" height="4" rx="1" fill="#0f172a" />
-          <rect x="528" y="701" width="7" height="4" rx="1" fill="#0f172a" />
-          <line x1="514" y1="695" x2="539" y2="695" stroke="#475569" stroke-width="1.6" />
         </g>
 
-        <!-- Основний корпус: узгоджена верхня палуба без нестикування над якорем -->
         <path
           d="M478,748 L1775,748 Q1852,748 1912,724 L1882,812 Q1864,846 1852,862 Q1924,865 1934,886 Q1938,902 1906,906 L478,906 Z"
-          fill="url(#hullTopGrad)"
-          stroke="#0f172a"
-          stroke-width="3.5"
-          stroke-linejoin="round"
+          fill="url(#hullTopGrad)" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round"
         />
-        <!-- Чітка вертикально-зрізана транцева корма -->
         <line x1="478" y1="748" x2="478" y2="906" stroke="#0f172a" stroke-width="4.5" />
-        <rect x="478" y="754" width="8" height="108" fill="#334155" opacity="0.45" />
-
-        <!-- Підводна частина та бульбова кінцівка -->
         <path
           d="M478,862 L1852,862 Q1922,865 1933,886 Q1936,901 1904,906 L478,906 Z"
-          fill="#991b1b"
-          stroke="#7f1d1d"
-          stroke-width="2.5"
-        />
-        <line x1="478" y1="862" x2="1852" y2="862" stroke="#e2e8f0" stroke-width="2.2" opacity="0.65" />
-        <path
-          d="M1886,742 L1854,826 Q1844,845 1835,856"
-          fill="none"
-          stroke="#94a3b8"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          opacity="0.7"
-        />
-        <path
-          d="M1856,872 Q1912,874 1921,887"
-          fill="none"
-          stroke="#fca5a5"
-          stroke-width="3"
-          stroke-linecap="round"
-          opacity="0.75"
+          fill="#991b1b" stroke="#7f1d1d" stroke-width="2.5"
         />
 
-        <!-- Неспущений якір у носовій частині (ланцюг повністю сховано всередині клюза) -->
+        <!-- Якір у клюзі без виступаючого назовні ланцюга -->
         <g id="bow-stowed-anchor" transform="translate(1842, 765) rotate(16)">
           <ellipse cx="18" cy="18" rx="22" ry="13" fill="#090d16" stroke="#64748b" stroke-width="2.2" />
           <ellipse cx="12" cy="17" rx="8" ry="6" fill="#020617" />
           <line x1="7" y1="17" x2="17" y2="17" stroke="#94a3b8" stroke-width="3.4" stroke-dasharray="3 2" />
-          <circle cx="32" cy="15" r="2" fill="#94a3b8" />
-          <circle cx="6" cy="21" r="2" fill="#94a3b8" />
           <rect x="13" y="15" width="18" height="5.5" rx="2" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.9" />
           <rect x="16" y="10.5" width="3.8" height="14.5" rx="1.4" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5" />
           <path d="M30,17.5 Q40,17 41,29" fill="none" stroke="#f1f5f9" stroke-width="4.8" stroke-linecap="round" />
@@ -1129,148 +901,178 @@ def check_password() -> bool:
           <polygon points="38,4.5 34.5,9.5 42,10.5" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.4" />
         </g>
 
-        <!-- Суцільний планшир та леєрне огородження по верхній палубі без зазорів -->
         <path d="M478,748 L1775,748 Q1852,748 1912,724 L1906,731 Q1850,755 1775,755 L478,755 Z" fill="#64748b" />
         <path d="M478,726 L1775,726 Q1850,726 1906,724" fill="none" stroke="#cbd5e1" stroke-width="3.2" />
         <g stroke="#cbd5e1" stroke-width="2.4">
-          <line x1="565" y1="726" x2="565" y2="748" />
-          <line x1="780" y1="726" x2="780" y2="748" />
-          <line x1="1460" y1="726" x2="1460" y2="748" />
-          <line x1="1540" y1="726" x2="1540" y2="748" />
-          <line x1="1620" y1="726" x2="1620" y2="748" />
-          <line x1="1700" y1="726" x2="1700" y2="748" />
-          <line x1="1780" y1="726" x2="1780" y2="748" />
-          <line x1="1855" y1="725" x2="1855" y2="742" />
-        </g>
-        <g fill="#64748b" stroke="#1e293b" stroke-width="2">
-          <rect x="1635" y="736" width="18" height="12" rx="3" />
-          <rect x="1715" y="736" width="18" height="12" rx="3" />
+          <line x1="565" y1="726" x2="565" y2="748" /><line x1="780" y1="726" x2="780" y2="748" />
+          <line x1="1540" y1="726" x2="1540" y2="748" /><line x1="1640" y1="726" x2="1640" y2="748" />
+          <line x1="1740" y1="726" x2="1740" y2="748" /><line x1="1845" y1="725" x2="1845" y2="742" />
         </g>
       </g>
 
-      <!-- 4. Контейнери на палубі (гармонізовані написи у морському стилі без виходу за межі) -->
+      <!-- 4. 9 контейнерів зменшеного розміру (3 колонки × 3 ряди, 226×86) -->
       <g id="containers-group">
-        <g class="cargo-container" data-module-id="security" transform="translate(775, 630)" tabindex="0" role="button">
-          <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
-          <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="210" y="14" width="106" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="263" y="33" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">IMO - GUARD</text>
-          <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="26" y="83" fill="#ffffff" font-size="16.5" font-weight="700">🚨 Морська безпека й інциденти</text>
-          <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+        <!-- Ряд 3 (нижній, y = 660) -->
+        <g class="cargo-container" data-module-id="security" transform="translate(778, 660)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="136" y="10" width="80" height="21" rx="4" fill="#0f172a" fill-opacity="0.82" />
+          <text x="176" y="24" text-anchor="middle" fill="#e2e8f0" font-size="10.5" font-weight="700">IMO-GUARD</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.74" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">🚨 Безпека акваторії</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
         </g>
 
-        <g class="cargo-container" data-module-id="audit" transform="translate(775, 510)" tabindex="0" role="button">
-          <rect width="330" height="118" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3.5" />
-          <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="265" y="33" text-anchor="middle" fill="#fecaca" font-size="13.5" font-weight="700">BERTH - 40RF</text>
-          <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="26" y="83" fill="#ffffff" font-size="16.5" font-weight="700">⚓ Реєстр операторів і причалів</text>
-          <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+        <g class="cargo-container" data-module-id="reports" transform="translate(1012, 660)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#ea580c" stroke="#9a3412" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="142" y="10" width="74" height="21" rx="4" fill="#0f172a" fill-opacity="0.82" />
+          <text x="179" y="24" text-anchor="middle" fill="#fed7aa" font-size="10.5" font-weight="700">LOG-20OT</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.74" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">📄 Вахтові PDF-звіти</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
         </g>
 
-        <g class="cargo-container" data-module-id="turnover" transform="translate(775, 390)" tabindex="0" role="button">
-          <rect width="330" height="118" rx="6" fill="#047857" stroke="#064e3b" stroke-width="3.5" />
-          <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="265" y="33" text-anchor="middle" fill="#a7f3d0" font-size="13.5" font-weight="700">CARGO - 40HC</text>
-          <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="26" y="83" fill="#ffffff" font-size="18.5" font-weight="700">📊 Портовий вантажообіг</text>
-          <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+        <g class="cargo-container" data-module-id="vessels" transform="translate(1246, 660)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#0284c7" stroke="#075985" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="142" y="10" width="74" height="21" rx="4" fill="#0f172a" fill-opacity="0.82" />
+          <text x="179" y="24" text-anchor="middle" fill="#bae6fd" font-size="10.5" font-weight="700">CALL-25V</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.74" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">🚢 Суднозаходи й рейси</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
         </g>
 
-        <g class="cargo-container" data-module-id="reports" transform="translate(1120, 630)" tabindex="0" role="button">
-          <rect width="330" height="118" rx="6" fill="#ea580c" stroke="#9a3412" stroke-width="3.5" />
-          <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="265" y="33" text-anchor="middle" fill="#fed7aa" font-size="13.5" font-weight="700">LOG - 20OT</text>
-          <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="26" y="83" fill="#ffffff" font-size="18" font-weight="700">📄 Вахтовий журнал та звіти</text>
-          <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+        <!-- Ряд 2 (середній, y = 572) -->
+        <g class="cargo-container" data-module-id="audit" transform="translate(778, 572)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="138" y="10" width="78" height="21" rx="4" fill="#0f172a" fill-opacity="0.82" />
+          <text x="177" y="24" text-anchor="middle" fill="#fecaca" font-size="10.5" font-weight="700">BERTH-40RF</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.74" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">⚓ Оператори й причали</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
         </g>
 
-        <g class="cargo-container" data-module-id="corridors" transform="translate(1120, 510)" tabindex="0" role="button">
-          <rect width="330" height="118" rx="6" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
-          <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.86" />
-          <text x="265" y="33" text-anchor="middle" fill="#cbd5e1" font-size="13.5" font-weight="700">LANE - 45GP</text>
-          <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.75" />
-          <text x="26" y="83" fill="#ffffff" font-size="16.5" font-weight="700">🧭 Морські шляхи та кластери</text>
-          <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+        <g class="cargo-container" data-module-id="corridors" transform="translate(1012, 572)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#334155" stroke="#0f172a" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="142" y="10" width="74" height="21" rx="4" fill="#0f172a" fill-opacity="0.86" />
+          <text x="179" y="24" text-anchor="middle" fill="#cbd5e1" font-size="10.5" font-weight="700">LANE-45GP</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.75" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">🧭 Морські коридори</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
         </g>
 
-        <g id="container-matrix" class="cargo-container" data-module-id="matrix" transform="translate(1120, 390)" tabindex="0" role="button">
-          <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
-          <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
-          <text x="265" y="33" text-anchor="middle" fill="#fef08a" font-size="13.5" font-weight="700">GRID - 20DV</text>
-          <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.82" />
-          <text x="26" y="83" fill="#ffffff" font-size="18.5" font-weight="700">🧮 Зведена сітка перевезень</text>
-          <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
-          <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
-          <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
+        <g class="cargo-container" data-module-id="grain" transform="translate(1246, 572)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#0d9488" stroke="#115e59" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="142" y="10" width="74" height="21" rx="4" fill="#0f172a" fill-opacity="0.82" />
+          <text x="179" y="24" text-anchor="middle" fill="#99f6e4" font-size="10.5" font-weight="700">BULK-40HC</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.74" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">🌾 Зернові й навалочні</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
+        </g>
+
+        <!-- Ряд 1 (верхній, y = 484) -->
+        <g class="cargo-container" data-module-id="turnover" transform="translate(778, 484)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#047857" stroke="#064e3b" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="138" y="10" width="78" height="21" rx="4" fill="#0f172a" fill-opacity="0.82" />
+          <text x="177" y="24" text-anchor="middle" fill="#a7f3d0" font-size="10.5" font-weight="700">CARGO-40HC</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.74" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">📊 Портовий вантажообіг</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
+        </g>
+
+        <g class="cargo-container" data-module-id="upload" transform="translate(1012, 484)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#4f46e5" stroke="#312e81" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="142" y="10" width="74" height="21" rx="4" fill="#0f172a" fill-opacity="0.82" />
+          <text x="179" y="24" text-anchor="middle" fill="#c7d2fe" font-size="10.5" font-weight="700">EDI-23M</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.74" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">📤 Імпорт форм 23-м/25</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
+        </g>
+
+        <!-- Контейнер матриць (GRID-20DV) — піднімається краном при наведенні -->
+        <g id="container-matrix" class="cargo-container" data-module-id="matrix" transform="translate(1246, 484)" tabindex="0" role="button">
+          <rect width="226" height="86" rx="5" fill="#eab308" stroke="#a16207" stroke-width="3" />
+          <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+          <rect x="142" y="10" width="74" height="21" rx="4" fill="#0f172a" fill-opacity="0.88" />
+          <text x="179" y="24" text-anchor="middle" fill="#fef08a" font-size="10.5" font-weight="700">GRID-20DV</text>
+          <rect x="10" y="38" width="206" height="36" rx="5" fill="#0f172a" fill-opacity="0.82" />
+          <text x="17" y="60" fill="#ffffff" font-size="12.5" font-weight="700">🧮 Зведена сітка матриць</text>
+          <rect x="0" y="0" width="9" height="9" fill="#0f172a" /><rect x="217" y="0" width="9" height="9" fill="#0f172a" />
+          <rect x="0" y="77" width="9" height="9" fill="#0f172a" /><rect x="217" y="77" width="9" height="9" fill="#0f172a" />
         </g>
       </g>
 
-      <!-- 5. Судновий кран -->
+      <!-- 5. Реалістичніший судновий кран (опорна тумба, поворотна рубка, стріла, відтяжки, талі, спредер) -->
       <g id="deck-crane">
-        <rect x="1552" y="485" width="96" height="263" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
-        <rect x="1540" y="724" width="120" height="24" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
-        <line x1="1584" y1="495" x2="1584" y2="720" stroke="#d97706" stroke-width="3" />
-        <line x1="1616" y1="495" x2="1616" y2="720" stroke="#d97706" stroke-width="3" />
-        <rect x="1546" y="468" width="108" height="18" rx="4" fill="#1e293b" />
-        <polygon points="1550,468 1652,468 1638,340 1562,340" fill="#fbbf24" stroke="#b45309" stroke-width="3.5" />
-        <polygon points="1508,425 1554,425 1554,362 1522,362" fill="#38bdf8" stroke="#0f172a" stroke-width="3.5" />
-        <line x1="1531" y1="362" x2="1526" y2="425" stroke="#0f172a" stroke-width="2.5" />
+        <!-- Фланцева основа та опорна колона -->
+        <rect x="1552" y="726" width="112" height="22" rx="3" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+        <rect x="1560" y="718" width="96" height="8" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="2" />
+        <rect x="1568" y="492" width="80" height="226" rx="3" fill="url(#craneSteelGrad)" stroke="#92400e" stroke-width="3" />
+        <!-- Ребра жорсткості та сходи на колоні -->
+        <line x1="1586" y1="502" x2="1586" y2="710" stroke="#b45309" stroke-width="2.5" />
+        <line x1="1630" y1="502" x2="1630" y2="710" stroke="#b45309" stroke-width="2.5" />
+        <g stroke="#78350f" stroke-width="2">
+          <line x1="1600" y1="520" x2="1616" y2="520" /><line x1="1600" y1="550" x2="1616" y2="550" />
+          <line x1="1600" y1="580" x2="1616" y2="580" /><line x1="1600" y1="610" x2="1616" y2="610" />
+          <line x1="1600" y1="640" x2="1616" y2="640" /><line x1="1600" y1="670" x2="1616" y2="670" />
+        </g>
 
-        <polygon id="crane-boom-body" points="1572,382 1592,418 1285,244 1297,218" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
-        <line id="crane-stay-top" x1="1604" y1="340" x2="1292" y2="222" stroke="#1e293b" stroke-width="4.5" />
-        <line id="crane-stay-mid" x1="1604" y1="350" x2="1292" y2="230" stroke="#1e293b" stroke-width="3" />
-        <circle id="crane-tip-sheave" cx="1292" cy="234" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
-        <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+        <!-- Поворотна платформа, машинне відділення та винесена кабіна оператора -->
+        <rect x="1554" y="476" width="108" height="16" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+        <polygon points="1560,476 1656,476 1644,344 1572,344" fill="url(#craneSteelGrad)" stroke="#92400e" stroke-width="3" />
+        <!-- Вентиляційні жалюзі та поручні на даху рубки -->
+        <line x1="1576" y1="344" x2="1640" y2="344" stroke="#475569" stroke-width="3" />
+        <line x1="1584" y1="334" x2="1584" y2="344" stroke="#475569" stroke-width="2" />
+        <line x1="1632" y1="334" x2="1632" y2="344" stroke="#475569" stroke-width="2" />
+        <!-- Панорамна кабіна кранівника -->
+        <polygon points="1514,432 1562,432 1562,368 1528,368" fill="#1e293b" stroke="#0f172a" stroke-width="3" />
+        <polygon points="1519,418 1556,418 1556,374 1531,374" fill="#38bdf8" opacity="0.85" />
+        <line x1="1538" y1="374" x2="1534" y2="418" stroke="#0f172a" stroke-width="2" />
 
-        <line id="crane-hoist-left" x1="1286" y1="244" x2="1286" y2="342" stroke="#0f172a" stroke-width="4" />
-        <line id="crane-hoist-right" x1="1298" y1="244" x2="1298" y2="342" stroke="#0f172a" stroke-width="4" />
+        <!-- Стріла, відтяжки та талева підвіска -->
+        <polygon id="crane-boom-body" points="1576,386 1596,422 1344,306 1354,282" fill="url(#craneSteelGrad)" stroke="#92400e" stroke-width="3" />
+        <line id="crane-stay-top" x1="1612" y1="344" x2="1349" y2="286" stroke="#1e293b" stroke-width="4" />
+        <line id="crane-stay-mid" x1="1612" y1="354" x2="1349" y2="294" stroke="#334155" stroke-width="2.8" />
+        <circle id="crane-tip-sheave" cx="1349" cy="296" r="15" fill="#334155" stroke="#0f172a" stroke-width="3" />
+        <circle cx="1612" cy="344" r="12" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
 
-        <rect id="crane-hook-block" x="1277" y="338" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
-        <line id="crane-sling-left" x1="1292" y1="360" x2="1136" y2="372" stroke="#334155" stroke-width="4.5" />
-        <line id="crane-sling-right" x1="1292" y1="360" x2="1444" y2="372" stroke="#334155" stroke-width="4.5" />
-        <rect id="crane-spreader-bar" x="1120" y="370" width="330" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
-        <rect id="crane-twistlock-left" x="1124" y="382" width="14" height="8" rx="1" fill="#0f172a" />
-        <rect id="crane-twistlock-right" x="1432" y="382" width="14" height="8" rx="1" fill="#0f172a" />
+        <line id="crane-hoist-left" x1="1344" y1="306" x2="1353" y2="424" stroke="#0f172a" stroke-width="3.2" />
+        <line id="crane-hoist-right" x1="1354" y1="306" x2="1365" y2="424" stroke="#0f172a" stroke-width="3.2" />
+
+        <rect id="crane-hook-block" x="1344" y="422" width="28" height="18" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+        <line id="crane-sling-left" x1="1359" y1="440" x2="1256" y2="462" stroke="#334155" stroke-width="3.5" />
+        <line id="crane-sling-right" x1="1359" y1="440" x2="1462" y2="462" stroke="#334155" stroke-width="3.5" />
+        <rect id="crane-spreader-bar" x="1246" y="462" width="226" height="13" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.2" />
+        <rect id="crane-twistlock-left" x="1250" y="472" width="11" height="7" rx="1" fill="#0f172a" />
+        <rect id="crane-twistlock-right" x="1455" y="472" width="11" height="7" rx="1" fill="#0f172a" />
       </g>
 
-      <!-- 6. Анімовані хвилі та розходження хвиль у кормовій і носовій частині судна -->
+      <!-- 6. Хвилі та розходження води -->
       <g id="sea-waves-anim" pointer-events="none">
         <g class="stern-wake-spread" fill="none" stroke-linecap="round">
           <path d="M478,864 Q420,868 355,876" stroke="#e0f2fe" stroke-width="3.5" />
           <path d="M478,872 Q405,882 325,896" stroke="#bae6fd" stroke-width="3.2" />
           <path d="M478,882 Q395,898 305,918" stroke="#7dd3fc" stroke-width="2.8" />
         </g>
-
         <g class="bow-wave-spread" fill="none" stroke-linecap="round">
           <path d="M1862,860 Q1925,863 1995,873" stroke="#ffffff" stroke-width="3.8" />
           <path d="M1918,876 Q1975,882 2035,895" stroke="#e0f2fe" stroke-width="3.2" />
           <path d="M1925,892 Q1982,902 2045,916" stroke="#bae6fd" stroke-width="2.8" />
         </g>
-
         <g class="wave-crest-ripple" stroke="#bae6fd" stroke-width="3" stroke-linecap="round" fill="none">
           <path d="M560,874 Q615,866 670,874 T780,874" />
           <path d="M1080,876 Q1145,868 1210,876 T1340,876" />
@@ -1358,7 +1160,7 @@ def check_password() -> bool:
       <div id="container-tooltip-box" class="login-card rounded-xl p-3 pointer-events-auto border-l-4 border-l-sky-600">
         <div class="flex items-center justify-between gap-2 mb-0.5">
           <span id="tooltip-iso" class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-100 text-sky-900">
-            ІНТЕРАКТИВНА СЦЕНА
+            ІНТЕРАКТИВНА СЦЕНА · 9 КОНТЕЙНЕРІВ
           </span>
           <span class="text-[11px] text-slate-500 font-medium">Наведіть на контейнер або кран</span>
         </div>
@@ -1366,7 +1168,7 @@ def check_password() -> bool:
           Оберіть контейнер на судні для перегляду аналітики
         </h2>
         <p id="tooltip-desc" class="text-xs text-slate-600 mt-0.5 leading-snug line-clamp-3">
-          Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран для плавного підйому жовтого контейнера.
+          9 палубних контейнерів відповідають модулям аналітики, звітів та імпорту. Наведіть на кран для плавного підйому контейнера GRID-20DV.
         </p>
       </div>
     </aside>
@@ -1382,42 +1184,15 @@ def check_password() -> bool:
     const INITIAL_IS_NIGHT = {initial_night_json};
 
     const MODULE_HINTS = {{
-      turnover: {{
-        code: 'CARGO - 40HC · ВАНТАЖООБІГ',
-        title: 'Портовий вантажообіг',
-        desc: 'Щомісячний моніторинг перевалки вантажів у тис. тонн і TEU за портами, напрямками та номенклатурою.',
-        accent: '#047857'
-      }},
-      audit: {{
-        code: 'BERTH - 40RF · АУДИТ ОПЕРАТОРІВ',
-        title: 'Реєстр операторів і причалів',
-        desc: 'Частки ринку, індекси концентрації CR3/CR5 та HHI, структура причалів і пояснення відхилень.',
-        accent: '#b91c1c'
-      }},
-      security: {{
-        code: 'IMO - GUARD · БЕЗПЕКА',
-        title: 'Морська безпека й інциденти',
-        desc: 'Хронологія фіксації та накопичувальна динаміка пошкоджень інфраструктури, суден і постраждалих.',
-        accent: '#1d4ed8'
-      }},
-      matrix: {{
-        code: 'GRID - 20DV · МАТРИЦІ',
-        title: 'Зведена сітка перевезень',
-        desc: 'Гнучкі зведені таблиці у тис. тонн, TEU та шт. з миттєвим експортом у Excel (.xlsx) та PDF.',
-        accent: '#ca8a04'
-      }},
-      corridors: {{
-        code: 'LANE - 45GP · КОРИДОРИ',
-        title: 'Морські шляхи та кластери',
-        desc: 'Багаторічна динаміка перевезень, зернових і незернових вантажів та суднозаходів по кластерах.',
-        accent: '#334155'
-      }},
-      reports: {{
-        code: 'LOG - 20OT · ЗВІТИ',
-        title: 'Вахтовий журнал та звіти',
-        desc: 'Виконавчі, аудиторські та коридорні PDF-звіти, керування періодами в БД і теми оформлення.',
-        accent: '#ea580c'
-      }}
+      turnover: {{ code: 'CARGO-40HC · ВАНТАЖООБІГ', title: 'Портовий вантажообіг', desc: 'Щомісячний моніторинг перевалки вантажів у тис. тонн і TEU за портами та напрямками.', accent: '#047857' }},
+      audit: {{ code: 'BERTH-40RF · ОПЕРАТОРИ', title: 'Реєстр операторів і причалів', desc: 'Частки ринку, індекси концентрації CR3/CR5 та HHI, структура причалів.', accent: '#b91c1c' }},
+      security: {{ code: 'IMO-GUARD · БЕЗПЕКА', title: 'Морська безпека й інциденти', desc: 'Хронологія та накопичувальна динаміка безпекових подій і пошкоджень.', accent: '#1d4ed8' }},
+      matrix: {{ code: 'GRID-20DV · МАТРИЦІ', title: 'Зведена сітка перевезень', desc: 'Гнучкі зведені таблиці з миттєвим експортом у Excel (.xlsx) та PDF.', accent: '#ca8a04' }},
+      corridors: {{ code: 'LANE-45GP · КОРИДОРИ', title: 'Морські коридори та кластери', desc: 'Багаторічна динаміка перевезень і суднозаходів по морських кластерах.', accent: '#334155' }},
+      reports: {{ code: 'LOG-20OT · PDF-ЗВІТИ', title: 'Вахтовий журнал та звіти', desc: 'Виконавчі, аудиторські та коридорні PDF-звіти та керування періодами.', accent: '#ea580c' }},
+      vessels: {{ code: 'CALL-25V · СУДНОЗАХОДИ', title: 'Суднозаходи й рейси (25-вод)', desc: 'Кількість оброблених суден, середня партія та примітки з портових звітів.', accent: '#0284c7' }},
+      grain: {{ code: 'BULK-40HC · ЗЕРНОВІ', title: 'Зернові та навалочні вантажі', desc: 'Аналіз зернових і незернових потоків у морських коридорах.', accent: '#0d9488' }},
+      upload: {{ code: 'EDI-23M · ЗАВАНТАЖЕННЯ', title: 'Імпорт форм 23-м та 25-вод', desc: 'Пакетне завантаження та валідація щомісячних Excel-звітів у базу даних.', accent: '#4f46e5' }}
     }};
 
     function setParentUrl(params) {{
@@ -1448,8 +1223,6 @@ def check_password() -> bool:
           window.frameElement.style.left = '0px';
           window.frameElement.style.width = '100vw';
           window.frameElement.style.height = h + 'px';
-          window.frameElement.style.minHeight = h + 'px';
-          window.frameElement.style.maxHeight = h + 'px';
           window.frameElement.style.overflow = 'hidden';
         }}
       }} catch (_) {{}}
@@ -1540,16 +1313,16 @@ def check_password() -> bool:
     function applyCraneLiftGeometry(lift) {{
       const clamped = Math.max(0, Math.min(1, lift));
 
-      const containerX = 1120;
-      const containerY = 390 - clamped * 115;
+      const containerX = 1246;
+      const containerY = 484 - clamped * 96;
       const containerEl = document.getElementById('container-matrix');
       if (containerEl) {{
         containerEl.setAttribute('transform', `translate(${{containerX.toFixed(2)}}, ${{containerY.toFixed(2)}})`);
       }}
 
-      const spreaderY = containerY - 22;
-      const spreaderLeftX = 1120;
-      const spreaderRightX = 1450;
+      const spreaderY = containerY - 15;
+      const spreaderLeftX = 1246;
+      const spreaderRightX = 1472;
       const spreaderMidX = (spreaderLeftX + spreaderRightX) / 2;
 
       const spreaderBar = document.getElementById('crane-spreader-bar');
@@ -1563,18 +1336,18 @@ def check_password() -> bool:
       const twistRight = document.getElementById('crane-twistlock-right');
       if (twistLeft) {{
         twistLeft.setAttribute('x', (spreaderLeftX + 4).toFixed(2));
-        twistLeft.setAttribute('y', (spreaderY + 12).toFixed(2));
+        twistLeft.setAttribute('y', (spreaderY + 10).toFixed(2));
       }}
       if (twistRight) {{
-        twistRight.setAttribute('x', (spreaderRightX - 18).toFixed(2));
-        twistRight.setAttribute('y', (spreaderY + 12).toFixed(2));
+        twistRight.setAttribute('x', (spreaderRightX - 15).toFixed(2));
+        twistRight.setAttribute('y', (spreaderY + 10).toFixed(2));
       }}
 
-      const hookY = spreaderY - 26;
+      const hookY = spreaderY - 22;
       const hookBlock = document.getElementById('crane-hook-block');
       if (hookBlock) {{
-        hookBlock.setAttribute('x', (spreaderMidX - 15).toFixed(2));
-        hookBlock.setAttribute('y', (hookY - 18).toFixed(2));
+        hookBlock.setAttribute('x', (spreaderMidX - 14).toFixed(2));
+        hookBlock.setAttribute('y', (hookY - 16).toFixed(2));
       }}
 
       const slingLeft = document.getElementById('crane-sling-left');
@@ -1582,18 +1355,18 @@ def check_password() -> bool:
       if (slingLeft) {{
         slingLeft.setAttribute('x1', spreaderMidX.toFixed(2));
         slingLeft.setAttribute('y1', hookY.toFixed(2));
-        slingLeft.setAttribute('x2', (spreaderLeftX + 16).toFixed(2));
+        slingLeft.setAttribute('x2', (spreaderLeftX + 12).toFixed(2));
         slingLeft.setAttribute('y2', (spreaderY + 2).toFixed(2));
       }}
       if (slingRight) {{
         slingRight.setAttribute('x1', spreaderMidX.toFixed(2));
         slingRight.setAttribute('y1', hookY.toFixed(2));
-        slingRight.setAttribute('x2', (spreaderRightX - 16).toFixed(2));
+        slingRight.setAttribute('x2', (spreaderRightX - 12).toFixed(2));
         slingRight.setAttribute('y2', (spreaderY + 2).toFixed(2));
       }}
 
-      const tipX = 1292 + clamped * 88;
-      const tipY = 234 - clamped * 106;
+      const tipX = 1349 + clamped * 68;
+      const tipY = 296 - clamped * 82;
       const tipSheave = document.getElementById('crane-tip-sheave');
       if (tipSheave) {{
         tipSheave.setAttribute('cx', tipX.toFixed(2));
@@ -1602,27 +1375,27 @@ def check_password() -> bool:
 
       const hoistLeft = document.getElementById('crane-hoist-left');
       const hoistRight = document.getElementById('crane-hoist-right');
-      const cableTopY = tipY + 12;
-      const cableBotY = hookY - 16;
+      const cableTopY = tipY + 10;
+      const cableBotY = hookY - 15;
       if (hoistLeft) {{
-        hoistLeft.setAttribute('x1', (tipX - 6).toFixed(2));
+        hoistLeft.setAttribute('x1', (tipX - 5).toFixed(2));
         hoistLeft.setAttribute('y1', cableTopY.toFixed(2));
-        hoistLeft.setAttribute('x2', (spreaderMidX - 6).toFixed(2));
+        hoistLeft.setAttribute('x2', (spreaderMidX - 5).toFixed(2));
         hoistLeft.setAttribute('y2', cableBotY.toFixed(2));
       }}
       if (hoistRight) {{
-        hoistRight.setAttribute('x1', (tipX + 6).toFixed(2));
+        hoistRight.setAttribute('x1', (tipX + 5).toFixed(2));
         hoistRight.setAttribute('y1', cableTopY.toFixed(2));
-        hoistRight.setAttribute('x2', (spreaderMidX + 6).toFixed(2));
+        hoistRight.setAttribute('x2', (spreaderMidX + 5).toFixed(2));
         hoistRight.setAttribute('y2', cableBotY.toFixed(2));
       }}
 
       const boomBody = document.getElementById('crane-boom-body');
       if (boomBody) {{
-        const p1 = '1572,382';
-        const p2 = '1592,418';
-        const p3 = `${{(tipX - 8).toFixed(2)}},${{(tipY + 9).toFixed(2)}}`;
-        const p4 = `${{(tipX + 4).toFixed(2)}},${{(tipY - 16).toFixed(2)}}`;
+        const p1 = '1576,386';
+        const p2 = '1596,422';
+        const p3 = `${{(tipX - 5).toFixed(2)}},${{(tipY + 10).toFixed(2)}}`;
+        const p4 = `${{(tipX + 5).toFixed(2)}},${{(tipY - 14).toFixed(2)}}`;
         boomBody.setAttribute('points', `${{p1}} ${{p2}} ${{p3}} ${{p4}}`);
       }}
 
@@ -1630,11 +1403,11 @@ def check_password() -> bool:
       const stayMid = document.getElementById('crane-stay-mid');
       if (stayTop) {{
         stayTop.setAttribute('x2', tipX.toFixed(2));
-        stayTop.setAttribute('y2', (tipY - 12).toFixed(2));
+        stayTop.setAttribute('y2', (tipY - 10).toFixed(2));
       }}
       if (stayMid) {{
         stayMid.setAttribute('x2', tipX.toFixed(2));
-        stayMid.setAttribute('y2', (tipY - 4).toFixed(2));
+        stayMid.setAttribute('y2', (tipY - 2).toFixed(2));
       }}
     }}
 
@@ -1645,13 +1418,6 @@ def check_password() -> bool:
         lockViewportNoScroll();
         updateDeviceModeBadge();
       }});
-      try {{
-        window.parent.addEventListener('resize', () => {{
-          lockViewportNoScroll();
-          updateDeviceModeBadge();
-        }});
-      }} catch (_) {{}}
-
       applySkyTimeOfDay(INITIAL_IS_NIGHT);
       updateKyivTime();
       setInterval(updateKyivTime, 30000);
@@ -1705,23 +1471,18 @@ def check_password() -> bool:
       let targetLift = 0;
       let lastFrameTime = null;
       let leaveTimer = null;
-
       const LIFT_SPEED = 0.28;
 
       const stepLiftAnimation = (timestamp) => {{
-        if (lastFrameTime === null) {{
-          lastFrameTime = timestamp;
-        }}
+        if (lastFrameTime === null) lastFrameTime = timestamp;
         const dt = Math.min((timestamp - lastFrameTime) / 1000, 0.05);
         lastFrameTime = timestamp;
 
         if (Math.abs(targetLift - currentLift) > 0.0005) {{
           const maxStep = LIFT_SPEED * dt;
-          if (targetLift > currentLift) {{
-            currentLift = Math.min(targetLift, currentLift + maxStep);
-          }} else {{
-            currentLift = Math.max(targetLift, currentLift - maxStep);
-          }}
+          currentLift = targetLift > currentLift
+            ? Math.min(targetLift, currentLift + maxStep)
+            : Math.max(targetLift, currentLift - maxStep);
           applyCraneLiftGeometry(currentLift);
         }}
         requestAnimationFrame(stepLiftAnimation);
@@ -1729,21 +1490,18 @@ def check_password() -> bool:
       requestAnimationFrame(stepLiftAnimation);
 
       const setDefaultTooltip = () => {{
-        tooltipIso.textContent = 'ІНТЕРАКТИВНА СЦЕНА';
+        tooltipIso.textContent = 'ІНТЕРАКТИВНА СЦЕНА · 9 КОНТЕЙНЕРІВ';
         tooltipTitle.textContent = 'Оберіть контейнер на судні для перегляду аналітики';
-        tooltipDesc.textContent = 'Кожен із 6 контейнерів відповідає ключовому аналітичному модулю портової системи. Наведіть на кран для плавного підйому жовтого контейнера.';
+        tooltipDesc.textContent = '9 палубних контейнерів відповідають модулям аналітики, звітів та імпорту. Наведіть на кран для плавного підйому контейнера GRID-20DV.';
         tooltipBox.style.borderLeftColor = '#0284c7';
       }};
 
       const activateCraneLift = () => {{
-        if (leaveTimer) {{
-          clearTimeout(leaveTimer);
-          leaveTimer = null;
-        }}
+        if (leaveTimer) {{ clearTimeout(leaveTimer); leaveTimer = null; }}
         targetLift = 1;
-        tooltipIso.textContent = 'КРАН + GRID - 20DV';
-        tooltipTitle.textContent = 'Повільний підйом жовтого контейнера (Конструктор матриць)';
-        tooltipDesc.textContent = 'Стріла, троси та траверса синхронно піднімають контейнер GRID - 20DV. Натисніть для переходу до форми входу.';
+        tooltipIso.textContent = 'КРАН + GRID-20DV';
+        tooltipTitle.textContent = 'Повільний підйом контейнера GRID-20DV';
+        tooltipDesc.textContent = 'Стріла, відтяжки, талева підвіска та спредер синхронно підіймають контейнер матриць.';
         tooltipBox.style.borderLeftColor = '#eab308';
       }};
 
@@ -1757,9 +1515,7 @@ def check_password() -> bool:
 
       deckCrane?.addEventListener('mouseenter', activateCraneLift);
       deckCrane?.addEventListener('mouseleave', scheduleReleaseLift);
-      deckCrane?.addEventListener('click', () => {{
-        pwdInput?.focus();
-      }});
+      deckCrane?.addEventListener('click', () => pwdInput?.focus());
 
       document.querySelectorAll('.cargo-container').forEach((el) => {{
         const modId = el.getAttribute('data-module-id');
@@ -1770,10 +1526,7 @@ def check_password() -> bool:
             activateCraneLift();
             return;
           }}
-          if (leaveTimer) {{
-            clearTimeout(leaveTimer);
-            leaveTimer = null;
-          }}
+          if (leaveTimer) {{ clearTimeout(leaveTimer); leaveTimer = null; }}
           targetLift = 0;
           tooltipIso.textContent = mod.code;
           tooltipTitle.textContent = mod.title;
@@ -1781,15 +1534,10 @@ def check_password() -> bool:
           tooltipBox.style.borderLeftColor = mod.accent;
         }});
         el.addEventListener('mouseleave', () => {{
-          if (modId === 'matrix') {{
-            scheduleReleaseLift();
-          }} else {{
-            setDefaultTooltip();
-          }}
+          if (modId === 'matrix') scheduleReleaseLift();
+          else setDefaultTooltip();
         }});
-        el.addEventListener('click', () => {{
-          pwdInput?.focus();
-        }});
+        el.addEventListener('click', () => pwdInput?.focus());
       }});
     }});
   </script>
@@ -1822,7 +1570,6 @@ def _blue_heatmap(val, max_val: float) -> str:
     return f"background-color: rgb({r}, {g}, {b}); color: #0F172A;"
 
 
-# Єдиний селектор теми у сайдбарі
 st.sidebar.title("🚢 Портова аналітика")
 selected_theme = st.sidebar.selectbox(
     "🎨 Тема інтерфейсу",
@@ -1838,13 +1585,124 @@ DIR_COLORS = {
     "Транзит": "#F59E0B",
     "Внутрішнє сполучення": "#64748B",
 }
-
 OWNERSHIP_COLORS = {
     "Державний": "#0F4C81",
     "Приватний на причалах АМПУ": "#0EA5E9",
     "Приватний на власних причалах": "#10B981",
     "Не визначено": "#94A3B8",
 }
+
+page = st.sidebar.radio(
+    "Розділ",
+    [
+        "📊 Дашборд та KPI",
+        "🧮 Конструктор матриць",
+        "🛡️ Коридори та безпека",
+        "📄 PDF-звіти (Аудит)",
+        "📤 Завантаження Excel",
+        "📝 Причини та довідники",
+        "📘 Інструкція",
+    ],
+)
+st.sidebar.divider()
+st.sidebar.caption(
+    "© 2026, Міністерство з відновлення, інфраструктури та транспорту України\n\n"
+    "Департамент морського та внутрішнього водного транспорту  \n"
+    "**Версія 2.3**"
+)
+
+if not check_password():
+    st.stop()
+
+if st.sidebar.button("📖 Повна інструкція (вікно)", use_container_width=True):
+    _show_full_manual_dialog()
+if st.sidebar.button("🚪 Вихід із системи", use_container_width=True):
+    st.session_state["authenticated"] = False
+    st.query_params.clear()
+    st.rerun()
+
+if page == "📘 Інструкція":
+    st.title("📘 Інструкція користувача та адміністратора")
+    raw_md = _load_full_manual_text()
+    st.download_button(
+        label="📥 Завантажити інструкцію (.md)",
+        data=raw_md.encode("utf-8"),
+        file_name="Port_Analytics_Manual.md",
+        mime="text/markdown",
+    )
+    st.markdown(raw_md)
+    st.stop()
+
+try:
+    df_all = load_cargo_view()
+    df_vessels = load_vessels()
+except Exception as e:
+    st.error(f"Помилка підключення до БД: {getattr(e, 'orig', e)}")
+    st.stop()
+
+if page == "📊 Дашборд та KPI":
+    st.title("📊 Дашборд вантажообігу морських портів")
+    if df_all.empty:
+        st.info("База порожня. Перейдіть на вкладку «📤 Завантаження Excel».")
+        st.stop()
+
+    periods = sorted(df_all["period_str"].unique(), reverse=True)
+    sel_periods = st.multiselect("Період (місяці)", periods, default=[periods[0]])
+    df_tons = df_all[(df_all["unit"] == "тис. тонн") & (df_all["period_str"].isin(sel_periods or periods))]
+    tot_vol = float(df_tons["volume"].sum()) if not df_tons.empty else 0.0
+    st.metric("Вантажообіг, тис. т", f"{tot_vol:,.2f}".replace(",", " "))
+
+    if not df_tons.empty:
+        port_df = df_tons.groupby(["port_name", "direction"], as_index=False)["volume"].sum()
+        fig = px.bar(port_df, x="volume", y="port_name", color="direction", orientation="h", color_discrete_map=DIR_COLORS)
+        st.plotly_chart(style_fig(fig, height=400), use_container_width=True)
+
+elif page == "🧮 Конструктор матриць":
+    st.title("🧮 Конструктор матриць")
+    if df_all.empty:
+        st.info("Немає завантажених даних.")
+        st.stop()
+    df_m = df_all[df_all["unit"] == "тис. тонн"]
+    pivot = pd.pivot_table(df_m, index=["port_name"], columns=["direction"], values="volume", aggfunc="sum", fill_value=0, margins=True, margins_name="ВСЬОГО")
+    st.dataframe(pivot.style.format("{:,.2f}"), use_container_width=True)
+
+elif page == "🛡️ Коридори та безпека":
+    st.title("🛡️ Коридори та безпека")
+    corridors_url = st.secrets.get("CORRIDORS_SHEET_URL", "")
+    if corridors_url:
+        kdata = fetch_corridors_from_gsheet(corridors_url)
+        st.dataframe(kdata.get("cargo", pd.DataFrame()), use_container_width=True)
+
+elif page == "📄 PDF-звіти (Аудит)":
+    st.title("📄 PDF-звіти (Аудит)")
+    if not df_all.empty:
+        df_tons = df_all[df_all["unit"] == "тис. тонн"]
+        if st.button("⚙️ Згенерувати PDF-звіт", type="primary"):
+            pdf_bytes = build_executive_pdf(df_tons, df_vessels, df_all, "Усі періоди")
+            st.download_button("📥 Завантажити звіт", data=pdf_bytes, file_name="executive_port_report.pdf", mime="application/pdf")
+
+elif page == "📤 Завантаження Excel":
+    st.title("📤 Завантаження Excel")
+    uploaded_files = st.file_uploader("Оберіть файли Excel (.xlsx)", type=["xlsx"], accept_multiple_files=True)
+    if uploaded_files and st.button("🚀 Обробити", type="primary"):
+        for uf in uploaded_files:
+            ftype = detect_file_type(uf)
+            if ftype == "23-м":
+                df_c, _ = parse_23m_file(uf)
+                save_cargo_to_db(df_c)
+            else:
+                df_v, df_n = parse_25vod_file(uf)
+                save_25vod_to_db(df_v, df_n)
+        st.success("Дані збережено!")
+
+elif page == "📝 Причини та довідники":
+    st.title("📝 Причини та довідники")
+    df_ops = load_operators_dict()
+    if not df_ops.empty:
+        edited = st.data_editor(df_ops, use_container_width=True, hide_index=True)
+        if st.button("💾 Зберегти довідник", type="primary"):
+            update_operators_dict(edited)
+            st.success("Збережено!")
 
 page = st.sidebar.radio(
     "Розділ",
