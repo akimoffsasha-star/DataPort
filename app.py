@@ -40,57 +40,228 @@ st.set_page_config(
     layout="wide",
 )
 
-# --- Фірмові теми (Світла за замовчуванням, покращений контраст) ---
-THEMES = {
-    "Фірмова (Міністерство)": {
-        "bg": "#0B192C",
-        "sidebar_bg": "#112238",
-        "card": "#1E3E62",
-        "text": "#FFFFFF",
-        "muted": "#CBD5E1",
-        "accent": "#008DDA",
-        "secondary": "#41C9E2",
-        "border": "#2E5B88",
-        "plotly_tpl": "plotly_dark",
-    },
+THEME_PALETTES = {
     "Світла": {
-        "bg": "#F4F7FA",
-        "sidebar_bg": "#FFFFFF",
-        "card": "#FFFFFF",
-        "text": "#0F172A",
-        "muted": "#64748B",
-        "accent": "#0F4C81",
-        "secondary": "#0EA5E9",
-        "border": "#E2E8F0",
-        "plotly_tpl": "plotly_white",
+        "bg_main": "#F8FAFC",
+        "bg_sidebar": "#FFFFFF",
+        "bg_card": "#FFFFFF",
+        "border_card": "#CBD5E1",
+        "text_main": "#0F172A",
+        "text_muted": "#475569",
+        "btn_bg": "#0F4C81",
+        "btn_hover": "#0B3A63",
+        "btn_text": "#FFFFFF",
+        "btn_border": "#0F4C81",
+        "sec_btn_bg": "#E2E8F0",
+        "sec_btn_text": "#0F172A",
+        "sec_btn_border": "#94A3B8",
+        "delta_pos_bg": "#DCFCE7",
+        "delta_pos_text": "#166534",
+        "tab_active": "#0F4C81",
+        "plotly_template": "plotly_white",
+        "grid_color": "#E2E8F0",
+        "colors": ["#0F4C81", "#F59E0B", "#0D9488", "#DC2626", "#6366F1", "#64748B"],
     },
     "Темна": {
-        "bg": "#090D16",
-        "sidebar_bg": "#0E1525",
-        "card": "#131C2E",
-        "text": "#F1F5F9",
-        "muted": "#94A3B8",
-        "accent": "#3B82F6",
-        "secondary": "#60A5FA",
-        "border": "#22324D",
-        "plotly_tpl": "plotly_dark",
+        "bg_main": "#0F172A",
+        "bg_sidebar": "#111827",
+        "bg_card": "#1E293B",
+        "border_card": "#334155",
+        "text_main": "#F8FAFC",
+        "text_muted": "#CBD5E1",
+        "btn_bg": "#2563EB",
+        "btn_hover": "#1D4ED8",
+        "btn_text": "#FFFFFF",
+        "btn_border": "#3B82F6",
+        "sec_btn_bg": "#334155",
+        "sec_btn_text": "#F8FAFC",
+        "sec_btn_border": "#475569",
+        "delta_pos_bg": "#14532D",
+        "delta_pos_text": "#BBF7D0",
+        "tab_active": "#38BDF8",
+        "plotly_template": "plotly_dark",
+        "grid_color": "#334155",
+        "colors": ["#38BDF8", "#FBBF24", "#34D399", "#F87171", "#A78BFA", "#94A3B8"],
+    },
+    "Фірмова (Міністерство)": {
+        "bg_main": "#0B192C",
+        "bg_sidebar": "#071220",
+        "bg_card": "#13294B",
+        "border_card": "#234578",
+        "text_main": "#F8FAFC",
+        "text_muted": "#CBD5E1",
+        "btn_bg": "#1D63B8",
+        "btn_hover": "#154E94",
+        "btn_text": "#FFFFFF",
+        "btn_border": "#60A5FA",
+        "sec_btn_bg": "#1B365D",
+        "sec_btn_text": "#F8FAFC",
+        "sec_btn_border": "#3B6998",
+        "delta_pos_bg": "#134E4A",
+        "delta_pos_text": "#99F6E4",
+        "tab_active": "#FBBF24",
+        "plotly_template": "plotly_dark",
+        "grid_color": "#234578",
+        "colors": ["#FBBF24", "#38BDF8", "#34D399", "#FB7185", "#C084FC", "#93C5FD"],
     },
 }
 
-def style_fig(fig, height: int = 380):
-    fig.update_layout(
-        height=height,
-        template=T["plotly_tpl"],
-        margin=dict(l=10, r=20, t=48, b=10),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, title=None),
-        font=dict(family="sans-serif", size=12, color=T["text"]),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-    )
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(gridcolor=T["border"])
-    return fig
 
+def get_active_palette(theme_name: str) -> dict:
+    if theme_name in THEME_PALETTES:
+        return THEME_PALETTES[theme_name]
+    low = (theme_name or "").lower()
+    if "фірм" in low or "міністер" in low:
+        return THEME_PALETTES["Фірмова (Міністерство)"]
+    if "темн" in low:
+        return THEME_PALETTES["Темна"]
+    return THEME_PALETTES["Світла"]
+
+
+def apply_theme_styles(theme_name: str):
+    p = get_active_palette(theme_name)
+    st.markdown(
+        f"""
+        <style>
+            .stApp {{
+                background-color: {p["bg_main"]};
+                color: {p["text_main"]};
+            }}
+            section[data-testid="stSidebar"] {{
+                background-color: {p["bg_sidebar"]};
+                border-right: 1px solid {p["border_card"]};
+            }}
+            section[data-testid="stSidebar"] * {{
+                color: {p["text_main"]};
+            }}
+            h1, h2, h3, h4, p, label, .stMarkdown {{
+                color: {p["text_main"]};
+            }}
+            .stCaption, small {{
+                color: {p["text_muted"]} !important;
+            }}
+
+            /* Картки метрик та контрастність delta */
+            div[data-testid="stMetric"] {{
+                background-color: {p["bg_card"]};
+                border: 1px solid {p["border_card"]};
+                border-radius: 10px;
+                padding: 12px 16px;
+            }}
+            div[data-testid="stMetric"] label,
+            div[data-testid="stMetric"] div[data-testid="stMetricValue"] {{
+                color: {p["text_main"]} !important;
+            }}
+            div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {{
+                background-color: {p["delta_pos_bg"]} !important;
+                color: {p["delta_pos_text"]} !important;
+                border-radius: 6px;
+                padding: 2px 8px;
+                font-weight: 600;
+            }}
+            div[data-testid="stMetric"] div[data-testid="stMetricDelta"] * {{
+                color: {p["delta_pos_text"]} !important;
+            }}
+
+            /* Основні та вторинні кнопки / завантаження */
+            button[kind="primary"],
+            div.stButton > button[kind="primary"],
+            div.stDownloadButton > button[kind="primary"] {{
+                background-color: {p["btn_bg"]} !important;
+                color: {p["btn_text"]} !important;
+                border: 1px solid {p["btn_border"]} !important;
+                font-weight: 600 !important;
+            }}
+            button[kind="primary"]:hover,
+            div.stButton > button[kind="primary"]:hover,
+            div.stDownloadButton > button[kind="primary"]:hover {{
+                background-color: {p["btn_hover"]} !important;
+                color: {p["btn_text"]} !important;
+            }}
+            button[kind="primary"] *,
+            div.stButton > button[kind="primary"] *,
+            div.stDownloadButton > button[kind="primary"] * {{
+                color: {p["btn_text"]} !important;
+            }}
+
+            button[kind="secondary"],
+            div.stButton > button[kind="secondary"],
+            div.stDownloadButton > button[kind="secondary"],
+            div[data-testid="stFileUploader"] button {{
+                background-color: {p["sec_btn_bg"]} !important;
+                color: {p["sec_btn_text"]} !important;
+                border: 1px solid {p["sec_btn_border"]} !important;
+                font-weight: 600 !important;
+            }}
+            button[kind="secondary"] *,
+            div.stButton > button[kind="secondary"] *,
+            div.stDownloadButton > button[kind="secondary"] *,
+            div[data-testid="stFileUploader"] button * {{
+                color: {p["sec_btn_text"]} !important;
+            }}
+
+            /* Зона завантаження файлів */
+            div[data-testid="stFileUploader"] section {{
+                background-color: {p["bg_card"]} !important;
+                border: 1px dashed {p["border_card"]} !important;
+                color: {p["text_main"]} !important;
+            }}
+            div[data-testid="stFileUploader"] section * {{
+                color: {p["text_main"]} !important;
+            }}
+
+            /* Вкладки */
+            button[data-baseweb="tab"] {{
+                color: {p["text_muted"]} !important;
+                font-weight: 600;
+            }}
+            button[data-baseweb="tab"][aria-selected="true"] {{
+                color: {p["text_main"]} !important;
+                border-bottom-color: {p["tab_active"]} !important;
+            }}
+
+            /* Таблиці / dataframes */
+            div[data-testid="stDataFrame"] {{
+                border: 1px solid {p["border_card"]};
+                border-radius: 8px;
+                overflow: hidden;
+            }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def style_fig(fig, theme_name: str = "Світла", height: int = 380):
+    p = get_active_palette(theme_name)
+    fig.update_layout(
+        template=p["plotly_template"],
+        height=height,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor=p["bg_card"],
+        font=dict(color=p["text_main"], size=12),
+        title=dict(font=dict(color=p["text_main"], size=14)),
+        legend=dict(
+            font=dict(color=p["text_main"]),
+            bgcolor="rgba(0,0,0,0)",
+        ),
+        margin=dict(l=40, r=20, t=48, b=40),
+    )
+    fig.update_xaxes(
+        color=p["text_main"],
+        gridcolor=p["grid_color"],
+        linecolor=p["border_card"],
+        tickfont=dict(color=p["text_main"]),
+        title_font=dict(color=p["text_main"]),
+    )
+    fig.update_yaxes(
+        color=p["text_main"],
+        gridcolor=p["grid_color"],
+        linecolor=p["border_card"],
+        tickfont=dict(color=p["text_main"]),
+        title_font=dict(color=p["text_main"]),
+    )
+    return fig
 
 def _get_login_bg_css() -> str:
     root = Path(__file__).resolve().parent
