@@ -290,51 +290,6 @@ def style_fig(fig, theme_name: str | None = None, height: int = 380):
     return fig
 
 
-def _get_login_bg_css() -> str:
-    root = Path(__file__).resolve().parent
-    for fname in ("login_bg.jpg", "login_bg.jpeg", "login_bg.png", "login_bg.webp"):
-        img_path = root / fname
-        if img_path.exists():
-            ext = img_path.suffix.lstrip(".").lower()
-            mime = "jpeg" if ext in ("jpg", "jpeg") else ext
-            b64 = base64.b64encode(img_path.read_bytes()).decode()
-            return (
-                f'background: linear-gradient(135deg, rgba(6, 24, 44, 0.78), rgba(15, 76, 129, 0.72)), '
-                f'url("data:image/{mime};base64,{b64}") center/cover no-repeat fixed;'
-            )
-
-    svg = """
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="g" x1="0%" y1="0%" x2="1%" y2="1%">
-          <stop offset="0%" stop-color="#06192E"/>
-          <stop offset="55%" stop-color="#0D3B66"/>
-          <stop offset="100%" stop-color="#0F527D"/>
-        </linearGradient>
-        <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
-        </pattern>
-      </defs>
-      <rect width="1440" height="900" fill="url(#g)"/>
-      <rect width="1440" height="900" fill="url(#grid)"/>
-      <g fill="rgba(255,255,255,0.05)">
-        <path d="M120 690 L120 520 L150 520 L210 470 L210 490 L155 535 L155 690 Z"/>
-        <path d="M260 690 L260 500 L290 500 L360 440 L360 460 L295 515 L295 690 Z"/>
-        <rect x="420" y="610" width="220" height="55" rx="4"/>
-        <rect x="450" y="575" width="70" height="35" rx="2"/>
-        <rect x="530" y="575" width="70" height="35" rx="2"/>
-        <path d="M740 655 L1060 655 L1035 690 L765 690 Z"/>
-        <rect x="790" y="625" width="180" height="30" rx="2"/>
-        <rect x="980" y="595" width="45" height="60" rx="2"/>
-      </g>
-      <path d="M0 710 Q 360 665 720 710 T 1440 710 L 1440 900 L 0 900 Z" fill="rgba(14, 165, 233, 0.14)"/>
-      <path d="M0 755 Q 360 720 720 755 T 1440 755 L 1440 900 L 0 900 Z" fill="rgba(6, 24, 44, 0.45)"/>
-    </svg>
-    """.strip()
-    b64_svg = base64.b64encode(svg.encode("utf-8")).decode()
-    return f'background: url("data:image/svg+xml;base64,{b64_svg}") center/cover no-repeat fixed;'
-
-
 def _load_short_login_manual() -> str:
     return """
 ### Короткий старт
@@ -382,13 +337,18 @@ def check_password() -> bool:
         _show_login_manual_dialog()
 
     try:
-        now_str = datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%d.%m.%Y %H:%M")
+        kyiv_now = datetime.now(ZoneInfo("Europe/Kyiv"))
+        now_str = kyiv_now.strftime("%d.%m.%Y %H:%M")
+        initial_is_night = kyiv_now.hour >= 18 or kyiv_now.hour < 6
     except Exception:
-        now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
+        local_now = datetime.now()
+        now_str = local_now.strftime("%d.%m.%Y %H:%M")
+        initial_is_night = local_now.hour >= 18 or local_now.hour < 6
 
     expected_pwd = str(st.secrets.get("APP_PASSWORD", "PORT-2026"))
     expected_pwd_json = json.dumps(expected_pwd)
     now_str_json = json.dumps(now_str)
+    initial_night_json = json.dumps(bool(initial_is_night))
 
     st.markdown(
         """
@@ -452,7 +412,7 @@ def check_password() -> bool:
       width: 100vw;
       height: 100vh;
       overflow: hidden !important;
-      background: linear-gradient(180deg, #93c5fd 0%, #e0f2fe 65%, #0284c7 65%, #0c4a6e 100%);
+      background: #0f172a;
       color: #0f172a;
     }}
 
@@ -555,6 +515,10 @@ def check_password() -> bool:
       padding-left: 382px;
       padding-right: 12px;
       background: linear-gradient(180deg, #93c5fd 0%, #e0f2fe 65%, #0284c7 65%, #0c4a6e 100%);
+      transition: background 0.6s ease;
+    }}
+    .scene-stage.night-mode {{
+      background: linear-gradient(180deg, #030712 0%, #0f172a 65%, #082f49 65%, #041e33 100%);
     }}
     #port-scene-svg {{
       width: 100%;
@@ -606,6 +570,29 @@ def check_password() -> bool:
     @keyframes cloudRightToLeft2 {{
       0% {{ transform: translateX(920px); }}
       100% {{ transform: translateX(-1450px); }}
+    }}
+
+    .star-twinkle-a {{
+      animation: starTwinkleA 3.8s ease-in-out infinite;
+    }}
+    .star-twinkle-b {{
+      animation: starTwinkleB 5.4s ease-in-out infinite;
+    }}
+    .star-twinkle-c {{
+      animation: starTwinkleC 7.1s ease-in-out infinite;
+    }}
+    @keyframes starTwinkleA {{
+      0%, 100% {{ opacity: 0.45; }}
+      50% {{ opacity: 1; }}
+    }}
+    @keyframes starTwinkleB {{
+      0%, 100% {{ opacity: 0.95; }}
+      50% {{ opacity: 0.32; }}
+    }}
+    @keyframes starTwinkleC {{
+      0%, 100% {{ opacity: 0.6; }}
+      45% {{ opacity: 1; }}
+      80% {{ opacity: 0.38; }}
     }}
 
     .wave-shift-1 {{
@@ -823,16 +810,31 @@ def check_password() -> bool:
   <main id="scene-stage" class="scene-stage">
     <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="420 85 1640 905" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" class="block select-none">
       <defs>
-        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id="skyGradDay" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#93c5fd" />
           <stop offset="55%" stop-color="#e0f2fe" />
           <stop offset="100%" stop-color="#f8fafc" />
         </linearGradient>
-        <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id="skyGradNight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#020617" />
+          <stop offset="52%" stop-color="#0b152b" />
+          <stop offset="100%" stop-color="#172a4d" />
+        </linearGradient>
+        <linearGradient id="seaGradDay" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#0284c7" />
           <stop offset="45%" stop-color="#0369a1" />
           <stop offset="100%" stop-color="#0c4a6e" />
         </linearGradient>
+        <linearGradient id="seaGradNight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#072845" />
+          <stop offset="45%" stop-color="#051c33" />
+          <stop offset="100%" stop-color="#03101f" />
+        </linearGradient>
+        <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+          <stop offset="55%" stop-color="#bae6fd" stop-opacity="0.35" />
+          <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+        </radialGradient>
         <linearGradient id="hullTopGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stop-color="#1e293b" />
           <stop offset="70%" stop-color="#27364b" />
@@ -853,12 +855,59 @@ def check_password() -> bool:
         </linearGradient>
       </defs>
 
-      <!-- 1. Рівний горизонт неба і моря -->
-      <rect x="-400" y="85" width="3200" height="775" fill="url(#skyGrad)" />
-      <rect x="-400" y="860" width="3200" height="320" fill="url(#seaGrad)" />
-      <line x1="-400" y1="860" x2="2800" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.75" />
+      <!-- 1. Рівний горизонт неба і моря (денний та нічний режими) -->
+      <rect id="sky-rect" x="-400" y="85" width="3200" height="775" fill="url(#skyGradDay)" />
+      <rect id="sea-rect" x="-400" y="860" width="3200" height="320" fill="url(#seaGradDay)" />
+      <line id="horizon-line" x1="-400" y1="860" x2="2800" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.75" />
 
-      <!-- 2. Хмари на фоні -->
+      <!-- Зоряне нічне небо (видиме у темну пору доби) -->
+      <g id="night-sky-stars" opacity="0" pointer-events="none">
+        <!-- М'який місяць у нічному небі -->
+        <circle cx="1780" cy="182" r="24" fill="#fef9c3" opacity="0.88" />
+        <circle cx="1780" cy="182" r="44" fill="#fef08a" opacity="0.14" />
+
+        <!-- Яскраві зорі з променями/гало -->
+        <g class="star-twinkle-a">
+          <circle cx="560" cy="155" r="7" fill="url(#starGlow)" />
+          <circle cx="560" cy="155" r="1.8" fill="#ffffff" />
+          <circle cx="940" cy="138" r="8" fill="url(#starGlow)" />
+          <circle cx="940" cy="138" r="2.0" fill="#f8fafc" />
+          <circle cx="1360" cy="162" r="7.5" fill="url(#starGlow)" />
+          <circle cx="1360" cy="162" r="1.9" fill="#ffffff" />
+          <circle cx="1620" cy="245" r="6.5" fill="url(#starGlow)" />
+          <circle cx="1620" cy="245" r="1.7" fill="#e0f2fe" />
+        </g>
+
+        <g class="star-twinkle-b">
+          <circle cx="780" cy="215" r="6.5" fill="url(#starGlow)" />
+          <circle cx="780" cy="215" r="1.6" fill="#ffffff" />
+          <circle cx="1140" cy="192" r="8.5" fill="url(#starGlow)" />
+          <circle cx="1140" cy="192" r="2.1" fill="#fef9c3" />
+          <circle cx="1510" cy="128" r="7" fill="url(#starGlow)" />
+          <circle cx="1510" cy="128" r="1.8" fill="#ffffff" />
+          <circle cx="1950" cy="218" r="7.5" fill="url(#starGlow)" />
+          <circle cx="1950" cy="218" r="1.8" fill="#e0f2fe" />
+        </g>
+
+        <g class="star-twinkle-c">
+          <circle cx="485" cy="268" r="1.3" fill="#e2e8f0" />
+          <circle cx="645" cy="196" r="1.5" fill="#ffffff" />
+          <circle cx="865" cy="164" r="1.2" fill="#bae6fd" />
+          <circle cx="1025" cy="248" r="1.4" fill="#ffffff" />
+          <circle cx="1250" cy="134" r="1.3" fill="#f8fafc" />
+          <circle cx="1445" cy="252" r="1.2" fill="#bae6fd" />
+          <circle cx="1690" cy="146" r="1.5" fill="#ffffff" />
+          <circle cx="1865" cy="272" r="1.3" fill="#e2e8f0" />
+          <circle cx="520" cy="420" r="1.2" fill="#cbd5e1" />
+          <circle cx="845" cy="310" r="1.1" fill="#e2e8f0" />
+          <circle cx="1065" cy="315" r="1.2" fill="#bae6fd" />
+          <circle cx="1495" cy="308" r="1.2" fill="#ffffff" />
+          <circle cx="1745" cy="325" r="1.3" fill="#e2e8f0" />
+          <circle cx="1985" cy="360" r="1.2" fill="#cbd5e1" />
+        </g>
+      </g>
+
+      <!-- 2. Хмари на фоні (денний режим) -->
       <g id="sky-clouds-bg" pointer-events="none">
         <g class="cloud-stream-1" fill="#ffffff" opacity="0.82">
           <circle cx="1180" cy="185" r="42" />
@@ -884,7 +933,7 @@ def check_password() -> bool:
       <!-- Тінь корпусу на воді -->
       <ellipse cx="1195" cy="914" rx="760" ry="20" fill="url(#hullShadow)" />
 
-      <!-- 3. Корпус контейнеровоза: деталізована надбудова, труба по центру, щогла ближче до краю, реалістичні шлюпка та якір, прапор на носі -->
+      <!-- 3. Корпус контейнеровоза: прапор на димовій трубі, вирівняна палуба, якір з ланцюгом у клюзі -->
       <g id="ship-hull">
         <!-- Працюючий гребний гвинт та перо керма у кормовій підводній частині -->
         <g id="stern-propulsion">
@@ -924,24 +973,31 @@ def check_password() -> bool:
           </g>
         </g>
 
-        <!-- Димова труба по центру надбудови (x ≈ 648) -->
+        <!-- Димова труба по центру надбудови з прапором на флагштоці -->
         <g id="ship-funnel">
           <polygon points="634,335 662,335 658,308 638,308" fill="#1e293b" stroke="#0f172a" stroke-width="2.5" />
           <rect x="635" y="314" width="26" height="8" fill="#dc2626" />
           <rect x="636" y="305" width="24" height="5" rx="1.5" fill="#475569" />
-          <!-- Вихлопні патрубки -->
           <rect x="641" y="301" width="4" height="5" fill="#0f172a" />
           <rect x="651" y="301" width="4" height="5" fill="#0f172a" />
+
+          <!-- Флагшток на димовій трубі та прапор, що майорить у протилежний бік (вліво) -->
+          <g id="funnel-flagpole" transform="translate(661, 294)">
+            <line x1="0" y1="0" x2="0" y2="28" stroke="#e2e8f0" stroke-width="2.8" stroke-linecap="round" />
+            <circle cx="0" cy="-1.5" r="2.8" fill="#f59e0b" />
+            <g class="flag-wave-left" transform="translate(-32, 1)">
+              <rect x="0" y="0" width="32" height="9.5" rx="1" fill="#0057b7" stroke="#0f172a" stroke-width="1" />
+              <rect x="0" y="9.5" width="32" height="9.5" rx="1" fill="#ffd700" stroke="#0f172a" stroke-width="1" />
+            </g>
+          </g>
         </g>
 
-        <!-- Більш реалістична багатоярусна надбудова (вища за контейнери) -->
+        <!-- Багатоярусна надбудова -->
         <g id="ship-superstructure">
-          <!-- Основний корпус надбудови з легким звуженням догори та палубними ярусами -->
           <polygon points="560,748 564,466 748,466 774,748" fill="url(#superstructureGrad)" stroke="#64748b" stroke-width="3" />
           <polygon points="564,466 568,414 742,414 748,466" fill="#f1f5f9" stroke="#64748b" stroke-width="2.8" />
           <polygon points="568,414 572,362 736,362 742,414" fill="#f8fafc" stroke="#64748b" stroke-width="2.8" />
 
-          <!-- Палубні бруса та леєрне огородження надбудови -->
           <line x1="556" y1="466" x2="752" y2="466" stroke="#475569" stroke-width="4" />
           <line x1="560" y1="414" x2="746" y2="414" stroke="#475569" stroke-width="3.5" />
           <line x1="564" y1="362" x2="740" y2="362" stroke="#475569" stroke-width="3.5" />
@@ -951,7 +1007,6 @@ def check_password() -> bool:
             <line x1="572" y1="350" x2="736" y2="350" />
           </g>
 
-          <!-- Ходовий місток з панорамним склінням та відблисками -->
           <polygon points="532,335 760,335 746,362 544,362" fill="#e2e8f0" stroke="#475569" stroke-width="3" />
           <rect x="558" y="340" width="180" height="14" rx="2.5" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
           <g fill="#38bdf8" opacity="0.78">
@@ -962,27 +1017,22 @@ def check_password() -> bool:
             <rect x="688" y="343" width="26" height="8" rx="1" />
             <rect x="718" y="343" width="14" height="8" rx="1" />
           </g>
-          <!-- Косі відблиски скла -->
           <g stroke="#ffffff" stroke-width="1.5" opacity="0.65">
             <line x1="567" y1="350" x2="573" y2="344" />
             <line x1="629" y1="350" x2="635" y2="344" />
             <line x1="691" y1="350" x2="697" y2="344" />
           </g>
 
-          <!-- Ілюмінатори та каютні вікна по ярусах -->
           <g fill="#1e293b" stroke="#64748b" stroke-width="1.2">
-            <!-- Верхній житловий ярус -->
             <rect x="586" y="376" width="20" height="14" rx="2.5" />
             <rect x="618" y="376" width="20" height="14" rx="2.5" />
             <rect x="650" y="376" width="20" height="14" rx="2.5" />
             <rect x="682" y="376" width="20" height="14" rx="2.5" />
-            <!-- Середній ярус -->
             <rect x="584" y="428" width="20" height="14" rx="2.5" />
             <rect x="616" y="428" width="20" height="14" rx="2.5" />
             <rect x="648" y="428" width="20" height="14" rx="2.5" />
             <rect x="680" y="428" width="20" height="14" rx="2.5" />
             <rect x="712" y="428" width="18" height="14" rx="2.5" />
-            <!-- Нижній ярус -->
             <rect x="582" y="480" width="20" height="14" rx="2.5" />
             <rect x="614" y="480" width="20" height="14" rx="2.5" />
             <rect x="646" y="480" width="20" height="14" rx="2.5" />
@@ -990,7 +1040,6 @@ def check_password() -> bool:
             <rect x="710" y="480" width="18" height="14" rx="2.5" />
           </g>
 
-          <!-- Рятувальні кола та вентиляційні блоки -->
           <g id="superstructure-lifebuoys">
             <circle cx="574" cy="388" r="8" fill="#f97316" stroke="#7c2d12" stroke-width="2.2" />
             <circle cx="574" cy="388" r="3.2" fill="#f8fafc" />
@@ -1014,15 +1063,12 @@ def check_password() -> bool:
           </g>
         </g>
 
-        <!-- Більш реалістична рятувальна шлюпка з кран-балками, тросами та деталізацією -->
+        <!-- Реалістична рятувальна шлюпка з кран-балками та тросами -->
         <g id="lifeboat-davit">
-          <!-- Опорні стійки та вигнуті кран-балки -->
           <path d="M500,748 L500,682 L526,672 Q536,670 540,680" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M548,748 L548,682 L522,672" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-          <!-- Троси / фали підвісу -->
           <line x1="510" y1="678" x2="510" y2="708" stroke="#0f172a" stroke-width="2" />
           <line x1="538" y1="678" x2="538" y2="708" stroke="#0f172a" stroke-width="2" />
-          <!-- Реалістичний корпус шлюпки -->
           <path
             d="M488,712 Q524,701 562,711 L555,734 Q524,740 494,733 Z"
             fill="#f97316"
@@ -1030,19 +1076,17 @@ def check_password() -> bool:
             stroke-width="2.5"
             stroke-linejoin="round"
           />
-          <!-- Привальний брус та біла смуга -->
           <path d="M491,722 Q524,727 558,722" fill="none" stroke="#ffffff" stroke-width="2.4" opacity="0.9" />
           <path d="M493,728 Q524,733 556,728" fill="none" stroke="#9a3412" stroke-width="1.8" />
-          <!-- Закрита рубка з вікнами та верхнім леєром -->
           <path d="M510,707 L515,698 L538,698 L543,707 Z" fill="#fff7ed" stroke="#7c2d12" stroke-width="2" />
           <rect x="518" y="701" width="7" height="4" rx="1" fill="#0f172a" />
           <rect x="528" y="701" width="7" height="4" rx="1" fill="#0f172a" />
           <line x1="514" y1="695" x2="539" y2="695" stroke="#475569" stroke-width="1.6" />
         </g>
 
-        <!-- Основний корпус: транцева корма (478), гострий ніс з бульбовою кінцівкою -->
+        <!-- Основний корпус: узгоджена верхня палуба без нестикування над якорем -->
         <path
-          d="M478,748 L478,906 L1906,906 Q1938,902 1934,886 Q1924,865 1852,862 Q1864,846 1882,812 L1914,724 L1892,732 Q1835,765 1765,765 L478,765 Z"
+          d="M478,748 L1775,748 Q1852,748 1912,724 L1882,812 Q1864,846 1852,862 Q1924,865 1934,886 Q1938,902 1906,906 L478,906 Z"
           fill="url(#hullTopGrad)"
           stroke="#0f172a"
           stroke-width="3.5"
@@ -1052,7 +1096,7 @@ def check_password() -> bool:
         <line x1="478" y1="748" x2="478" y2="906" stroke="#0f172a" stroke-width="4.5" />
         <rect x="478" y="754" width="8" height="108" fill="#334155" opacity="0.45" />
 
-        <!-- Підводна частина та обтічна бульбова кінцівка (bulbous bow) з гострим носовим профілем -->
+        <!-- Підводна частина та бульбова кінцівка -->
         <path
           d="M478,862 L1852,862 Q1922,865 1933,886 Q1936,901 1904,906 L478,906 Z"
           fill="#991b1b"
@@ -1077,45 +1121,29 @@ def check_password() -> bool:
           opacity="0.75"
         />
 
-        <!-- Більш реалістичний неспущений якір у носовій частині з клюзом, ланцюгом і лапами -->
-        <g id="bow-stowed-anchor" transform="translate(1838, 764) rotate(18)">
-          <!-- Підсилювальна накладка та клюзне гніздо -->
-          <ellipse cx="18" cy="18" rx="22" ry="13" fill="#0f172a" stroke="#64748b" stroke-width="2.2" />
-          <circle cx="31" cy="16" r="2.2" fill="#94a3b8" />
-          <circle cx="6" cy="20" r="2.2" fill="#94a3b8" />
-          <!-- Якірний ланцюг -->
-          <path
-            d="M2,18 Q-8,12 -14,2"
-            fill="none"
-            stroke="#94a3b8"
-            stroke-width="4"
-            stroke-dasharray="4 2.5"
-            stroke-linecap="round"
-          />
+        <!-- Неспущений якір у носовій частині (ланцюг повністю схованого всередині клюза) -->
+        <g id="bow-stowed-anchor" transform="translate(1842, 765) rotate(16)">
+          <!-- Підсилювальна накладка та темне клюзне гніздо -->
+          <ellipse cx="18" cy="18" rx="22" ry="13" fill="#090d16" stroke="#64748b" stroke-width="2.2" />
+          <ellipse cx="12" cy="17" rx="8" ry="6" fill="#020617" />
+          <!-- Ланцюг усередині клюзної горловини (не виступає назовні) -->
+          <line x1="7" y1="17" x2="17" y2="17" stroke="#94a3b8" stroke-width="3.4" stroke-dasharray="3 2" />
+          <circle cx="32" cy="15" r="2" fill="#94a3b8" />
+          <circle cx="6" cy="21" r="2" fill="#94a3b8" />
           <!-- Веретено та шток якоря -->
-          <rect x="4" y="15" width="26" height="6" rx="2" fill="#e2e8f0" stroke="#0f172a" stroke-width="2" />
-          <rect x="8" y="10" width="4" height="16" rx="1.5" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.6" />
+          <rect x="13" y="15" width="18" height="5.5" rx="2" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.9" />
+          <rect x="16" y="10.5" width="3.8" height="14.5" rx="1.4" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5" />
           <!-- Вигнуті роги та лапи якоря -->
-          <path d="M29,18 Q40,17 41,30" fill="none" stroke="#f1f5f9" stroke-width="5" stroke-linecap="round" />
-          <path d="M29,18 Q39,14 38,6" fill="none" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" />
-          <polygon points="41,32 35,26 45,25" fill="#f1f5f9" stroke="#0f172a" stroke-width="1.6" />
-          <polygon points="38,4 34,9 42,10" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5" />
+          <path d="M30,17.5 Q40,17 41,29" fill="none" stroke="#f1f5f9" stroke-width="4.8" stroke-linecap="round" />
+          <path d="M30,17.5 Q39,14 38,6.5" fill="none" stroke="#cbd5e1" stroke-width="3.8" stroke-linecap="round" />
+          <polygon points="41,31 35.5,25.5 45,24.5" fill="#f1f5f9" stroke="#0f172a" stroke-width="1.5" />
+          <polygon points="38,4.5 34.5,9.5 42,10.5" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.4" />
         </g>
 
-        <!-- Носовий флагшток та прапор, що майорить у протилежний бік (вліво) -->
-        <g id="bow-flagpole" transform="translate(1882, 692)">
-          <line x1="0" y1="0" x2="0" y2="42" stroke="#e2e8f0" stroke-width="3.5" stroke-linecap="round" />
-          <circle cx="0" cy="-2" r="3.5" fill="#f59e0b" />
-          <g class="flag-wave-left" transform="translate(-40, 2)">
-            <rect x="0" y="0" width="40" height="12" rx="1.5" fill="#0057b7" stroke="#0f172a" stroke-width="1.2" />
-            <rect x="0" y="12" width="40" height="12" rx="1.5" fill="#ffd700" stroke="#0f172a" stroke-width="1.2" />
-          </g>
-        </g>
-
-        <!-- Палуба та леєрне огородження -->
-        <path d="M478,748 L1775,748 L1912,724 L1892,736 L1775,765 L478,765 Z" fill="#475569" />
-        <line x1="478" y1="726" x2="1898" y2="726" stroke="#cbd5e1" stroke-width="3.5" />
-        <g stroke="#cbd5e1" stroke-width="2.5">
+        <!-- Суцільний планшир та леєрне огородження по верхній палубі без зазорів -->
+        <path d="M478,748 L1775,748 Q1852,748 1912,724 L1906,731 Q1850,755 1775,755 L478,755 Z" fill="#64748b" />
+        <path d="M478,726 L1775,726 Q1850,726 1906,724" fill="none" stroke="#cbd5e1" stroke-width="3.2" />
+        <g stroke="#cbd5e1" stroke-width="2.4">
           <line x1="565" y1="726" x2="565" y2="748" />
           <line x1="780" y1="726" x2="780" y2="748" />
           <line x1="1460" y1="726" x2="1460" y2="748" />
@@ -1123,7 +1151,7 @@ def check_password() -> bool:
           <line x1="1620" y1="726" x2="1620" y2="748" />
           <line x1="1700" y1="726" x2="1700" y2="748" />
           <line x1="1780" y1="726" x2="1780" y2="748" />
-          <line x1="1855" y1="726" x2="1855" y2="736" />
+          <line x1="1855" y1="725" x2="1855" y2="742" />
         </g>
         <g fill="#64748b" stroke="#1e293b" stroke-width="2">
           <rect x="1635" y="736" width="18" height="12" rx="3" />
@@ -1131,15 +1159,15 @@ def check_password() -> bool:
         </g>
       </g>
 
-      <!-- 4. Контейнери на палубі -->
+      <!-- 4. Контейнери на палубі (гармонізовані написи у морському стилі без виходу за межі) -->
       <g id="containers-group">
         <g class="cargo-container" data-module-id="security" transform="translate(775, 630)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="216" y="14" width="100" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="266" y="33" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">IMO - TANK</text>
+          <rect x="210" y="14" width="106" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+          <text x="263" y="33" text-anchor="middle" fill="#e2e8f0" font-size="13.5" font-weight="700">IMO - GUARD</text>
           <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">🚨 Безпека та статистика атак</text>
+          <text x="26" y="83" fill="#ffffff" font-size="16.5" font-weight="700">🚨 Морська безпека й інциденти</text>
           <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
@@ -1149,10 +1177,10 @@ def check_password() -> bool:
         <g class="cargo-container" data-module-id="audit" transform="translate(775, 510)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="268" y="33" text-anchor="middle" fill="#fecaca" font-size="14" font-weight="700">ISO - 40RF</text>
+          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+          <text x="265" y="33" text-anchor="middle" fill="#fecaca" font-size="13.5" font-weight="700">BERTH - 40RF</text>
           <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">⚓ Аудит операторів і причалів</text>
+          <text x="26" y="83" fill="#ffffff" font-size="16.5" font-weight="700">⚓ Реєстр операторів і причалів</text>
           <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
@@ -1162,10 +1190,10 @@ def check_password() -> bool:
         <g class="cargo-container" data-module-id="turnover" transform="translate(775, 390)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#047857" stroke="#064e3b" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="268" y="33" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">ISO - 40HC</text>
+          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+          <text x="265" y="33" text-anchor="middle" fill="#a7f3d0" font-size="13.5" font-weight="700">CARGO - 40HC</text>
           <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="28" y="83" fill="#ffffff" font-size="20" font-weight="700">📊 Вантажообіг</text>
+          <text x="26" y="83" fill="#ffffff" font-size="18.5" font-weight="700">📊 Портовий вантажообіг</text>
           <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
@@ -1175,10 +1203,10 @@ def check_password() -> bool:
         <g class="cargo-container" data-module-id="reports" transform="translate(1120, 630)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#ea580c" stroke="#9a3412" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
-          <text x="268" y="33" text-anchor="middle" fill="#fed7aa" font-size="14" font-weight="700">ISO - 20OT</text>
+          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+          <text x="265" y="33" text-anchor="middle" fill="#fed7aa" font-size="13.5" font-weight="700">LOG - 20OT</text>
           <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
-          <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">📄 PDF-звіти, періоди</text>
+          <text x="26" y="83" fill="#ffffff" font-size="18" font-weight="700">📄 Вахтовий журнал та звіти</text>
           <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
@@ -1188,10 +1216,10 @@ def check_password() -> bool:
         <g class="cargo-container" data-module-id="corridors" transform="translate(1120, 510)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.86" />
-          <text x="268" y="33" text-anchor="middle" fill="#cbd5e1" font-size="14" font-weight="700">ISO - 45GP</text>
+          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.86" />
+          <text x="265" y="33" text-anchor="middle" fill="#cbd5e1" font-size="13.5" font-weight="700">LANE - 45GP</text>
           <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.75" />
-          <text x="28" y="83" fill="#ffffff" font-size="17.5" font-weight="700">🧭 Морські коридори та кластери</text>
+          <text x="26" y="83" fill="#ffffff" font-size="16.5" font-weight="700">🧭 Морські шляхи та кластери</text>
           <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
@@ -1201,10 +1229,10 @@ def check_password() -> bool:
         <g id="container-matrix" class="cargo-container" data-module-id="matrix" transform="translate(1120, 390)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
           <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
-          <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
-          <text x="268" y="33" text-anchor="middle" fill="#fef08a" font-size="14" font-weight="700">ISO - 20DV</text>
+          <rect x="214" y="14" width="102" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
+          <text x="265" y="33" text-anchor="middle" fill="#fef08a" font-size="13.5" font-weight="700">GRID - 20DV</text>
           <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.82" />
-          <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">🧮 Конструктор матриць</text>
+          <text x="26" y="83" fill="#ffffff" font-size="18.5" font-weight="700">🧮 Зведена сітка перевезень</text>
           <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
           <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
@@ -1260,11 +1288,11 @@ def check_password() -> bool:
           <path d="M1540,874 Q1605,866 1670,874 T1800,874" />
         </g>
         <g class="wave-shift-1">
-          <path d="M-420,902 Q-310,884 -200,902 T20,902 T240,902 T460,902 T680,902 T900,902 T1120,902 T1340,902 T1560,902 T1780,902 T2000,902 T2220,902 T2440,902 L2440,1180 L-420,1180 Z" fill="#0369a1" opacity="0.88" />
+          <path id="wave-layer-1" d="M-420,902 Q-310,884 -200,902 T20,902 T240,902 T460,902 T680,902 T900,902 T1120,902 T1340,902 T1560,902 T1780,902 T2000,902 T2220,902 T2440,902 L2440,1180 L-420,1180 Z" fill="#0369a1" opacity="0.88" />
           <path d="M-420,902 Q-310,884 -200,902 T20,902 T240,902 T460,902 T680,902 T900,902 T1120,902 T1340,902 T1560,902 T1780,902 T2000,902 T2220,902 T2440,902" fill="none" stroke="#7dd3fc" stroke-width="3" opacity="0.55" />
         </g>
         <g class="wave-shift-2">
-          <path d="M-420,948 Q-295,930 -170,948 T80,948 T330,948 T580,948 T830,948 T1080,948 T1330,948 T1580,948 T1830,948 T2080,948 T2330,948 L2330,1180 L-420,1180 Z" fill="#075985" opacity="0.78" />
+          <path id="wave-layer-2" d="M-420,948 Q-295,930 -170,948 T80,948 T330,948 T580,948 T830,948 T1080,948 T1330,948 T1580,948 T1830,948 T2080,948 T2330,948 L2330,1180 L-420,1180 Z" fill="#075985" opacity="0.78" />
         </g>
       </g>
     </svg>
@@ -1362,41 +1390,42 @@ def check_password() -> bool:
   <script>
     const EXPECTED_PWD = {expected_pwd_json};
     const INITIAL_KYIV_TIME = {now_str_json};
+    const INITIAL_IS_NIGHT = {initial_night_json};
 
     const MODULE_HINTS = {{
       turnover: {{
-        code: 'ISO - 40HC · ВАНТАЖООБІГ',
-        title: 'Вантажообіг',
+        code: 'CARGO - 40HC · ВАНТАЖООБІГ',
+        title: 'Портовий вантажообіг',
         desc: 'Щомісячний моніторинг перевалки вантажів у тис. тонн і TEU за портами, напрямками та номенклатурою.',
         accent: '#047857'
       }},
       audit: {{
-        code: 'ISO - 40RF · АУДИТ ОПЕРАТОРІВ',
-        title: 'Аудит операторів і причалів',
+        code: 'BERTH - 40RF · АУДИТ ОПЕРАТОРІВ',
+        title: 'Реєстр операторів і причалів',
         desc: 'Частки ринку, індекси концентрації CR3/CR5 та HHI, структура причалів і пояснення відхилень.',
         accent: '#b91c1c'
       }},
       security: {{
-        code: 'IMO - TANK · БЕЗПЕКА',
-        title: 'Безпека та статистика атак',
+        code: 'IMO - GUARD · БЕЗПЕКА',
+        title: 'Морська безпека й інциденти',
         desc: 'Хронологія фіксації та накопичувальна динаміка пошкоджень інфраструктури, суден і постраждалих.',
         accent: '#1d4ed8'
       }},
       matrix: {{
-        code: 'ISO - 20DV · МАТРИЦІ',
-        title: 'Конструктор матриць',
+        code: 'GRID - 20DV · МАТРИЦІ',
+        title: 'Зведена сітка перевезень',
         desc: 'Гнучкі зведені таблиці у тис. тонн, TEU та шт. з миттєвим експортом у Excel (.xlsx) та PDF.',
         accent: '#ca8a04'
       }},
       corridors: {{
-        code: 'ISO - 45GP · КОРИДОРИ',
-        title: 'Морські коридори та кластери',
+        code: 'LANE - 45GP · КОРИДОРИ',
+        title: 'Морські шляхи та кластери',
         desc: 'Багаторічна динаміка перевезень, зернових і незернових вантажів та суднозаходів по кластерах.',
         accent: '#334155'
       }},
       reports: {{
-        code: 'ISO - 20OT · ЗВІТИ',
-        title: 'PDF-звіти, періоди',
+        code: 'LOG - 20OT · ЗВІТИ',
+        title: 'Вахтовий журнал та звіти',
         desc: 'Виконавчі, аудиторські та коридорні PDF-звіти, керування періодами в БД і теми оформлення.',
         accent: '#ea580c'
       }}
@@ -1437,6 +1466,39 @@ def check_password() -> bool:
       }} catch (_) {{}}
     }}
 
+    function applySkyTimeOfDay(isNight) {{
+      const stage = document.getElementById('scene-stage');
+      const skyRect = document.getElementById('sky-rect');
+      const seaRect = document.getElementById('sea-rect');
+      const horizonLine = document.getElementById('horizon-line');
+      const cloudsGroup = document.getElementById('sky-clouds-bg');
+      const starsGroup = document.getElementById('night-sky-stars');
+      const wave1 = document.getElementById('wave-layer-1');
+      const wave2 = document.getElementById('wave-layer-2');
+
+      if (isNight) {{
+        stage?.classList.add('night-mode');
+        skyRect?.setAttribute('fill', 'url(#skyGradNight)');
+        seaRect?.setAttribute('fill', 'url(#seaGradNight)');
+        horizonLine?.setAttribute('stroke', '#38bdf8');
+        horizonLine?.setAttribute('opacity', '0.45');
+        cloudsGroup?.setAttribute('opacity', '0');
+        starsGroup?.setAttribute('opacity', '1');
+        wave1?.setAttribute('fill', '#072845');
+        wave2?.setAttribute('fill', '#04182b');
+      }} else {{
+        stage?.classList.remove('night-mode');
+        skyRect?.setAttribute('fill', 'url(#skyGradDay)');
+        seaRect?.setAttribute('fill', 'url(#seaGradDay)');
+        horizonLine?.setAttribute('stroke', '#7dd3fc');
+        horizonLine?.setAttribute('opacity', '0.75');
+        cloudsGroup?.setAttribute('opacity', '1');
+        starsGroup?.setAttribute('opacity', '0');
+        wave1?.setAttribute('fill', '#0369a1');
+        wave2?.setAttribute('fill', '#075985');
+      }}
+    }}
+
     function updateKyivTime() {{
       const el = document.getElementById('kyiv-datetime');
       if (!el) return;
@@ -1451,9 +1513,22 @@ def check_password() -> bool:
           minute: '2-digit'
         }}).format(now);
         el.textContent = formatted.replace(',', '');
+
+        const hourParts = new Intl.DateTimeFormat('en-GB', {{
+          timeZone: 'Europe/Kyiv',
+          hour: '2-digit',
+          hour12: false
+        }}).formatToParts(now);
+        const hrStr = hourParts.find((p) => p.type === 'hour')?.value;
+        if (hrStr !== undefined) {{
+          const hr = parseInt(hrStr, 10);
+          applySkyTimeOfDay(hr >= 18 || hr < 6);
+          return;
+        }}
       }} catch (_) {{
         el.textContent = INITIAL_KYIV_TIME;
       }}
+      applySkyTimeOfDay(INITIAL_IS_NIGHT);
     }}
 
     function updateDeviceModeBadge() {{
@@ -1588,6 +1663,7 @@ def check_password() -> bool:
         }});
       }} catch (_) {{}}
 
+      applySkyTimeOfDay(INITIAL_IS_NIGHT);
       updateKyivTime();
       setInterval(updateKyivTime, 30000);
 
@@ -1676,9 +1752,9 @@ def check_password() -> bool:
           leaveTimer = null;
         }}
         targetLift = 1;
-        tooltipIso.textContent = 'КРАН + ISO - 20DV';
+        tooltipIso.textContent = 'КРАН + GRID - 20DV';
         tooltipTitle.textContent = 'Повільний підйом жовтого контейнера (Конструктор матриць)';
-        tooltipDesc.textContent = 'Стріла, троси та траверса синхронно піднімають контейнер ISO - 20DV. Натисніть для переходу до форми входу.';
+        tooltipDesc.textContent = 'Стріла, троси та траверса синхронно піднімають контейнер GRID - 20DV. Натисніть для переходу до форми входу.';
         tooltipBox.style.borderLeftColor = '#eab308';
       }};
 
