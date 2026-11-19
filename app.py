@@ -371,16 +371,16 @@ def check_password() -> bool:
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
         }}
-        html, body, [data-testid="stAppViewContainer"] {{
-            {bg_css}
-            height: 100vh !important;
-            max-height: 100vh !important;
-            overflow: hidden !important;
-        }}
+        html, body, [data-testid="stAppViewContainer"],
         [data-testid="stAppViewContainer"] > .main {{
             height: 100vh !important;
             max-height: 100vh !important;
             overflow: hidden !important;
+        }}
+        [data-testid="stAppViewContainer"] {{
+            {bg_css}
+        }}
+        [data-testid="stAppViewContainer"] > .main {{
             padding: 0 !important;
         }}
         [data-testid="stAppViewContainer"] > .main > .block-container {{
@@ -388,19 +388,18 @@ def check_password() -> bool:
             max-height: 100vh !important;
             max-width: 100% !important;
             width: 100% !important;
-            padding: 50px 16px 34px 16px !important;
+            padding: 48px 16px 34px 16px !important;
             margin: 0 !important;
             overflow: hidden !important;
         }}
-        div[data-testid="stHorizontalBlock"] {{
-            height: calc(100vh - 84px) !important;
-            max-height: calc(100vh - 84px) !important;
-            overflow: hidden !important;
-            align-items: stretch !important;
+        [data-testid="stHeader"] {{
+            background: transparent !important;
+            height: 44px !important;
+            z-index: 50 !important;
         }}
         div[data-testid="stHorizontalBlock"] {{
-            height: calc(100vh - 92px) !important;
-            max-height: calc(100vh - 92px) !important;
+            height: calc(100vh - 82px) !important;
+            max-height: calc(100vh - 82px) !important;
             overflow: hidden !important;
             align-items: stretch !important;
         }}
@@ -410,24 +409,24 @@ def check_password() -> bool:
             overflow: hidden !important;
         }}
 
-        /* Фіксована світла шапка вгору з годинником по центру */
+        /* Фіксована світла шапка з годинником по центру */
         .port-fixed-header {{
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 46px;
-            z-index: 30;
+            height: 44px;
+            z-index: 999;
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
             gap: 10px;
-            background: rgba(248, 251, 255, 0.96);
+            background: rgba(248, 251, 255, 0.97);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(148, 163, 184, 0.45);
             padding: 4px 16px;
-            padding-right: 120px;
+            padding-right: 135px;
             box-shadow: 0 4px 16px rgba(2, 12, 27, 0.22);
         }}
         .port-header-brand {{
@@ -451,7 +450,7 @@ def check_password() -> bool:
             flex-shrink: 0;
         }}
         .port-header-ministry {{
-            font-size: 0.86rem;
+            font-size: 0.85rem;
             font-weight: 800;
             color: #0F172A !important;
             white-space: nowrap;
@@ -465,7 +464,7 @@ def check_password() -> bool:
             color: #0F4C81 !important;
             border-radius: 999px;
             padding: 2px 14px;
-            font-size: 0.86rem;
+            font-size: 0.85rem;
             font-weight: 800;
             white-space: nowrap;
         }}
@@ -475,7 +474,7 @@ def check_password() -> bool:
 
         /* Ліва частина: зафіксований блок входу */
         .port-left-top-gap {{
-            height: 22vh;
+            height: 21vh;
         }}
         [data-testid="stForm"] {{
             width: 390px !important;
@@ -578,17 +577,16 @@ def check_password() -> bool:
             color: #0B3A63 !important;
         }}
 
-        /* Права колонка: 6 блоків однакової висоти один під одним на всю висоту */
+        /* Права колонка: 6 блоків однакової висоти на всю висоту без підрізання і скролу */
         .port-right-stack {{
             display: grid;
             grid-template-rows: repeat(6, minmax(0, 1fr));
-            gap: 6px;
-            height: calc(100vh - 88px);
-            margin-top: -2px;
+            gap: 5px;
+            height: calc(100vh - 84px);
             width: 100%;
             min-width: 0;
             overflow: hidden;
-        }}   
+        }}
         .port-right-card {{
             min-height: 0;
             height: 100%;
@@ -600,27 +598,27 @@ def check_password() -> bool:
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(125, 211, 252, 0.28);
             border-left: 4px solid #38BDF8;
-            border-radius: 12px;
-            padding: 6px 12px;
+            border-radius: 11px;
+            padding: 5px 11px;
             box-shadow: 0 6px 14px rgba(2, 10, 23, 0.28);
             overflow: hidden;
         }}
         .port-right-card-title {{
-            font-size: 0.86rem;
+            font-size: 0.84rem;
             font-weight: 800;
             color: #7DD3FC !important;
-            margin: 0 0 2px 0;
-            line-height: 1.2;
+            margin: 0 0 1px 0;
+            line-height: 1.15;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }}
         .port-right-card-text {{
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 500;
             color: #E2E8F0 !important;
             margin: 0;
-            line-height: 1.28;
+            line-height: 1.2;
         }}
 
         /* Фіксований нижній футер */
@@ -629,18 +627,18 @@ def check_password() -> bool:
             left: 0;
             right: 0;
             bottom: 0;
-            height: 32px;
-            z-index: 30;
+            height: 30px;
+            z-index: 999;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(248, 251, 255, 0.95);
+            background: rgba(248, 251, 255, 0.96);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid rgba(148, 163, 184, 0.45);
-            padding: 4px 16px;
+            padding: 3px 16px;
             color: #0F172A !important;
-            font-size: 0.84rem;
+            font-size: 0.82rem;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
@@ -670,10 +668,10 @@ def check_password() -> bool:
                 margin-right: auto !important;
             }}
             .port-right-card-title {{
-                font-size: 0.82rem !important;
+                font-size: 0.8rem !important;
             }}
             .port-right-card-text {{
-                font-size: 0.72rem !important;
+                font-size: 0.7rem !important;
             }}
             .port-login-footer {{
                 font-size: 0.78rem !important;
@@ -797,7 +795,7 @@ def check_password() -> bool:
         )
 
     st.markdown(
-        '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1</div>',
+        '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.3</div>',
         unsafe_allow_html=True,
     )
     return False
