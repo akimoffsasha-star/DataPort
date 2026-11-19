@@ -388,13 +388,15 @@ def check_password() -> bool:
             max-height: 100vh !important;
             max-width: 100% !important;
             width: 100% !important;
-            padding: 54px 16px 38px 16px !important;
+            padding: 50px 16px 34px 16px !important;
             margin: 0 !important;
             overflow: hidden !important;
         }}
-        [data-testid="stHeader"] {{
-            background: transparent !important;
-            height: 0px !important;
+        div[data-testid="stHorizontalBlock"] {{
+            height: calc(100vh - 84px) !important;
+            max-height: calc(100vh - 84px) !important;
+            overflow: hidden !important;
+            align-items: stretch !important;
         }}
         div[data-testid="stHorizontalBlock"] {{
             height: calc(100vh - 92px) !important;
@@ -580,12 +582,13 @@ def check_password() -> bool:
         .port-right-stack {{
             display: grid;
             grid-template-rows: repeat(6, minmax(0, 1fr));
-            gap: 8px;
-            height: calc(100vh - 96px);
+            gap: 6px;
+            height: calc(100vh - 88px);
+            margin-top: -2px;
             width: 100%;
             min-width: 0;
             overflow: hidden;
-        }}
+        }}   
         .port-right-card {{
             min-height: 0;
             height: 100%;
@@ -598,7 +601,7 @@ def check_password() -> bool:
             border: 1px solid rgba(125, 211, 252, 0.28);
             border-left: 4px solid #38BDF8;
             border-radius: 12px;
-            padding: 8px 13px;
+            padding: 6px 12px;
             box-shadow: 0 6px 14px rgba(2, 10, 23, 0.28);
             overflow: hidden;
         }}
