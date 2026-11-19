@@ -451,58 +451,108 @@ def check_password() -> bool:
         /* Заголовок всередині форми входу */
         .port-form-head {{
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }}
         .port-form-icon {{
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
             background: #E0F2FE;
             color: #0369A1 !important;
-            font-size: 1.05rem;
-            margin-bottom: 6px;
+            font-size: 1rem;
+            margin-bottom: 4px;
         }}
         .port-form-title {{
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 800;
             color: #0F172A !important;
             line-height: 1.2;
         }}
         .port-form-dept {{
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: #475569 !important;
-            line-height: 1.25;
+            line-height: 1.2;
             margin-top: 2px;
         }}
         [data-testid="stForm"] label,
         [data-testid="stForm"] label p {{
             color: #0F172A !important;
             font-weight: 600 !important;
-            font-size: 0.85rem !important;
+            font-size: 0.82rem !important;
         }}
 
-        /* Картки праворуч */
+        /* Стиль морських контейнерів із гофрованими ребрами */
         .port-right-card {{
-            background: rgba(11, 25, 44, 0.88);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(125, 211, 252, 0.35);
-            border-left: 3px solid #38BDF8;
+            position: relative;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 8px 20px rgba(2, 10, 23, 0.35);
+            border-radius: 6px;
+            border: 1.5px solid rgba(255, 255, 255, 0.28);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.22),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+                0 6px 16px rgba(2, 10, 23, 0.45);
+            overflow: hidden;
         }}
+        .port-right-card::before {{
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: repeating-linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.06) 0px,
+                rgba(255, 255, 255, 0.06) 3px,
+                rgba(0, 0, 0, 0.16) 3px,
+                rgba(0, 0, 0, 0.16) 6px,
+                transparent 6px,
+                transparent 14px
+            );
+        }}
+        .port-right-card > * {{
+            position: relative;
+            z-index: 1;
+        }}
+
+        /* 6 кольорів морських контейнерів */
+        .port-right-card:nth-child(1) {{
+            background-color: rgba(12, 74, 110, 0.88);
+            border-left: 5px solid #38BDF8;
+        }}
+        .port-right-card:nth-child(2) {{
+            background-color: rgba(146, 64, 14, 0.88);
+            border-left: 5px solid #FBBF24;
+        }}
+        .port-right-card:nth-child(3) {{
+            background-color: rgba(19, 78, 74, 0.88);
+            border-left: 5px solid #2DD4BF;
+        }}
+        .port-right-card:nth-child(4) {{
+            background-color: rgba(30, 58, 138, 0.88);
+            border-left: 5px solid #818CF8;
+        }}
+        .port-right-card:nth-child(5) {{
+            background-color: rgba(127, 29, 29, 0.88);
+            border-left: 5px solid #F87171;
+        }}
+        .port-right-card:nth-child(6) {{
+            background-color: rgba(30, 41, 59, 0.90);
+            border-left: 5px solid #94A3B8;
+        }}
+
         .port-right-card-title {{
             font-weight: 700;
-            color: #F8FAFC !important;
+            color: #FFFFFF !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }}
         .port-right-card-text {{
             margin: 0;
-            color: #CBD5E1 !important;
+            color: #F1F5F9 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
         }}
 
         /* Фіксований футер */
@@ -521,7 +571,7 @@ def check_password() -> bool:
             text-overflow: ellipsis;
         }}
 
-        /* Десктоп: без прокрутки, форма ліворуч, блоки праворуч нижче, крупніший текст, нижні не обрізані */
+        /* Десктоп: без прокрутки, форма не затуляє текст підкладки, контейнери внизу праворуч */
         @media (min-width: 769px) {{
             html, body,
             [data-testid="stAppViewContainer"],
@@ -533,11 +583,11 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }}
             [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 50px 18px 36px 18px !important;
+                padding: 48px 18px 34px 18px !important;
             }}
             div[data-testid="stHorizontalBlock"] {{
-                height: calc(100vh - 86px) !important;
-                max-height: calc(100vh - 86px) !important;
+                height: calc(100vh - 82px) !important;
+                max-height: calc(100vh - 82px) !important;
                 overflow: hidden !important;
                 align-items: stretch !important;
             }}
@@ -547,17 +597,17 @@ def check_password() -> bool:
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stElementContainer"],
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stMarkdown"] {{
                 height: 100% !important;
-                max-height: calc(100vh - 86px) !important;
+                max-height: calc(100vh - 82px) !important;
                 overflow: hidden !important;
             }}
 
-            /* Ліва колонка: зміщена ближче до лівого краю, щоб не затуляти текст на підкладці */
+            /* Форма входу ліворуч — зсунута нижче, щоб верхня частина з заголовком і гербом на підкладці лишалась відкритою */
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {{
                 display: flex !important;
                 flex-direction: column !important;
-                justify-content: flex-start !important;
+                justify-content: flex-end !important;
                 align-items: flex-start !important;
-                padding-top: 44px !important;
+                padding-bottom: 18px !important;
                 padding-left: 6px !important;
             }}
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child [data-testid="stVerticalBlock"],
@@ -566,27 +616,27 @@ def check_password() -> bool:
                 height: auto !important;
                 max-height: none !important;
                 overflow: visible !important;
-                width: 332px !important;
+                width: 320px !important;
                 max-width: 100% !important;
             }}
             [data-testid="stForm"] {{
-                width: 332px !important;
+                width: 320px !important;
                 max-width: 100% !important;
                 margin: 0 !important;
                 background: rgba(248, 251, 255, 0.96) !important;
                 border: 1px solid rgba(186, 214, 245, 0.95) !important;
                 border-top: 4px solid #0284C7 !important;
-                border-radius: 14px !important;
-                padding: 14px 16px 12px 16px !important;
-                box-shadow: 0 14px 32px rgba(2, 10, 23, 0.42) !important;
+                border-radius: 12px !important;
+                padding: 12px 14px 10px 14px !important;
+                box-shadow: 0 14px 32px rgba(2, 10, 23, 0.45) !important;
             }}
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
-                width: 332px !important;
+                width: 320px !important;
                 max-width: 100% !important;
-                margin: 8px 0 0 0 !important;
+                margin: 6px 0 0 0 !important;
             }}
 
-            /* Права колонка: сітка 2x3 зміщена нижче до футера, без обрізання нижнього ряду */
+            /* Контейнери праворуч: 2 стовпчики x 3 ряди ближче до футера, висота підігнана під текст */
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stVerticalBlock"],
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stElementContainer"],
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stMarkdown"] {{
@@ -598,11 +648,10 @@ def check_password() -> bool:
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
-                gap: 8px !important;
-                height: calc(100vh - 96px) !important;
-                max-height: calc(100vh - 96px) !important;
+                gap: 6px !important;
+                height: 60vh !important;
+                max-height: calc(100vh - 92px) !important;
                 margin-top: auto !important;
-                padding-bottom: 6px !important;
                 transform: none !important;
                 width: 100% !important;
                 min-width: 0 !important;
@@ -611,19 +660,17 @@ def check_password() -> bool:
             .port-right-card {{
                 min-height: 0 !important;
                 height: 100% !important;
-                padding: 8px 12px !important;
-                border-radius: 10px !important;
-                overflow: hidden !important;
+                padding: 7px 11px !important;
                 justify-content: center !important;
             }}
             .port-right-card-title {{
-                font-size: 1.06rem !important;
-                margin: 0 0 3px 0 !important;
-                line-height: 1.18 !important;
+                font-size: 0.96rem !important;
+                margin: 0 0 2px 0 !important;
+                line-height: 1.15 !important;
             }}
             .port-right-card-text {{
-                font-size: 0.88rem !important;
-                line-height: 1.25 !important;
+                font-size: 0.78rem !important;
+                line-height: 1.22 !important;
             }}
             .port-login-footer {{
                 position: fixed !important;
@@ -644,7 +691,7 @@ def check_password() -> bool:
         unsafe_allow_html=True,
     )
 
-    col_form_side, col_info_side = st.columns([0.85, 1.55], gap="medium")
+    col_form_side, col_info_side = st.columns([0.78, 1.62], gap="medium")
 
     with col_form_side:
         with st.form("login_form", clear_on_submit=False):
