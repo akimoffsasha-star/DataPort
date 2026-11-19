@@ -638,18 +638,6 @@ def check_password() -> bool:
       100% {{ transform: scaleX(1); }}
     }}
 
-    /* Прапор майорить вліво (у протилежний бік) */
-    .flag-wave-left {{
-      animation: flagFlutterLeft 2.2s ease-in-out infinite;
-      transform-box: fill-box;
-      transform-origin: right center;
-    }}
-    @keyframes flagFlutterLeft {{
-      0%, 100% {{ transform: skewY(0deg) scaleX(1); }}
-      25% {{ transform: skewY(5deg) scaleX(0.97); }}
-      75% {{ transform: skewY(-5deg) scaleX(0.98); }}
-    }}
-
     .stern-wake-spread {{
       animation: sternWakePulse 3.4s ease-in-out infinite;
     }}
@@ -672,20 +660,20 @@ def check_password() -> bool:
       50% {{ transform: translateX(-10px) scaleX(1.08); opacity: 0.95; }}
     }}
 
-    /* Дим над центральною димовою трубою (x ≈ 648) */
+    /* Дим над вищою центральною димовою трубою (x ≈ 648, y ≈ 286) */
     .smoke-puff-1 {{
       animation: smokeRise1 7.5s ease-out infinite;
-      transform-origin: 648px 306px;
+      transform-origin: 648px 286px;
     }}
     .smoke-puff-2 {{
       animation: smokeRise2 9.2s ease-out infinite;
       animation-delay: -3.1s;
-      transform-origin: 648px 306px;
+      transform-origin: 648px 286px;
     }}
     .smoke-puff-3 {{
       animation: smokeRise3 10.8s ease-out infinite;
       animation-delay: -6.4s;
-      transform-origin: 648px 306px;
+      transform-origin: 648px 286px;
     }}
     @keyframes smokeRise1 {{
       0% {{ transform: translate(0px, 0px) scale(0.45); opacity: 0; }}
@@ -845,6 +833,14 @@ def check_password() -> bool:
           <stop offset="55%" stop-color="#f8fafc" />
           <stop offset="100%" stop-color="#ffffff" />
         </linearGradient>
+        <linearGradient id="funnelBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0f172a" />
+          <stop offset="50%" stop-color="#1e293b" />
+          <stop offset="100%" stop-color="#334155" />
+        </linearGradient>
+        <clipPath id="funnelClipPath">
+          <polygon points="632,335 664,335 659,288 637,288" />
+        </clipPath>
         <pattern id="corrugation" width="18" height="14" patternUnits="userSpaceOnUse">
           <line x1="6" y1="0" x2="6" y2="14" stroke="#000000" stroke-opacity="0.2" stroke-width="4" />
           <line x1="12" y1="0" x2="12" y2="14" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" />
@@ -862,11 +858,9 @@ def check_password() -> bool:
 
       <!-- Зоряне нічне небо (видиме у темну пору доби) -->
       <g id="night-sky-stars" opacity="0" pointer-events="none">
-        <!-- М'який місяць у нічному небі -->
         <circle cx="1780" cy="182" r="24" fill="#fef9c3" opacity="0.88" />
         <circle cx="1780" cy="182" r="44" fill="#fef08a" opacity="0.14" />
 
-        <!-- Яскраві зорі з променями/гало -->
         <g class="star-twinkle-a">
           <circle cx="560" cy="155" r="7" fill="url(#starGlow)" />
           <circle cx="560" cy="155" r="1.8" fill="#ffffff" />
@@ -933,7 +927,7 @@ def check_password() -> bool:
       <!-- Тінь корпусу на воді -->
       <ellipse cx="1195" cy="914" rx="760" ry="20" fill="url(#hullShadow)" />
 
-      <!-- 3. Корпус контейнеровоза: прапор на димовій трубі, вирівняна палуба, якір з ланцюгом у клюзі -->
+      <!-- 3. Корпус контейнеровоза: вища димова труба з фіксованим прапором на обшивці -->
       <g id="ship-hull">
         <!-- Працюючий гребний гвинт та перо керма у кормовій підводній частині -->
         <g id="stern-propulsion">
@@ -955,41 +949,40 @@ def check_password() -> bool:
           </g>
         </g>
 
-        <!-- Світлий дим над центральною димовою трубою (x ≈ 648) -->
+        <!-- Світлий дим над вищою центральною димовою трубою (x ≈ 648, y ≈ 286) -->
         <g id="exhaust-smoke" pointer-events="none">
           <g class="smoke-puff-1">
-            <circle cx="648" cy="304" r="14" fill="#f1f5f9" opacity="0.85" />
-            <circle cx="660" cy="298" r="11" fill="#e2e8f0" opacity="0.75" />
-            <circle cx="638" cy="297" r="10" fill="#ffffff" opacity="0.8" />
+            <circle cx="648" cy="284" r="14" fill="#f1f5f9" opacity="0.85" />
+            <circle cx="660" cy="278" r="11" fill="#e2e8f0" opacity="0.75" />
+            <circle cx="638" cy="277" r="10" fill="#ffffff" opacity="0.8" />
           </g>
           <g class="smoke-puff-2">
-            <circle cx="648" cy="302" r="16" fill="#f8fafc" opacity="0.8" />
-            <circle cx="662" cy="294" r="12" fill="#e2e8f0" opacity="0.7" />
-            <circle cx="636" cy="294" r="11" fill="#ffffff" opacity="0.75" />
+            <circle cx="648" cy="282" r="16" fill="#f8fafc" opacity="0.8" />
+            <circle cx="662" cy="274" r="12" fill="#e2e8f0" opacity="0.7" />
+            <circle cx="636" cy="274" r="11" fill="#ffffff" opacity="0.75" />
           </g>
           <g class="smoke-puff-3">
-            <circle cx="648" cy="300" r="15" fill="#f1f5f9" opacity="0.75" />
-            <circle cx="659" cy="292" r="11" fill="#cbd5e1" opacity="0.65" />
+            <circle cx="648" cy="280" r="15" fill="#f1f5f9" opacity="0.75" />
+            <circle cx="659" cy="272" r="11" fill="#cbd5e1" opacity="0.65" />
           </g>
         </g>
 
-        <!-- Димова труба по центру надбудови з прапором на флагштоці -->
+        <!-- Вища димова труба по центру надбудови з фіксованим намальованим прапором -->
         <g id="ship-funnel">
-          <polygon points="634,335 662,335 658,308 638,308" fill="#1e293b" stroke="#0f172a" stroke-width="2.5" />
-          <rect x="635" y="314" width="26" height="8" fill="#dc2626" />
-          <rect x="636" y="305" width="24" height="5" rx="1.5" fill="#475569" />
-          <rect x="641" y="301" width="4" height="5" fill="#0f172a" />
-          <rect x="651" y="301" width="4" height="5" fill="#0f172a" />
-
-          <!-- Флагшток на димовій трубі та прапор, що майорить у протилежний бік (вліво) -->
-          <g id="funnel-flagpole" transform="translate(661, 294)">
-            <line x1="0" y1="0" x2="0" y2="28" stroke="#e2e8f0" stroke-width="2.8" stroke-linecap="round" />
-            <circle cx="0" cy="-1.5" r="2.8" fill="#f59e0b" />
-            <g class="flag-wave-left" transform="translate(-32, 1)">
-              <rect x="0" y="0" width="32" height="9.5" rx="1" fill="#0057b7" stroke="#0f172a" stroke-width="1" />
-              <rect x="0" y="9.5" width="32" height="9.5" rx="1" fill="#ffd700" stroke="#0f172a" stroke-width="1" />
-            </g>
+          <g clip-path="url(#funnelClipPath)">
+            <rect x="630" y="286" width="36" height="52" fill="url(#funnelBodyGrad)" />
+            <!-- Фіксований прапор, нанесений безпосередньо на трубу -->
+            <rect x="632" y="295" width="32" height="9" fill="#0057b7" />
+            <rect x="632" y="304" width="32" height="9" fill="#ffd700" />
+            <!-- Легкий металевий відблиск поверх прапора без анімації -->
+            <rect x="646" y="294" width="5" height="20" fill="#ffffff" opacity="0.14" />
+            <!-- Декоративна червона смуга в нижній частині труби -->
+            <rect x="631" y="319" width="34" height="6" fill="#dc2626" />
           </g>
+          <polygon points="632,335 664,335 659,288 637,288" fill="none" stroke="#0f172a" stroke-width="2.6" stroke-linejoin="round" />
+          <rect x="635" y="283" width="26" height="5.5" rx="1.5" fill="#475569" stroke="#0f172a" stroke-width="1.5" />
+          <rect x="641" y="279" width="4" height="5" fill="#0f172a" />
+          <rect x="651" y="279" width="4" height="5" fill="#0f172a" />
         </g>
 
         <!-- Багатоярусна надбудова -->
@@ -1121,19 +1114,15 @@ def check_password() -> bool:
           opacity="0.75"
         />
 
-        <!-- Неспущений якір у носовій частині (ланцюг повністю схованого всередині клюза) -->
+        <!-- Неспущений якір у носовій частині (ланцюг повністю сховано всередині клюза) -->
         <g id="bow-stowed-anchor" transform="translate(1842, 765) rotate(16)">
-          <!-- Підсилювальна накладка та темне клюзне гніздо -->
           <ellipse cx="18" cy="18" rx="22" ry="13" fill="#090d16" stroke="#64748b" stroke-width="2.2" />
           <ellipse cx="12" cy="17" rx="8" ry="6" fill="#020617" />
-          <!-- Ланцюг усередині клюзної горловини (не виступає назовні) -->
           <line x1="7" y1="17" x2="17" y2="17" stroke="#94a3b8" stroke-width="3.4" stroke-dasharray="3 2" />
           <circle cx="32" cy="15" r="2" fill="#94a3b8" />
           <circle cx="6" cy="21" r="2" fill="#94a3b8" />
-          <!-- Веретено та шток якоря -->
           <rect x="13" y="15" width="18" height="5.5" rx="2" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.9" />
           <rect x="16" y="10.5" width="3.8" height="14.5" rx="1.4" fill="#cbd5e1" stroke="#0f172a" stroke-width="1.5" />
-          <!-- Вигнуті роги та лапи якоря -->
           <path d="M30,17.5 Q40,17 41,29" fill="none" stroke="#f1f5f9" stroke-width="4.8" stroke-linecap="round" />
           <path d="M30,17.5 Q39,14 38,6.5" fill="none" stroke="#cbd5e1" stroke-width="3.8" stroke-linecap="round" />
           <polygon points="41,31 35.5,25.5 45,24.5" fill="#f1f5f9" stroke="#0f172a" stroke-width="1.5" />
