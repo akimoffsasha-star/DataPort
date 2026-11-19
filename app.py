@@ -628,8 +628,47 @@ def check_password() -> bool:
     #container-tooltip-box {{
       transition: border-left-color 0.35s ease;
     }}
+    #secret-password-badge {{
+      position: fixed;
+      top: 64px;
+      right: 28px;
+      z-index: 35;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.97);
+      pointer-events: none;
+      transition: opacity 0.55s ease, transform 0.55s ease, color 0.45s ease, background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+      background: rgba(255, 255, 255, 0.92);
+      color: #0f294a;
+      border: 1.5px solid rgba(15, 41, 74, 0.28);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }}
+    #secret-password-badge.is-visible {{
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }}
+    body.night-theme #secret-password-badge {{
+      background: rgba(3, 15, 26, 0.9);
+      color: #22ff88;
+      border: 1.5px solid rgba(34, 255, 136, 0.45);
+      box-shadow: 0 0 18px rgba(34, 255, 136, 0.28), 0 10px 24px rgba(0, 0, 0, 0.45);
+      text-shadow: 0 0 10px rgba(34, 255, 136, 0.55);
+    }}
     @media (max-width: 1023px) {{
       #container-tooltip-box, .top-title {{ display: none !important; }}
+      #secret-password-badge {{
+        top: 54px;
+        right: 12px;
+        font-size: 13px;
+        padding: 6px 12px;
+      }}
       .fixed-top-bar {{
         grid-template-columns: auto 1fr auto;
         gap: 6px;
@@ -1018,11 +1057,9 @@ def check_password() -> bool:
 
       <!-- 5. Реалістичніший судновий кран (опорна тумба, поворотна рубка, стріла, відтяжки, талі, спредер) -->
       <g id="deck-crane">
-        <!-- Фланцева основа та опорна колона -->
         <rect x="1552" y="726" width="112" height="22" rx="3" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
         <rect x="1560" y="718" width="96" height="8" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="2" />
         <rect x="1568" y="492" width="80" height="226" rx="3" fill="url(#craneSteelGrad)" stroke="#92400e" stroke-width="3" />
-        <!-- Ребра жорсткості та сходи на колоні -->
         <line x1="1586" y1="502" x2="1586" y2="710" stroke="#b45309" stroke-width="2.5" />
         <line x1="1630" y1="502" x2="1630" y2="710" stroke="#b45309" stroke-width="2.5" />
         <g stroke="#78350f" stroke-width="2">
@@ -1031,19 +1068,15 @@ def check_password() -> bool:
           <line x1="1600" y1="640" x2="1616" y2="640" /><line x1="1600" y1="670" x2="1616" y2="670" />
         </g>
 
-        <!-- Поворотна платформа, машинне відділення та винесена кабіна оператора -->
         <rect x="1554" y="476" width="108" height="16" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
         <polygon points="1560,476 1656,476 1644,344 1572,344" fill="url(#craneSteelGrad)" stroke="#92400e" stroke-width="3" />
-        <!-- Вентиляційні жалюзі та поручні на даху рубки -->
         <line x1="1576" y1="344" x2="1640" y2="344" stroke="#475569" stroke-width="3" />
         <line x1="1584" y1="334" x2="1584" y2="344" stroke="#475569" stroke-width="2" />
         <line x1="1632" y1="334" x2="1632" y2="344" stroke="#475569" stroke-width="2" />
-        <!-- Панорамна кабіна кранівника -->
         <polygon points="1514,432 1562,432 1562,368 1528,368" fill="#1e293b" stroke="#0f172a" stroke-width="3" />
         <polygon points="1519,418 1556,418 1556,374 1531,374" fill="#38bdf8" opacity="0.85" />
         <line x1="1538" y1="374" x2="1534" y2="418" stroke="#0f172a" stroke-width="2" />
 
-        <!-- Стріла, відтяжки та талева підвіска -->
         <polygon id="crane-boom-body" points="1576,386 1596,422 1344,306 1354,282" fill="url(#craneSteelGrad)" stroke="#92400e" stroke-width="3" />
         <line id="crane-stay-top" x1="1612" y1="344" x2="1349" y2="286" stroke="#1e293b" stroke-width="4" />
         <line id="crane-stay-mid" x1="1612" y1="354" x2="1349" y2="294" stroke="#334155" stroke-width="2.8" />
@@ -1174,6 +1207,10 @@ def check_password() -> bool:
     </aside>
   </main>
 
+  <div id="secret-password-badge" aria-live="polite">
+    🔑 DataPort2026
+  </div>
+
   <footer class="fixed-bottom-bar">
     © 2026, Міністерство з відновлення, інфраструктури та транспорту України || Департамент морського та внутрішнього водного транспорту || Версія 2.3
   </footer>
@@ -1239,6 +1276,7 @@ def check_password() -> bool:
       const wave2 = document.getElementById('wave-layer-2');
 
       if (isNight) {{
+        document.body.classList.add('night-theme');
         stage?.classList.add('night-mode');
         skyRect?.setAttribute('fill', 'url(#skyGradNight)');
         seaRect?.setAttribute('fill', 'url(#seaGradNight)');
@@ -1249,6 +1287,7 @@ def check_password() -> bool:
         wave1?.setAttribute('fill', '#072845');
         wave2?.setAttribute('fill', '#04182b');
       }} else {{
+        document.body.classList.remove('night-theme');
         stage?.classList.remove('night-mode');
         skyRect?.setAttribute('fill', 'url(#skyGradDay)');
         seaRect?.setAttribute('fill', 'url(#seaGradDay)');
@@ -1466,12 +1505,19 @@ def check_password() -> bool:
       const tooltipDesc = document.getElementById('tooltip-desc');
       const tooltipBox = document.getElementById('container-tooltip-box');
       const deckCrane = document.getElementById('deck-crane');
+      const secretPasswordBadge = document.getElementById('secret-password-badge');
 
       let currentLift = 0;
       let targetLift = 0;
       let lastFrameTime = null;
       let leaveTimer = null;
       const LIFT_SPEED = 0.28;
+
+      const syncSecretPasswordVisibility = () => {{
+        if (!secretPasswordBadge) return;
+        const isFullyLifted = targetLift > 0.5 && currentLift >= 0.99;
+        secretPasswordBadge.classList.toggle('is-visible', isFullyLifted);
+      }};
 
       const stepLiftAnimation = (timestamp) => {{
         if (lastFrameTime === null) lastFrameTime = timestamp;
@@ -1485,6 +1531,7 @@ def check_password() -> bool:
             : Math.max(targetLift, currentLift - maxStep);
           applyCraneLiftGeometry(currentLift);
         }}
+        syncSecretPasswordVisibility();
         requestAnimationFrame(stepLiftAnimation);
       }};
       requestAnimationFrame(stepLiftAnimation);
@@ -1494,6 +1541,7 @@ def check_password() -> bool:
         tooltipTitle.textContent = 'Оберіть контейнер на судні для перегляду аналітики';
         tooltipDesc.textContent = '9 палубних контейнерів відповідають модулям аналітики, звітів та імпорту. Наведіть на кран для плавного підйому контейнера GRID-20DV.';
         tooltipBox.style.borderLeftColor = '#0284c7';
+        syncSecretPasswordVisibility();
       }};
 
       const activateCraneLift = () => {{
@@ -1503,6 +1551,7 @@ def check_password() -> bool:
         tooltipTitle.textContent = 'Повільний підйом контейнера GRID-20DV';
         tooltipDesc.textContent = 'Стріла, відтяжки, талева підвіска та спредер синхронно підіймають контейнер матриць.';
         tooltipBox.style.borderLeftColor = '#eab308';
+        syncSecretPasswordVisibility();
       }};
 
       const scheduleReleaseLift = () => {{
@@ -1532,6 +1581,7 @@ def check_password() -> bool:
           tooltipTitle.textContent = mod.title;
           tooltipDesc.textContent = mod.desc;
           tooltipBox.style.borderLeftColor = mod.accent;
+          syncSecretPasswordVisibility();
         }});
         el.addEventListener('mouseleave', () => {{
           if (modId === 'matrix') scheduleReleaseLift();
@@ -1614,116 +1664,6 @@ st.sidebar.caption(
 if not check_password():
     st.stop()
 
-if st.sidebar.button("📖 Повна інструкція (вікно)", use_container_width=True):
-    _show_full_manual_dialog()
-if st.sidebar.button("🚪 Вихід із системи", use_container_width=True):
-    st.session_state["authenticated"] = False
-    st.query_params.clear()
-    st.rerun()
-
-if page == "📘 Інструкція":
-    st.title("📘 Інструкція користувача та адміністратора")
-    raw_md = _load_full_manual_text()
-    st.download_button(
-        label="📥 Завантажити інструкцію (.md)",
-        data=raw_md.encode("utf-8"),
-        file_name="Port_Analytics_Manual.md",
-        mime="text/markdown",
-    )
-    st.markdown(raw_md)
-    st.stop()
-
-try:
-    df_all = load_cargo_view()
-    df_vessels = load_vessels()
-except Exception as e:
-    st.error(f"Помилка підключення до БД: {getattr(e, 'orig', e)}")
-    st.stop()
-
-if page == "📊 Дашборд та KPI":
-    st.title("📊 Дашборд вантажообігу морських портів")
-    if df_all.empty:
-        st.info("База порожня. Перейдіть на вкладку «📤 Завантаження Excel».")
-        st.stop()
-
-    periods = sorted(df_all["period_str"].unique(), reverse=True)
-    sel_periods = st.multiselect("Період (місяці)", periods, default=[periods[0]])
-    df_tons = df_all[(df_all["unit"] == "тис. тонн") & (df_all["period_str"].isin(sel_periods or periods))]
-    tot_vol = float(df_tons["volume"].sum()) if not df_tons.empty else 0.0
-    st.metric("Вантажообіг, тис. т", f"{tot_vol:,.2f}".replace(",", " "))
-
-    if not df_tons.empty:
-        port_df = df_tons.groupby(["port_name", "direction"], as_index=False)["volume"].sum()
-        fig = px.bar(port_df, x="volume", y="port_name", color="direction", orientation="h", color_discrete_map=DIR_COLORS)
-        st.plotly_chart(style_fig(fig, height=400), use_container_width=True)
-
-elif page == "🧮 Конструктор матриць":
-    st.title("🧮 Конструктор матриць")
-    if df_all.empty:
-        st.info("Немає завантажених даних.")
-        st.stop()
-    df_m = df_all[df_all["unit"] == "тис. тонн"]
-    pivot = pd.pivot_table(df_m, index=["port_name"], columns=["direction"], values="volume", aggfunc="sum", fill_value=0, margins=True, margins_name="ВСЬОГО")
-    st.dataframe(pivot.style.format("{:,.2f}"), use_container_width=True)
-
-elif page == "🛡️ Коридори та безпека":
-    st.title("🛡️ Коридори та безпека")
-    corridors_url = st.secrets.get("CORRIDORS_SHEET_URL", "")
-    if corridors_url:
-        kdata = fetch_corridors_from_gsheet(corridors_url)
-        st.dataframe(kdata.get("cargo", pd.DataFrame()), use_container_width=True)
-
-elif page == "📄 PDF-звіти (Аудит)":
-    st.title("📄 PDF-звіти (Аудит)")
-    if not df_all.empty:
-        df_tons = df_all[df_all["unit"] == "тис. тонн"]
-        if st.button("⚙️ Згенерувати PDF-звіт", type="primary"):
-            pdf_bytes = build_executive_pdf(df_tons, df_vessels, df_all, "Усі періоди")
-            st.download_button("📥 Завантажити звіт", data=pdf_bytes, file_name="executive_port_report.pdf", mime="application/pdf")
-
-elif page == "📤 Завантаження Excel":
-    st.title("📤 Завантаження Excel")
-    uploaded_files = st.file_uploader("Оберіть файли Excel (.xlsx)", type=["xlsx"], accept_multiple_files=True)
-    if uploaded_files and st.button("🚀 Обробити", type="primary"):
-        for uf in uploaded_files:
-            ftype = detect_file_type(uf)
-            if ftype == "23-м":
-                df_c, _ = parse_23m_file(uf)
-                save_cargo_to_db(df_c)
-            else:
-                df_v, df_n = parse_25vod_file(uf)
-                save_25vod_to_db(df_v, df_n)
-        st.success("Дані збережено!")
-
-elif page == "📝 Причини та довідники":
-    st.title("📝 Причини та довідники")
-    df_ops = load_operators_dict()
-    if not df_ops.empty:
-        edited = st.data_editor(df_ops, use_container_width=True, hide_index=True)
-        if st.button("💾 Зберегти довідник", type="primary"):
-            update_operators_dict(edited)
-            st.success("Збережено!")
-
-page = st.sidebar.radio(
-    "Розділ",
-    [
-        "📊 Дашборд та KPI",
-        "🧮 Конструктор матриць",
-        "🛡️ Коридори та безпека",
-        "📄 PDF-звіти (Аудит)",
-        "📤 Завантаження Excel",
-        "📝 Причини та довідники",
-        "📘 Інструкція",
-    ],
-)
-st.sidebar.divider()
-st.sidebar.caption(
-    "© 2026, Міністерство з відновлення, інфраструктури та транспорту України\n\n"
-    "Департамент морського та внутрішнього водного транспорту  \n"
-    "**Версія 2.3**"
-)
-if not check_password():
-    st.stop()
 if st.sidebar.button("📖 Повна інструкція (вікно)", use_container_width=True):
     _show_full_manual_dialog()
 if st.sidebar.button("🚪 Вихід із системи", use_container_width=True):
@@ -2454,6 +2394,7 @@ elif page == "🛡️ Коридори та безпека":
                 file_name="corridors_analytics_report.pdf",
                 mime="application/pdf",
             )
+
 
 # =====================================================================
 # СТОРІНКА 4: PDF-ЗВІТИ (АУДИТ)
