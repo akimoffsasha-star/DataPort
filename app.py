@@ -498,7 +498,12 @@ def check_password() -> bool:
       cursor: pointer;
     }}
     #rear-secret-code {{
+      cursor: pointer;
       transition: opacity 0.45s ease;
+    }}
+    #rear-secret-code:hover rect {{
+      stroke: #ffffff;
+      stroke-width: 2.4;
     }}
     .cloud-stream-1 {{ animation: cloudRightToLeft1 68s linear infinite; }}
     .cloud-stream-2 {{ animation: cloudRightToLeft2 86s linear infinite; }}
@@ -914,18 +919,18 @@ def check_password() -> bool:
       </g>
 
       <!-- 4. Контейнер позаду жовтого контейнера GRID-20DV (відкривається при його підйомі) -->
-      <g id="rear-vault-container" transform="translate(1246, 484)" pointer-events="none">
-        <rect width="226" height="86" rx="5" fill="#064e3b" stroke="#022c22" stroke-width="3" />
-        <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
-        <rect x="142" y="10" width="74" height="21" rx="4" fill="#022c22" fill-opacity="0.9" />
-        <text x="179" y="24" text-anchor="middle" fill="#6ee7b7" font-size="10.5" font-weight="700">VAULT-01</text>
-        <g id="rear-secret-code" opacity="0">
-          <rect x="10" y="34" width="206" height="42" rx="6" fill="#02131d" fill-opacity="0.94" stroke="#fde047" stroke-width="1.8" />
-          <text x="113" y="50" text-anchor="middle" fill="#a7f3d0" font-size="9.5" font-weight="700" letter-spacing="0.06em">СЕКРЕТНИЙ КОД</text>
+      <g id="rear-vault-container" transform="translate(1246, 484)">
+        <rect width="226" height="86" rx="5" fill="#064e3b" stroke="#022c22" stroke-width="3" pointer-events="none" />
+        <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" pointer-events="none" />
+        <rect x="142" y="10" width="74" height="21" rx="4" fill="#022c22" fill-opacity="0.9" pointer-events="none" />
+        <text x="179" y="24" text-anchor="middle" fill="#6ee7b7" font-size="10.5" font-weight="700" pointer-events="none">VAULT-01</text>
+        <g id="rear-secret-code" opacity="0" tabindex="0" role="button" aria-label="Підставити пароль DataPort2026" pointer-events="none">
+          <rect x="10" y="34" width="206" height="42" rx="6" fill="#02131d" fill-opacity="0.95" stroke="#fde047" stroke-width="1.8" />
+          <text x="113" y="49" text-anchor="middle" fill="#a7f3d0" font-size="9" font-weight="700" letter-spacing="0.05em">КЛІКНІТЬ ДЛЯ АВТОЗАПОВНЕННЯ</text>
           <text x="113" y="68" text-anchor="middle" fill="#fde047" font-size="15.5" font-weight="800" letter-spacing="0.08em">DataPort2026</text>
         </g>
-        <rect x="0" y="0" width="9" height="9" fill="#022c22" /><rect x="217" y="0" width="9" height="9" fill="#022c22" />
-        <rect x="0" y="77" width="9" height="9" fill="#022c22" /><rect x="217" y="77" width="9" height="9" fill="#022c22" />
+        <rect x="0" y="0" width="9" height="9" fill="#022c22" pointer-events="none" /><rect x="217" y="0" width="9" height="9" fill="#022c22" pointer-events="none" />
+        <rect x="0" y="77" width="9" height="9" fill="#022c22" pointer-events="none" /><rect x="217" y="77" width="9" height="9" fill="#022c22" pointer-events="none" />
       </g>
 
       <!-- 5. 9 контейнерів зменшеного розміру (3 колонки × 3 ряди, 226×86) -->
@@ -1194,6 +1199,7 @@ def check_password() -> bool:
     const EXPECTED_PWD = {expected_pwd_json};
     const INITIAL_KYIV_TIME = {now_str_json};
     const INITIAL_IS_NIGHT = {initial_night_json};
+    const SECRET_AUTOFILL_CODE = 'DataPort2026';
 
     const MODULE_HINTS = {{
       turnover: {{ code: 'CARGO-40HC · ВАНТАЖООБІГ', title: 'Портовий вантажообіг', desc: 'Щомісячний моніторинг перевалки вантажів у тис. тонн і TEU за портами та напрямками.', accent: '#047857' }},
@@ -1336,6 +1342,7 @@ def check_password() -> bool:
       if (rearCode) {{
         const revealProgress = Math.max(0, Math.min(1, (clamped - 0.55) / 0.45));
         rearCode.setAttribute('opacity', revealProgress.toFixed(3));
+        rearCode.setAttribute('pointer-events', revealProgress > 0.25 ? 'auto' : 'none');
       }}
 
       const spreaderY = containerY - 15;
@@ -1443,6 +1450,9 @@ def check_password() -> bool:
       const toggleBtn = document.getElementById('toggle-password-btn');
       const pwdInput = document.getElementById('access-password');
       const eyeIcon = document.getElementById('eye-icon');
+      const form = document.getElementById('login-form');
+      const feedback = document.getElementById('login-feedback');
+
       toggleBtn?.addEventListener('click', () => {{
         const isPwd = pwdInput.type === 'password';
         pwdInput.type = isPwd ? 'text' : 'password';
@@ -1451,8 +1461,6 @@ def check_password() -> bool:
           : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle>';
       }});
 
-      const form = document.getElementById('login-form');
-      const feedback = document.getElementById('login-feedback');
       form?.addEventListener('submit', (e) => {{
         e.preventDefault();
         const entered = (pwdInput.value || '').trim();
@@ -1484,12 +1492,34 @@ def check_password() -> bool:
       const tooltipDesc = document.getElementById('tooltip-desc');
       const tooltipBox = document.getElementById('container-tooltip-box');
       const deckCrane = document.getElementById('deck-crane');
+      const rearSecretCode = document.getElementById('rear-secret-code');
 
       let currentLift = 0;
       let targetLift = 0;
       let lastFrameTime = null;
       let leaveTimer = null;
       const LIFT_SPEED = 0.28;
+
+      const autofillSecretPassword = (e) => {{
+        if (e) e.stopPropagation();
+        if (!pwdInput) return;
+        pwdInput.value = SECRET_AUTOFILL_CODE;
+        pwdInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+        if (feedback) {{
+          feedback.className = 'rounded-xl px-3 py-1.5 text-xs font-medium bg-sky-50 text-sky-900 border border-sky-200';
+          feedback.textContent = `Пароль ${{SECRET_AUTOFILL_CODE}} підставлено у поле входу.`;
+          feedback.classList.remove('hidden');
+        }}
+        pwdInput.focus();
+      }};
+
+      rearSecretCode?.addEventListener('click', autofillSecretPassword);
+      rearSecretCode?.addEventListener('keydown', (e) => {{
+        if (e.key === 'Enter' || e.key === ' ') {{
+          e.preventDefault();
+          autofillSecretPassword(e);
+        }}
+      }});
 
       const stepLiftAnimation = (timestamp) => {{
         if (lastFrameTime === null) lastFrameTime = timestamp;
@@ -1519,7 +1549,7 @@ def check_password() -> bool:
         targetLift = 1;
         tooltipIso.textContent = 'КРАН + GRID-20DV';
         tooltipTitle.textContent = 'Повільний підйом контейнера GRID-20DV';
-        tooltipDesc.textContent = 'Стріла, відтяжки, талева підвіска та спредер синхронно підіймають контейнер матриць.';
+        tooltipDesc.textContent = 'Після підйому контейнера клікніть на код DataPort2026 позаду нього для автозаповнення пароля.';
         tooltipBox.style.borderLeftColor = '#eab308';
       }};
 
