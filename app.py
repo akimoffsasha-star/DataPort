@@ -511,7 +511,7 @@ def check_password() -> bool:
       white-space: nowrap;
       box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
     }}
-    .top-device-badge {
+    .top-device-badge {{
       justify-self: end;
       display: inline-flex;
       align-items: center;
@@ -524,7 +524,7 @@ def check_password() -> bool:
       font-size: 12.5px;
       font-weight: 700;
       white-space: nowrap;
-    }
+    }}
     .top-clock-dot {{
       width: 8px;
       height: 8px;
