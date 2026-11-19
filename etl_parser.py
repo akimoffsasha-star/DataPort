@@ -27,6 +27,31 @@ PORT_CLUSTERS = {
     "Морський порт Чорноморськ": "Велика Одеса",
 }
 
+CORRIDOR_PORT_CANONICAL = {
+    "одеса": ("Одеський морський порт", "Велика Одеса"),
+    "південний": ('Морський порт "Південний"', "Велика Одеса"),
+    "чорноморськ": ("Морський порт Чорноморськ", "Велика Одеса"),
+    "чорном.": ("Морський порт Чорноморськ", "Велика Одеса"),
+    "ізмаїл": ("Ізмаїльський морський порт", "Дунайський кластер"),
+    "рені": ("Ренійський морський порт", "Дунайський кластер"),
+    "усть-дунайськ": ('Морський порт "Усть-Дунайськ"', "Дунайський кластер"),
+    "усть-дунай.": ('Морський порт "Усть-Дунайськ"', "Дунайський кластер"),
+    "бердянськ": ("Бердянський морський порт", "Азовський / тимчасово окуповані"),
+    "маріуполь": ("Маріупольський морський порт", "Азовський / тимчасово окуповані"),
+    "миколаїв": ("Миколаївський морський порт", "Бузько-Дніпровський / заблоковані"),
+    "ольвія": ('Спеціалізований морський порт "Ольвія"', "Бузько-Дніпровський / заблоковані"),
+    "херсон": ("Херсонський морський порт", "Бузько-Дніпровський / заблоковані"),
+    "білгород-дн.": ("Білгород-Дністровський морський порт", "Інші порти"),
+    "скадовськ": ("Скадовський морський порт", "Азовський / тимчасово окуповані"),
+}
+
+
+def map_corridor_port(raw_name: str) -> tuple[str, str]:
+    key = " ".join(str(raw_name).strip().lower().split()).replace("- ", "-")
+    if key in CORRIDOR_PORT_CANONICAL:
+        return CORRIDOR_PORT_CANONICAL[key]
+    return (str(raw_name).strip(), "Інші порти")
+
 
 def normalize_port_name(name: str) -> str | None:
     if not name:
@@ -87,6 +112,18 @@ def clean_note(val) -> str | None:
     if not s or re.fullmatch(r"[*.,\-\s]+", s):
         return None
     return s
+
+
+def detect_file_type(uploaded_file) -> str:
+    fname = (getattr(uploaded_file, "name", "") or "").lower()
+    wb = openpyxl.load_workbook(uploaded_file, read_only=True)
+    sheets = [s.lower().replace("i", "і").strip() for s in wb.sheetnames]
+    uploaded_file.seek(0)
+    if "коридор" in fname or any(s in sheets for s in ("вантажі", "суднозаходи", "атаки")):
+        return "коридори"
+    if any(s in sheets for s in ("експорт", "імпорт", "транзит")):
+        return "23-м"
+    return "25-вод"
 
 
 CARGO_META = {
@@ -310,150 +347,9 @@ def parse_25vod_file(file_obj, include_prev_year: bool = False) -> tuple[pd.Data
 def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
     """
     Парсить файл 'Коридори.xlsx' із 3 аркушами:
-    - 'Вантажі' (історія 2021–2026: Всього та Зерно по портах і кластерах)
-    - 'Суднозаходи' (історія 2020–2026 по портах)
-    - 'Атаки' (накопичувальна статистика пошкоджених об'єктів, суден та постраждалих осіб)
-    """
-    wb = openpyxl.load_workbook(file_obj, data_only=True)
-    result = {}
-
-    # 1. Вантажі
-    if "Вантажі" in wb.sheetnames:
-        ws = wb["Вантажі"]
-        port_cols = []
-        last_port = None
-        for c in range(3, ws.max_column + 1):
-            p_raw = ws.cell(1, c).value
-            sub_raw = ws.cell(2, c).value
-            if p_raw is not None:
-                last_port = " ".join(str(p_raw).strip().split())
-            if last_port and sub_raw is not None:
-                port_cols.append((c, last_port, str(sub_raw).strip()))
-
-        cargo_rows = []
-        current_year = None
-        for r in range(3, ws.max_row + 1):
-            y_val = ws.cell(r, 1).value
-            m_val = ws.cell(r, 2).value
-            if y_val is not None:
-                y_match = re.search(r"(20\d{2})", str(y_val))
-                if y_match:
-                    current_year = int(y_match.group(1))
-            if not m_val or str(m_val).strip().upper() == "РІК" or not current_year:
-                continue
-            m_clean = str(m_val).strip().lower()
-            m_num = UKR_MONTHS.get(m_clean)
-            if not m_num:
-                continue
-            rep_date = date(current_year, m_num, 1)
-            for c_idx, p_name, metric_type in port_cols:
-                if p_name in ("ОДЕСА", "ДУНАЙ"):
-                    continue  # пропускаємо підсумкові колонки кластерів, щоб уникнути подвійного рахунку
-                val = ws.cell(r, c_idx).value
-                if val is None or val == "":
-                    continue
-                cluster = (
-                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорноморськ")
-                    else "Дунайський кластер" if p_name in ("Рені", "Ізмаїл", "Усть-Дунайськ")
-                    else "Інші порти (тимчасово окуповані / заблоковані)"
-                )
-                cargo_rows.append({
-                    "report_date": rep_date,
-                    "period_str": f"{current_year}-{m_num:02d}",
-                    "year": current_year,
-                    "month": m_num,
-                    "cluster": cluster,
-                    "port_short": p_name,
-                    "metric_type": metric_type,
-                    "volume": round(to_float(val), 2),
-                })
-        result["cargo"] = pd.DataFrame(cargo_rows)
-
-    # 2. Суднозаходи
-    if "Суднозаходи" in wb.sheetnames:
-        ws = wb["Суднозаходи"]
-        s_cols = []
-        for c in range(3, ws.max_column + 1):
-            p_raw = ws.cell(1, c).value
-            if p_raw is not None:
-                p_clean = " ".join(str(p_raw).strip().split())
-                if p_clean not in ("ОДЕСА", "ДУНАЙ"):
-                    s_cols.append((c, p_clean))
-
-        vessel_rows = []
-        current_year = None
-        for r in range(2, ws.max_row + 1):
-            y_val = ws.cell(r, 1).value
-            m_val = ws.cell(r, 2).value
-            if y_val is not None:
-                y_match = re.search(r"(20\d{2})", str(y_val))
-                if y_match:
-                    current_year = int(y_match.group(1))
-            if not m_val or str(m_val).strip().upper() == "РІК" or not current_year:
-                continue
-            m_num = UKR_MONTHS.get(str(m_val).strip().lower())
-            if not m_num:
-                continue
-            rep_date = date(current_year, m_num, 1)
-            for c_idx, p_name in s_cols:
-                val = ws.cell(r, c_idx).value
-                if val is None or val == "":
-                    continue
-                cluster = (
-                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорном.")
-                    else "Дунайський кластер" if p_name in ("Ізмаїл", "Рені", "Усть-Дунай.")
-                    else "Інші порти"
-                )
-                vessel_rows.append({
-                    "report_date": rep_date,
-                    "period_str": f"{current_year}-{m_num:02d}",
-                    "year": current_year,
-                    "cluster": cluster,
-                    "port_short": p_name,
-                    "vessels_count": int(round(to_float(val))),
-                })
-        result["vessels"] = pd.DataFrame(vessel_rows)
-
-    # 3. Атаки
-    if "Атаки" in wb.sheetnames:
-        ws = wb["Атаки"]
-        attack_rows = []
-        for c in range(2, ws.max_column + 1):
-            dt_val = ws.cell(3, c).value
-            if isinstance(dt_val, datetime):
-                d_str = dt_val.strftime("%Y-%m-%d")
-            elif dt_val is not None:
-                d_str = str(dt_val)[:10]
-            else:
-                continue
-            attack_rows.append({
-                "attack_date": d_str,
-                "objects_damaged": int(round(to_float(ws.cell(4, c).value))),
-                "vessels_damaged": int(round(to_float(ws.cell(5, c).value))),
-                "casualties": int(round(to_float(ws.cell(6, c).value))),
-            })
-        result["attacks"] = pd.DataFrame(attack_rows)
-
-    return result
-    
-def detect_file_type(uploaded_file) -> str:
-    fname = (getattr(uploaded_file, "name", "") or "").lower()
-    wb = openpyxl.load_workbook(uploaded_file, read_only=True)
-    sheets = [s.lower().replace("i", "і").strip() for s in wb.sheetnames]
-    uploaded_file.seek(0)
-
-    if "коридор" in fname or any(s in sheets for s in ("вантажі", "суднозаходи", "атаки")):
-        return "коридори"
-    if any(s in sheets for s in ("експорт", "імпорт", "транзит")):
-        return "23-м"
-    return "25-вод"
-
-def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
-    """
-    Парсить файл 'Коридори.xlsx' із 3 аркушами:
-    - 'Вантажі'
-    - 'Суднозаходи'
-    - 'Атаки'
+    - 'Вантажі' -> повертає денормалізовану таблицю cargo (Всього, Зерно та розрахункові Інші вантажі)
+    - 'Суднозаходи' -> повертає таблицю vessels по портах та кластерах
+    - 'Атаки' -> повертає таблицю attacks (кумулятивні значення + прирости за період)
     """
     wb = openpyxl.load_workbook(file_obj, data_only=True)
     result = {}
@@ -486,27 +382,35 @@ def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
             if not m_num:
                 continue
             rep_date = date(current_year, m_num, 1)
+
+            # Групуємо по портах у межах одного рядка (місяця), щоб обчислити також "Інші вантажі = Всього - Зерно"
+            per_port_metrics: dict[str, dict[str, float]] = {}
             for c_idx, p_name, metric_type in port_cols:
                 if p_name in ("ОДЕСА", "ДУНАЙ"):
                     continue
                 val = ws.cell(r, c_idx).value
                 if val is None or val == "":
                     continue
-                cluster = (
-                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорноморськ")
-                    else "Дунайський кластер" if p_name in ("Рені", "Ізмаїл", "Усть-Дунайськ")
-                    else "Інші порти"
-                )
-                cargo_rows.append({
-                    "report_date": rep_date,
-                    "period_str": f"{current_year}-{m_num:02d}",
-                    "year": current_year,
-                    "month": m_num,
-                    "cluster": cluster,
-                    "port_short": p_name,
-                    "metric_type": metric_type,
-                    "volume": round(to_float(val), 2),
-                })
+                per_port_metrics.setdefault(p_name, {})[metric_type] = round(to_float(val), 2)
+
+            for p_name, metrics in per_port_metrics.items():
+                port_full, cluster = map_corridor_port(p_name)
+                total_v = metrics.get("Всього", 0.0)
+                grain_v = metrics.get("Зерно", 0.0)
+                other_v = round(max(total_v - grain_v, 0.0), 2)
+
+                for m_type, vol in [("Всього", total_v), ("Зерно", grain_v), ("Інші вантажі (незернові)", other_v)]:
+                    cargo_rows.append({
+                        "report_date": rep_date,
+                        "period_str": f"{current_year}-{m_num:02d}",
+                        "year": current_year,
+                        "month": m_num,
+                        "cluster": cluster,
+                        "port_short": p_name,
+                        "port_name": port_full,
+                        "metric_type": m_type,
+                        "volume": vol,
+                    })
         result["cargo"] = pd.DataFrame(cargo_rows)
 
     # 2. Суднозаходи
@@ -539,17 +443,15 @@ def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
                 val = ws.cell(r, c_idx).value
                 if val is None or val == "":
                     continue
-                cluster = (
-                    "Велика Одеса" if p_name in ("Одеса", "Південний", "Чорном.")
-                    else "Дунайський кластер" if p_name in ("Ізмаїл", "Рені", "Усть-Дунай.")
-                    else "Інші порти"
-                )
+                port_full, cluster = map_corridor_port(p_name)
                 vessel_rows.append({
                     "report_date": rep_date,
                     "period_str": f"{current_year}-{m_num:02d}",
                     "year": current_year,
+                    "month": m_num,
                     "cluster": cluster,
                     "port_short": p_name,
+                    "port_name": port_full,
                     "vessels_count": int(round(to_float(val))),
                 })
         result["vessels"] = pd.DataFrame(vessel_rows)
@@ -558,20 +460,33 @@ def parse_corridors_file(file_obj) -> dict[str, pd.DataFrame]:
     if "Атаки" in wb.sheetnames:
         ws = wb["Атаки"]
         attack_rows = []
+        prev_obj, prev_ves, prev_cas = None, None, None
         for c in range(2, ws.max_column + 1):
             dt_val = ws.cell(3, c).value
             if isinstance(dt_val, datetime):
                 d_str = dt_val.strftime("%Y-%m-%d")
+                ym_str = dt_val.strftime("%Y-%m")
             elif dt_val is not None:
                 d_str = str(dt_val)[:10]
+                ym_str = d_str[:7]
             else:
                 continue
+
+            obj = int(round(to_float(ws.cell(4, c).value)))
+            ves = int(round(to_float(ws.cell(5, c).value)))
+            cas = int(round(to_float(ws.cell(6, c).value)))
+
             attack_rows.append({
                 "attack_date": d_str,
-                "objects_damaged": int(round(to_float(ws.cell(4, c).value))),
-                "vessels_damaged": int(round(to_float(ws.cell(5, c).value))),
-                "casualties": int(round(to_float(ws.cell(6, c).value))),
+                "period_str": ym_str,
+                "objects_damaged": obj,
+                "vessels_damaged": ves,
+                "casualties": cas,
+                "delta_objects": (obj - prev_obj) if prev_obj is not None else 0,
+                "delta_vessels": (ves - prev_ves) if prev_ves is not None else 0,
+                "delta_casualties": (cas - prev_cas) if prev_cas is not None else 0,
             })
+            prev_obj, prev_ves, prev_cas = obj, ves, cas
         result["attacks"] = pd.DataFrame(attack_rows)
 
     return result
