@@ -1,5 +1,5 @@
 import base64
-import io
+from datetime import datetime
 from pathlib import Path
 import openpyxl
 from openpyxl.utils import get_column_letter
@@ -25,6 +25,15 @@ from db import (
     update_operators_dict,
 )
 from etl_parser import parse_23m_file, parse_25vod_file, parse_corridors_file
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+try:
+    now_str = datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%d.%m.%Y %H:%M")
+except Exception:
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
+
 from pdf_reports import (
     build_cargo_audit_pdf,
     build_corridors_pdf,
