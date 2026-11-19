@@ -360,7 +360,6 @@ def _show_login_manual_dialog():
             """
         )
 
-
 def check_password() -> bool:
     if st.session_state.get("authenticated"):
         return True
