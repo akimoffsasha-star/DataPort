@@ -452,7 +452,7 @@ def check_password() -> bool:
             justify-self: end;
         }
 
-        /* Сцена контейнеровоза, 6 контейнерів з текстом та палубного крана */
+        /* Сцена контейнеровоза, 6 контейнерів та палубного крана */
         .port-ship-scene-wrap {
             position: fixed;
             top: 44px;
@@ -469,7 +469,7 @@ def check_password() -> bool:
             display: block;
         }
 
-        /* Форма входу в районі корми судна праворуч внизу */
+        /* Форма входу */
         .port-form-head {
             text-align: center;
             margin-bottom: 6px;
@@ -478,45 +478,45 @@ def check_password() -> bool:
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             border-radius: 7px;
             background: #FEF3C7;
             border: 1px solid #F59E0B;
             color: #92400E !important;
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             margin-bottom: 3px;
         }
         .port-form-title {
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             font-weight: 800;
             color: #0F172A !important;
             line-height: 1.15;
         }
         .port-form-dept {
-            font-size: 0.68rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: #475569 !important;
             line-height: 1.2;
             margin-top: 2px;
         }
         [data-testid="stForm"] {
-            width: 310px !important;
+            width: 340px !important;
             max-width: 100% !important;
             background: rgba(248, 251, 255, 0.95) !important;
             backdrop-filter: blur(8px) !important;
             -webkit-backdrop-filter: blur(8px) !important;
             border: 1.5px solid rgba(15, 23, 42, 0.25) !important;
             border-top: 4px solid #f59e0b !important;
-            border-radius: 10px !important;
-            padding: 10px 14px 8px 14px !important;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.28) !important;
+            border-radius: 12px !important;
+            padding: 12px 15px 10px 15px !important;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.28) !important;
         }
         [data-testid="stForm"] label,
         [data-testid="stForm"] label p {
             color: #0F172A !important;
             font-weight: 600 !important;
-            font-size: 0.78rem !important;
+            font-size: 0.8rem !important;
         }
 
         /* Фіксований футер */
@@ -541,7 +541,7 @@ def check_password() -> bool:
             text-overflow: ellipsis;
         }
 
-        /* Десктоп: без прокрутки, блок входу праворуч внизу в районі корми судна */
+        /* Десктоп: без прокрутки */
         @media (min-width: 769px) {
             html, body,
             [data-testid="stAppViewContainer"],
@@ -553,11 +553,11 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }
             [data-testid="stAppViewContainer"] > .main > .block-container {
-                padding: 48px 18px 34px 18px !important;
+                padding: 52px 22px 36px 22px !important;
             }
             div[data-testid="stHorizontalBlock"] {
-                height: calc(100vh - 82px) !important;
-                max-height: calc(100vh - 82px) !important;
+                height: calc(100vh - 88px) !important;
+                max-height: calc(100vh - 88px) !important;
                 overflow: hidden !important;
                 align-items: flex-end !important;
             }
@@ -566,10 +566,10 @@ def check_password() -> bool:
                 flex-direction: column !important;
                 justify-content: flex-end !important;
                 align-items: flex-end !important;
-                padding-bottom: 18px !important;
+                padding-bottom: 16px !important;
             }
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child .stButton {
-                width: 310px !important;
+                width: 340px !important;
                 max-width: 100% !important;
                 margin-top: 6px !important;
             }
@@ -591,182 +591,205 @@ def check_password() -> bool:
         </div>
 
         <div class="port-ship-scene-wrap" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+            <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
               <defs>
                 <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#bae6fd"/>
-                  <stop offset="100%" stop-color="#f0f9ff"/>
+                  <stop offset="0%" stop-color="#93c5fd" />
+                  <stop offset="55%" stop-color="#e0f2fe" />
+                  <stop offset="100%" stop-color="#f8fafc" />
                 </linearGradient>
                 <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#0284c7"/>
-                  <stop offset="100%" stop-color="#0369a1"/>
+                  <stop offset="0%" stop-color="#0284c7" />
+                  <stop offset="45%" stop-color="#0369a1" />
+                  <stop offset="100%" stop-color="#0c4a6e" />
                 </linearGradient>
-                <pattern id="corrugation" width="12" height="10" patternUnits="userSpaceOnUse">
-                  <line x1="4" y1="0" x2="4" y2="10" stroke="#000000" stroke-opacity="0.16" stroke-width="2.5"/>
-                  <line x1="8" y1="0" x2="8" y2="10" stroke="#ffffff" stroke-opacity="0.14" stroke-width="1.2"/>
+                <pattern id="corrugation" width="18" height="14" patternUnits="userSpaceOnUse">
+                  <line x1="6" y1="0" x2="6" y2="14" stroke="#000000" stroke-opacity="0.2" stroke-width="4" />
+                  <line x1="12" y1="0" x2="12" y2="14" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" />
                 </pattern>
+                <linearGradient id="hullShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#0f172a" stop-opacity="0.45" />
+                  <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
+                </linearGradient>
               </defs>
 
-              <!-- Небо та море -->
-              <rect width="1200" height="585" fill="url(#skyGrad)"/>
-              <rect y="585" width="1200" height="135" fill="url(#seaGrad)"/>
+              <rect x="0" y="0" width="1920" height="860" fill="url(#skyGrad)" />
+              <rect x="0" y="860" width="1920" height="220" fill="url(#seaGrad)" />
+              <line x1="0" y1="860" x2="1920" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.7" />
 
-              <!-- Хмари -->
-              <g fill="#ffffff" opacity="0.72">
-                <circle cx="140" cy="95" r="30"/>
-                <circle cx="175" cy="88" r="36"/>
-                <circle cx="212" cy="98" r="26"/>
-                <circle cx="930" cy="78" r="24"/>
-                <circle cx="962" cy="72" r="30"/>
-                <circle cx="992" cy="82" r="22"/>
+              <g fill="#bae6fd" opacity="0.25">
+                <rect x="760" y="885" width="180" height="4" rx="2" />
+                <rect x="1120" y="910" width="240" height="5" rx="2.5" />
+                <rect x="850" y="945" width="140" height="4" rx="2" />
+                <rect x="1480" y="895" width="210" height="4" rx="2" />
               </g>
 
-              <!-- Корпус контейнеровоза: надбудова ліворуч, палуба та кормова зона праворуч -->
+              <g fill="#ffffff" opacity="0.78">
+                <circle cx="620" cy="145" r="42" />
+                <circle cx="665" cy="135" r="54" />
+                <circle cx="715" cy="145" r="44" />
+                <circle cx="755" cy="152" r="32" />
+                <circle cx="1480" cy="115" r="36" />
+                <circle cx="1518" cy="108" r="46" />
+                <circle cx="1558" cy="118" r="36" />
+              </g>
+
+              <ellipse cx="1160" cy="908" rx="710" ry="20" fill="url(#hullShadow)" />
+
               <g id="ship-hull">
-                <polygon points="48,515 48,305 148,305 175,515" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
-                <rect x="42" y="292" width="112" height="18" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
-                <rect x="68" y="297" width="72" height="8" fill="#0f172a"/>
-                <rect x="68" y="330" width="16" height="12" fill="#334155"/>
-                <rect x="96" y="330" width="16" height="12" fill="#334155"/>
-                <rect x="68" y="365" width="16" height="12" fill="#334155"/>
-                <rect x="96" y="365" width="16" height="12" fill="#334155"/>
-                <line x1="98" y1="292" x2="98" y2="245" stroke="#475569" stroke-width="3.5"/>
-                <line x1="78" y1="258" x2="118" y2="258" stroke="#475569" stroke-width="2.5"/>
+                <polygon points="560,765 560,465 735,465 775,765" fill="#f8fafc" stroke="#94a3b8" stroke-width="3.5" />
+                <rect x="548" y="442" width="198" height="30" rx="5" fill="#e2e8f0" stroke="#64748b" stroke-width="3" />
+                <rect x="572" y="450" width="150" height="14" rx="2" fill="#0f172a" />
+                <g fill="#38bdf8" opacity="0.55">
+                  <rect x="578" y="453" width="22" height="8" rx="1" />
+                  <rect x="606" y="453" width="22" height="8" rx="1" />
+                  <rect x="634" y="453" width="22" height="8" rx="1" />
+                  <rect x="662" y="453" width="22" height="8" rx="1" />
+                  <rect x="690" y="453" width="24" height="8" rx="1" />
+                </g>
+                <g fill="#334155">
+                  <rect x="595" y="505" width="24" height="20" rx="3" />
+                  <rect x="640" y="505" width="24" height="20" rx="3" />
+                  <rect x="685" y="505" width="24" height="20" rx="3" />
+                  <rect x="595" y="555" width="24" height="20" rx="3" />
+                  <rect x="640" y="555" width="24" height="20" rx="3" />
+                  <rect x="685" y="555" width="24" height="20" rx="3" />
+                  <rect x="595" y="610" width="24" height="20" rx="3" />
+                  <rect x="640" y="610" width="24" height="20" rx="3" />
+                  <rect x="685" y="610" width="24" height="20" rx="3" />
+                </g>
+                <line x1="648" y1="442" x2="648" y2="355" stroke="#475569" stroke-width="6" stroke-linecap="round" />
+                <line x1="612" y1="382" x2="684" y2="382" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+                <rect x="628" y="366" width="40" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+                <circle cx="648" cy="348" r="5" fill="#ef4444" />
 
-                <polygon points="15,515 1135,515 1185,615 15,615" fill="#1e293b"/>
-                <polygon points="15,592 1173,592 1185,615 15,615" fill="#991b1b"/>
-                <rect x="15" y="505" width="1120" height="10" fill="#475569"/>
+                <polygon points="480,765 1785,765 1885,902 480,902" fill="#1e293b" stroke="#0f172a" stroke-width="3" />
+                <polygon points="480,862 1856,862 1885,902 480,902" fill="#991b1b" />
+                <rect x="480" y="748" width="1305" height="17" fill="#475569" />
 
-                <line x1="15" y1="492" x2="1128" y2="492" stroke="#cbd5e1" stroke-width="2"/>
-                <g stroke="#cbd5e1" stroke-width="1.5">
-                  <line x1="35" y1="492" x2="35" y2="505"/>
-                  <line x1="105" y1="492" x2="105" y2="505"/>
-                  <line x1="175" y1="492" x2="175" y2="505"/>
-                  <line x1="710" y1="492" x2="710" y2="505"/>
-                  <line x1="820" y1="492" x2="820" y2="505"/>
-                  <line x1="1040" y1="492" x2="1040" y2="505"/>
-                  <line x1="1120" y1="492" x2="1120" y2="505"/>
+                <line x1="480" y1="726" x2="1775" y2="726" stroke="#cbd5e1" stroke-width="3.5" />
+                <g stroke="#cbd5e1" stroke-width="2.5">
+                  <line x1="510" y1="726" x2="510" y2="748" />
+                  <line x1="550" y1="726" x2="550" y2="748" />
+                  <line x1="780" y1="726" x2="780" y2="748" />
+                  <line x1="1460" y1="726" x2="1460" y2="748" />
+                  <line x1="1540" y1="726" x2="1540" y2="748" />
+                  <line x1="1620" y1="726" x2="1620" y2="748" />
+                  <line x1="1700" y1="726" x2="1700" y2="748" />
+                  <line x1="1765" y1="726" x2="1765" y2="748" />
+                </g>
+                <g fill="#64748b" stroke="#1e293b" stroke-width="2">
+                  <rect x="1635" y="736" width="18" height="12" rx="3" />
+                  <rect x="1715" y="736" width="18" height="12" rx="3" />
                 </g>
               </g>
 
-              <!-- 6 Контейнерів (2 колонки x 3 яруси) з інформацією всередині -->
-              <g id="containers" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">
-                <!-- Ярус 1 (Нижній лівий) -->
-                <g transform="translate(185, 423)">
-                  <rect width="235" height="82" rx="2" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="2"/>
-                  <rect x="6" y="4" width="223" height="74" fill="url(#corrugation)"/>
-                  <rect x="0" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="0" y="75" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="75" width="7" height="7" fill="#0f172a"/>
-                  <text x="14" y="22" fill="#ffffff" font-size="12.5" font-weight="800">📊 Вантажообіг 23-м та 25-вод</text>
-                  <text x="14" y="40" fill="#e2e8f0" font-size="10.2">Щомісячний облік вантажів і суден по портах,</text>
-                  <text x="14" y="54" fill="#e2e8f0" font-size="10.2">кластерах, напрямках та номенклатурі</text>
-                  <text x="14" y="68" fill="#bae6fd" font-size="10.2">з контролем YoY і сезонності.</text>
+              <g id="containers-group">
+                <g transform="translate(775, 630)">
+                  <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
+                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+                  <rect x="216" y="14" width="100" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+                  <text x="266" y="33" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">IMO - TANK</text>
+                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+                  <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">🚨 Безпека та статистика атак</text>
+                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
                 </g>
 
-                <!-- Ярус 2 (Середній лівий) -->
-                <g transform="translate(185, 341)">
-                  <rect width="235" height="82" rx="2" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2"/>
-                  <rect x="6" y="4" width="223" height="74" fill="url(#corrugation)"/>
-                  <rect x="0" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="0" y="75" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="75" width="7" height="7" fill="#0f172a"/>
-                  <text x="14" y="22" fill="#ffffff" font-size="12.5" font-weight="800">⚓ Аудит операторів і причалів</text>
-                  <text x="14" y="40" fill="#f1f5f9" font-size="10.2">Індекси концентрації ринку CR3/CR5 та HHI,</text>
-                  <text x="14" y="54" fill="#f1f5f9" font-size="10.2">структура власності причалів та аналіз</text>
-                  <text x="14" y="68" fill="#fecaca" font-size="10.2">пояснень відхилень.</text>
+                <g transform="translate(775, 510)">
+                  <rect width="330" height="118" rx="6" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3.5" />
+                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+                  <text x="268" y="33" text-anchor="middle" fill="#fecaca" font-size="14" font-weight="700">ISO - 40RF</text>
+                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+                  <text x="28" y="83" fill="#ffffff" font-size="18.5" font-weight="700">⚓ Аудит операторів і причалів</text>
+                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
                 </g>
 
-                <!-- Ярус 3 (Верхній лівий) -->
-                <g transform="translate(185, 259)">
-                  <rect width="235" height="82" rx="2" fill="#047857" stroke="#064e3b" stroke-width="2"/>
-                  <rect x="6" y="4" width="223" height="74" fill="url(#corrugation)"/>
-                  <rect x="0" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="0" y="75" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="75" width="7" height="7" fill="#0f172a"/>
-                  <text x="14" y="22" fill="#ffffff" font-size="12.5" font-weight="800">🛡️ Морські коридори та кластери</text>
-                  <text x="14" y="40" fill="#f1f5f9" font-size="10.2">Багаторічна динаміка перевезень, зернових</text>
-                  <text x="14" y="54" fill="#f1f5f9" font-size="10.2">та незернових вантажів і суднозаходів</text>
-                  <text x="14" y="68" fill="#a7f3d0" font-size="10.2">по портах і кластерах.</text>
+                <g transform="translate(775, 390)">
+                  <rect width="330" height="118" rx="6" fill="#047857" stroke="#064e3b" stroke-width="3.5" />
+                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+                  <text x="268" y="33" text-anchor="middle" fill="#a7f3d0" font-size="14" font-weight="700">ISO - 40HC</text>
+                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+                  <text x="28" y="83" fill="#ffffff" font-size="20" font-weight="700">📊 Вантажообіг</text>
+                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
                 </g>
 
-                <!-- Ярус 1 (Нижній правий) -->
-                <g transform="translate(425, 423)">
-                  <rect width="235" height="82" rx="2" fill="#c2410c" stroke="#7c2d12" stroke-width="2"/>
-                  <rect x="6" y="4" width="223" height="74" fill="url(#corrugation)"/>
-                  <rect x="0" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="0" y="75" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="75" width="7" height="7" fill="#0f172a"/>
-                  <text x="14" y="22" fill="#ffffff" font-size="12.5" font-weight="800">📄 PDF-звіти, періоди та 3 теми</text>
-                  <text x="14" y="40" fill="#f1f5f9" font-size="10.2">Виконавчі, аудиторські й коридорні PDF-звіти,</text>
-                  <text x="14" y="54" fill="#f1f5f9" font-size="10.2">керування періодами в БД та Світла,</text>
-                  <text x="14" y="68" fill="#fed7aa" font-size="10.2">Темна і Фірмова теми.</text>
+                <g transform="translate(1120, 630)">
+                  <rect width="330" height="118" rx="6" fill="#ea580c" stroke="#9a3412" stroke-width="3.5" />
+                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.82" />
+                  <text x="268" y="33" text-anchor="middle" fill="#fed7aa" font-size="14" font-weight="700">ISO - 20OT</text>
+                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.72" />
+                  <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">📄 PDF-звіти, періоди</text>
+                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
                 </g>
 
-                <!-- Ярус 2 (Середній правий) -->
-                <g transform="translate(425, 341)">
-                  <rect width="235" height="82" rx="2" fill="#334155" stroke="#0f172a" stroke-width="2"/>
-                  <rect x="6" y="4" width="223" height="74" fill="url(#corrugation)"/>
-                  <rect x="0" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="0" y="75" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="75" width="7" height="7" fill="#0f172a"/>
-                  <text x="14" y="22" fill="#ffffff" font-size="12.5" font-weight="800">🚨 Безпека та статистика атак</text>
-                  <text x="14" y="40" fill="#f1f5f9" font-size="10.2">Хронологія фіксації та накопичувальна</text>
-                  <text x="14" y="54" fill="#f1f5f9" font-size="10.2">динаміка пошкоджень портової</text>
-                  <text x="14" y="68" fill="#cbd5e1" font-size="10.2">інфраструктури, суден і постраждалих.</text>
+                <g transform="translate(1120, 510)">
+                  <rect width="330" height="118" rx="6" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
+                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.86" />
+                  <text x="268" y="33" text-anchor="middle" fill="#cbd5e1" font-size="14" font-weight="700">ISO - 45GP</text>
+                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.75" />
+                  <text x="28" y="83" fill="#ffffff" font-size="17.5" font-weight="700">🧭 Морські коридори та кластери</text>
+                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
                 </g>
 
-                <!-- Ярус 3 (Верхній правий - ЗЧЕПЛЕНИЙ З КРАНОМ) -->
-                <g transform="translate(425, 226)">
-                  <rect width="235" height="82" rx="2" fill="#eab308" stroke="#a16207" stroke-width="2"/>
-                  <rect x="6" y="4" width="223" height="74" fill="url(#corrugation)"/>
-                  <rect x="0" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="0" width="7" height="7" fill="#0f172a"/>
-                  <rect x="0" y="75" width="7" height="7" fill="#0f172a"/>
-                  <rect x="228" y="75" width="7" height="7" fill="#0f172a"/>
-                  <text x="14" y="22" fill="#0f172a" font-size="12.5" font-weight="800">🧮 Конструктор матриць</text>
-                  <text x="14" y="40" fill="#1e293b" font-size="10.2" font-weight="600">Зведені таблиці у тис. тонн, TEU та шт.</text>
-                  <text x="14" y="54" fill="#1e293b" font-size="10.2" font-weight="600">з гнучким вибором вимірів і миттєвим</text>
-                  <text x="14" y="68" fill="#0f172a" font-size="10.2" font-weight="700">експортом у Excel (.xlsx) та PDF.</text>
+                <g transform="translate(1120, 342)">
+                  <rect width="330" height="118" rx="6" fill="#eab308" stroke="#a16207" stroke-width="3.5" />
+                  <rect x="10" y="8" width="310" height="102" rx="4" fill="url(#corrugation)" />
+                  <rect x="220" y="14" width="96" height="28" rx="5" fill="#0f172a" fill-opacity="0.88" />
+                  <text x="268" y="33" text-anchor="middle" fill="#fef08a" font-size="14" font-weight="700">ISO - 20DV</text>
+                  <rect x="16" y="54" width="298" height="46" rx="6" fill="#0f172a" fill-opacity="0.82" />
+                  <text x="28" y="83" fill="#ffffff" font-size="19.5" font-weight="700">🧮 Конструктор матриць</text>
+                  <rect x="0" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="0" width="12" height="12" fill="#0f172a" />
+                  <rect x="0" y="106" width="12" height="12" fill="#0f172a" />
+                  <rect x="318" y="106" width="12" height="12" fill="#0f172a" />
                 </g>
               </g>
 
-              <!-- Палубний кран -->
               <g id="deck-crane">
-                <rect x="735" y="315" width="52" height="190" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
-                <rect x="728" y="490" width="66" height="15" fill="#334155"/>
-                <rect x="732" y="305" width="58" height="10" fill="#1e293b"/>
-
-                <polygon points="735,305 790,305 782,225 742,225" fill="#fbbf24" stroke="#b45309" stroke-width="2"/>
-                <polygon points="712,275 738,275 738,238 720,238" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/>
-                <line x1="725" y1="238" x2="723" y2="275" stroke="#0f172a" stroke-width="1.5"/>
-
-                <polygon points="748,252 760,272 536,125 543,110" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
-                <circle cx="542.5" cy="120" r="9" fill="#334155" stroke="#0f172a" stroke-width="2"/>
-                <circle cx="765" cy="225" r="7" fill="#334155"/>
-
-                <line x1="765" y1="225" x2="542.5" y2="112" stroke="#1e293b" stroke-width="2.5"/>
-                <line x1="765" y1="231" x2="542.5" y2="118" stroke="#1e293b" stroke-width="1.5"/>
-
-                <line x1="538" y1="126" x2="538" y2="195" stroke="#0f172a" stroke-width="2.2"/>
-                <line x1="547" y1="126" x2="547" y2="195" stroke="#0f172a" stroke-width="2.2"/>
-
-                <rect x="532" y="192" width="21" height="14" rx="2" fill="#1e293b"/>
-                <line x1="542.5" y1="206" x2="432" y2="218" stroke="#334155" stroke-width="2.5"/>
-                <line x1="542.5" y1="206" x2="653" y2="218" stroke="#334155" stroke-width="2.5"/>
-                <rect x="425" y="218" width="235" height="8" rx="1" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
-                <rect x="427" y="224" width="10" height="6" fill="#0f172a"/>
-                <rect x="648" y="224" width="10" height="6" fill="#0f172a"/>
+                <rect x="1552" y="485" width="96" height="263" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
+                <rect x="1540" y="724" width="120" height="24" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+                <line x1="1584" y1="495" x2="1584" y2="720" stroke="#d97706" stroke-width="3" />
+                <line x1="1616" y1="495" x2="1616" y2="720" stroke="#d97706" stroke-width="3" />
+                <rect x="1546" y="468" width="108" height="18" rx="4" fill="#1e293b" />
+                <polygon points="1550,468 1652,468 1638,340 1562,340" fill="#fbbf24" stroke="#b45309" stroke-width="3.5" />
+                <polygon points="1508,425 1554,425 1554,362 1522,362" fill="#38bdf8" stroke="#0f172a" stroke-width="3.5" />
+                <line x1="1531" y1="362" x2="1526" y2="425" stroke="#0f172a" stroke-width="2.5" />
+                <polygon points="1572,382 1592,418 1278,196 1290,170" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
+                <circle cx="1285" cy="186" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
+                <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+                <line x1="1604" y1="340" x2="1285" y2="174" stroke="#1e293b" stroke-width="4.5" />
+                <line x1="1604" y1="350" x2="1285" y2="182" stroke="#1e293b" stroke-width="3" />
+                <line x1="1279" y1="196" x2="1279" y2="294" stroke="#0f172a" stroke-width="4" />
+                <line x1="1291" y1="196" x2="1291" y2="294" stroke="#0f172a" stroke-width="4" />
+                <rect x="1270" y="290" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+                <line x1="1285" y1="312" x2="1132" y2="328" stroke="#334155" stroke-width="4.5" />
+                <line x1="1285" y1="312" x2="1438" y2="328" stroke="#334155" stroke-width="4.5" />
+                <rect x="1116" y="326" width="338" height="16" rx="3" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5" />
+                <rect x="1120" y="338" width="14" height="8" rx="1" fill="#0f172a" />
+                <rect x="1436" y="338" width="14" height="8" rx="1" fill="#0f172a" />
               </g>
 
-              <!-- Хвилі -->
-              <path d="M0,615 Q60,606 120,615 T240,615 T360,615 T480,615 T600,615 T720,615 T840,615 T960,615 T1080,615 T1200,615 L1200,720 L0,720 Z" fill="#0369a1" opacity="0.88"/>
-              <path d="M0,645 Q75,636 150,645 T300,645 T450,645 T600,645 T750,645 T900,645 T1050,645 T1200,645 L1200,720 L0,720 Z" fill="#075985" opacity="0.72"/>
+              <path d="M-40,902 Q50,886 140,902 T320,902 T500,902 T680,902 T860,902 T1040,902 T1220,902 T1400,902 T1580,902 T1760,902 T1960,902 L1960,1080 L-40,1080 Z" fill="#0369a1" opacity="0.88" />
+              <path d="M-40,948 Q70,932 180,948 T400,948 T620,948 T840,948 T1060,948 T1280,948 T1500,948 T1720,948 T1960,948 L1960,1080 L-40,1080 Z" fill="#075985" opacity="0.76" />
             </svg>
         </div>
         """,
