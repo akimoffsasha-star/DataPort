@@ -745,7 +745,7 @@ st.markdown(
         unsafe_allow_html=True,
     )
 
-    st.markdown(
+        st.markdown(
         f'<div class="port-fixed-header"><div class="port-header-brand"><div class="port-header-logo">⚓</div><div class="port-header-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div></div><div class="port-header-clock">🕒 Київ: {now_str}</div><div class="port-header-spacer"></div></div>',
         unsafe_allow_html=True,
     )
