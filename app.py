@@ -290,51 +290,6 @@ def style_fig(fig, theme_name: str | None = None, height: int = 380):
     return fig
 
 
-def _get_login_bg_css() -> str:
-    root = Path(__file__).resolve().parent
-    for fname in ("login_bg.jpg", "login_bg.jpeg", "login_bg.png", "login_bg.webp"):
-        img_path = root / fname
-        if img_path.exists():
-            ext = img_path.suffix.lstrip(".").lower()
-            mime = "jpeg" if ext in ("jpg", "jpeg") else ext
-            b64 = base64.b64encode(img_path.read_bytes()).decode()
-            return (
-                f'background: linear-gradient(135deg, rgba(6, 24, 44, 0.78), rgba(15, 76, 129, 0.72)), '
-                f'url("data:image/{mime};base64,{b64}") center/cover no-repeat fixed;'
-            )
-
-    svg = """
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="g" x1="0%" y1="0%" x2="1%" y2="1%">
-          <stop offset="0%" stop-color="#06192E"/>
-          <stop offset="55%" stop-color="#0D3B66"/>
-          <stop offset="100%" stop-color="#0F527D"/>
-        </linearGradient>
-        <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
-        </pattern>
-      </defs>
-      <rect width="1440" height="900" fill="url(#g)"/>
-      <rect width="1440" height="900" fill="url(#grid)"/>
-      <g fill="rgba(255,255,255,0.05)">
-        <path d="M120 690 L120 520 L150 520 L210 470 L210 490 L155 535 L155 690 Z"/>
-        <path d="M260 690 L260 500 L290 500 L360 440 L360 460 L295 515 L295 690 Z"/>
-        <rect x="420" y="610" width="220" height="55" rx="4"/>
-        <rect x="450" y="575" width="70" height="35" rx="2"/>
-        <rect x="530" y="575" width="70" height="35" rx="2"/>
-        <path d="M740 655 L1060 655 L1035 690 L765 690 Z"/>
-        <rect x="790" y="625" width="180" height="30" rx="2"/>
-        <rect x="980" y="595" width="45" height="60" rx="2"/>
-      </g>
-      <path d="M0 710 Q 360 665 720 710 T 1440 710 L 1440 900 L 0 900 Z" fill="rgba(14, 165, 233, 0.14)"/>
-      <path d="M0 755 Q 360 720 720 755 T 1440 755 L 1440 900 L 0 900 Z" fill="rgba(6, 24, 44, 0.45)"/>
-    </svg>
-    """.strip()
-    b64_svg = base64.b64encode(svg.encode("utf-8")).decode()
-    return f'background: url("data:image/svg+xml;base64,{b64_svg}") center/cover no-repeat fixed;'
-
-
 def _load_short_login_manual() -> str:
     return """
 ### Короткий старт
@@ -456,7 +411,6 @@ def check_password() -> bool:
       color: #0f172a;
     }}
 
-    /* Зафіксована шапка зі світлою підкладкою та годинником по центру */
     .fixed-top-bar {{
       position: fixed;
       top: 0;
@@ -540,7 +494,6 @@ def check_password() -> bool:
       white-space: nowrap;
     }}
 
-    /* Сцена без прокруток між зафіксованою шапкою (48px) і футером (38px) */
     .scene-stage {{
       position: fixed;
       top: 48px;
@@ -564,7 +517,6 @@ def check_password() -> bool:
       display: block;
     }}
 
-    /* Зафіксований футер зі світлою підкладкою і текстом строго по центру */
     .fixed-bottom-bar {{
       position: fixed;
       left: 0;
@@ -596,7 +548,6 @@ def check_password() -> bool:
       cursor: pointer;
     }}
 
-    /* Повільний рух хмар справа наліво на фоні сцени */
     .cloud-stream-1 {{
       animation: cloudRightToLeft1 68s linear infinite;
     }}
@@ -612,7 +563,6 @@ def check_password() -> bool:
       100% {{ transform: translateX(-1450px); }}
     }}
 
-    /* Плавна анімація хвиль */
     .wave-shift-1 {{
       animation: waveMove1 6.5s ease-in-out infinite;
     }}
@@ -635,7 +585,63 @@ def check_password() -> bool:
       50% {{ transform: translateX(-18px); opacity: 0.75; }}
     }}
 
-    /* Повільний вихід світлого диму з димохода */
+    /* Анімація обертання гребного гвинта та радара */
+    .propeller-spin {{
+      animation: propSpin 0.42s linear infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }}
+    @keyframes propSpin {{
+      0% {{ transform: scaleY(1); }}
+      50% {{ transform: scaleY(0.18); }}
+      100% {{ transform: scaleY(1); }}
+    }}
+    .radar-sweep {{
+      animation: radarSpin 2.6s linear infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }}
+    @keyframes radarSpin {{
+      0% {{ transform: scaleX(1); }}
+      50% {{ transform: scaleX(0.2); }}
+      100% {{ transform: scaleX(1); }}
+    }}
+
+    /* Повільний рух прапора */
+    .flag-wave {{
+      animation: flagFlutter 2.2s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: left center;
+    }}
+    @keyframes flagFlutter {{
+      0%, 100% {{ transform: skewY(0deg) scaleX(1); }}
+      25% {{ transform: skewY(-5deg) scaleX(0.97); }}
+      75% {{ transform: skewY(5deg) scaleX(0.98); }}
+    }}
+
+    /* Розходження хвиль у кормовій та носовій частині */
+    .stern-wake-spread {{
+      animation: sternWakePulse 3.4s ease-in-out infinite;
+    }}
+    @keyframes sternWakePulse {{
+      0%, 100% {{ transform: translate(0px, 0px); opacity: 0.78; }}
+      50% {{ transform: translate(-12px, 3px); opacity: 1; }}
+    }}
+    .bow-wave-spread {{
+      animation: bowWavePulse 3.1s ease-in-out infinite;
+    }}
+    @keyframes bowWavePulse {{
+      0%, 100% {{ transform: translate(0px, 0px); opacity: 0.82; }}
+      50% {{ transform: translate(11px, 3px); opacity: 1; }}
+    }}
+    .prop-wash-foam {{
+      animation: propWashAnim 1.4s ease-in-out infinite;
+    }}
+    @keyframes propWashAnim {{
+      0%, 100% {{ transform: translateX(0px) scaleX(1); opacity: 0.75; }}
+      50% {{ transform: translateX(-10px) scaleX(1.08); opacity: 0.95; }}
+    }}
+
     .smoke-puff-1 {{
       animation: smokeRise1 7.5s ease-out infinite;
       transform-origin: 678px 306px;
@@ -677,7 +683,6 @@ def check_password() -> bool:
       box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(148, 163, 184, 0.22);
     }}
 
-    /* Десктоп (>= 1024px): блок входу + підказка ліворуч, сцена праворуч */
     #login-panel {{
       position: absolute;
       top: 14px;
@@ -695,7 +700,6 @@ def check_password() -> bool:
       transition: border-left-color 0.35s ease;
     }}
 
-    /* Мобільні та планшети (< 1024px): шапка з годинником і "Мобільна", вхід по центру та футер */
     @media (max-width: 1023px) {{
       #container-tooltip-box,
       .top-title {{
@@ -800,12 +804,12 @@ def check_password() -> bool:
         </linearGradient>
       </defs>
 
-      <!-- 1. Рівний горизонт неба і моря на задньому плані -->
+      <!-- 1. Рівний горизонт неба і моря -->
       <rect x="-400" y="85" width="3200" height="775" fill="url(#skyGrad)" />
       <rect x="-400" y="860" width="3200" height="320" fill="url(#seaGrad)" />
       <line x1="-400" y1="860" x2="2800" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.75" />
 
-      <!-- 2. Хмари позаду судна, крана і контейнера, рухаються справа наліво -->
+      <!-- 2. Хмари на фоні -->
       <g id="sky-clouds-bg" pointer-events="none">
         <g class="cloud-stream-1" fill="#ffffff" opacity="0.82">
           <circle cx="1180" cy="185" r="42" />
@@ -831,9 +835,33 @@ def check_password() -> bool:
       <!-- Тінь корпусу на воді -->
       <ellipse cx="1195" cy="914" rx="760" ry="20" fill="url(#hullShadow)" />
 
-      <!-- 3. Корпус контейнеровоза: гострий ніс із бульбовою кінцівкою, надбудова вища за контейнери, рятувальна шлюпка та димохід -->
+      <!-- 3. Корпус контейнеровоза: транцева корма, гребний гвинт, деталі надбудови та шлюпки, прапор, неспущений якір, гострий ніс з бульбом -->
       <g id="ship-hull">
-        <!-- Світлий дим над димоходом (повільний рух вгору і вліво) -->
+        <!-- Працюючий гребний гвинт та перо керма у кормовій підводній частині -->
+        <g id="stern-propulsion">
+          <!-- Перо керма -->
+          <polygon points="482,862 504,862 504,904 484,904" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
+          <!-- Гребний вал -->
+          <line x1="504" y1="882" x2="526" y2="882" stroke="#64748b" stroke-width="5" stroke-linecap="round" />
+          <!-- Обертовий гвинт (4 лопаті) -->
+          <g class="propeller-spin" transform="translate(524, 882)">
+            <ellipse cx="0" cy="-14" rx="6" ry="13" fill="#eab308" stroke="#713f12" stroke-width="2" />
+            <ellipse cx="0" cy="14" rx="6" ry="13" fill="#eab308" stroke="#713f12" stroke-width="2" />
+            <ellipse cx="-6" cy="0" rx="5" ry="10" fill="#facc15" stroke="#713f12" stroke-width="1.8" />
+            <ellipse cx="6" cy="0" rx="5" ry="10" fill="#facc15" stroke="#713f12" stroke-width="1.8" />
+            <circle cx="0" cy="0" r="5.5" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+          </g>
+          <!-- Вихровий спутний струмінь за гвинтом -->
+          <g class="prop-wash-foam" fill="none" stroke="#e0f2fe" stroke-linecap="round">
+            <path d="M515,873 Q485,868 455,874" stroke-width="3" opacity="0.85" />
+            <path d="M515,882 Q478,880 442,884" stroke-width="3.5" opacity="0.9" />
+            <path d="M515,891 Q484,895 452,891" stroke-width="3" opacity="0.8" />
+            <circle cx="468" cy="878" r="3" fill="#ffffff" stroke="none" opacity="0.7" />
+            <circle cx="450" cy="887" r="2.5" fill="#bae6fd" stroke="none" opacity="0.75" />
+          </g>
+        </g>
+
+        <!-- Світлий дим над димоходом -->
         <g id="exhaust-smoke" pointer-events="none">
           <g class="smoke-puff-1">
             <circle cx="678" cy="304" r="14" fill="#f1f5f9" opacity="0.85" />
@@ -858,12 +886,16 @@ def check_password() -> bool:
           <rect x="666" y="305" width="24" height="5" rx="1.5" fill="#475569" />
         </g>
 
-        <!-- Надбудова вища за контейнери (верхня крайка контейнерів на y=390, палуба містка на y=335) -->
+        <!-- Надбудова (вища за контейнери) + деталізація (рятувальні кола, крила містка, радар, прапор) -->
         <polygon points="560,765 560,358 738,358 775,765" fill="#f8fafc" stroke="#94a3b8" stroke-width="3.5" />
-        <!-- Навислий ходовий місток над рівнем верхніх контейнерів -->
-        <polygon points="540,335 752,335 744,362 548,362" fill="#e2e8f0" stroke="#64748b" stroke-width="3" />
+        <!-- Горизонтальні палубні перекриття та поручні надбудови -->
+        <line x1="560" y1="362" x2="740" y2="362" stroke="#64748b" stroke-width="3" />
+        <line x1="560" y1="418" x2="746" y2="418" stroke="#94a3b8" stroke-width="2.5" />
+        <line x1="560" y1="466" x2="752" y2="466" stroke="#94a3b8" stroke-width="2.5" />
+        <!-- Крило ходового містка та верхній місток -->
+        <polygon points="534,335 758,335 748,362 544,362" fill="#e2e8f0" stroke="#64748b" stroke-width="3" />
         <rect x="562" y="341" width="166" height="13" rx="2" fill="#0f172a" />
-        <g fill="#38bdf8" opacity="0.65">
+        <g fill="#38bdf8" opacity="0.72">
           <rect x="568" y="344" width="24" height="7" rx="1" />
           <rect x="598" y="344" width="24" height="7" rx="1" />
           <rect x="628" y="344" width="24" height="7" rx="1" />
@@ -872,46 +904,73 @@ def check_password() -> bool:
         </g>
         <!-- Ілюмінатори надбудови -->
         <g fill="#334155">
-          <rect x="592" y="388" width="22" height="17" rx="3" />
-          <rect x="634" y="388" width="22" height="17" rx="3" />
-          <rect x="676" y="388" width="22" height="17" rx="3" />
-          <rect x="592" y="432" width="22" height="17" rx="3" />
-          <rect x="634" y="432" width="22" height="17" rx="3" />
-          <rect x="676" y="432" width="22" height="17" rx="3" />
-          <rect x="592" y="480" width="22" height="17" rx="3" />
-          <rect x="634" y="480" width="22" height="17" rx="3" />
-          <rect x="676" y="480" width="22" height="17" rx="3" />
+          <rect x="592" y="380" width="22" height="16" rx="3" />
+          <rect x="634" y="380" width="22" height="16" rx="3" />
+          <rect x="676" y="380" width="22" height="16" rx="3" />
+          <rect x="592" y="432" width="22" height="16" rx="3" />
+          <rect x="634" y="432" width="22" height="16" rx="3" />
+          <rect x="676" y="432" width="22" height="16" rx="3" />
+          <rect x="592" y="480" width="22" height="16" rx="3" />
+          <rect x="634" y="480" width="22" height="16" rx="3" />
+          <rect x="676" y="480" width="22" height="16" rx="3" />
         </g>
-        <!-- Щогла над ходовим містком -->
-        <line x1="636" y1="335" x2="636" y2="255" stroke="#475569" stroke-width="6" stroke-linecap="round" />
+        <!-- Рятувальні кола на борту надбудови -->
+        <g id="superstructure-lifebuoys">
+          <circle cx="576" cy="392" r="8.5" fill="#f97316" stroke="#7c2d12" stroke-width="2.5" />
+          <circle cx="576" cy="392" r="3.5" fill="#f8fafc" />
+          <circle cx="722" cy="392" r="8.5" fill="#f97316" stroke="#7c2d12" stroke-width="2.5" />
+          <circle cx="722" cy="392" r="3.5" fill="#f8fafc" />
+        </g>
+        <!-- Щогла, радар та прапор судна -->
+        <line x1="636" y1="335" x2="636" y2="246" stroke="#475569" stroke-width="6" stroke-linecap="round" />
         <line x1="602" y1="282" x2="670" y2="282" stroke="#475569" stroke-width="4" stroke-linecap="round" />
         <rect x="616" y="266" width="40" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
-        <circle cx="636" cy="248" r="5" fill="#ef4444" />
+        <!-- Радар на щоглі -->
+        <g class="radar-sweep" transform="translate(636, 256)">
+          <rect x="-18" y="-3" width="36" height="6" rx="2" fill="#f8fafc" stroke="#1e293b" stroke-width="2" />
+        </g>
+        <circle cx="636" cy="242" r="5" fill="#ef4444" />
 
-        <!-- Кормовий шлюпбалковий кронштейн та рятувальна шлюпка -->
+        <!-- Прапор судна на щоглі -->
+        <g id="ship-flag" transform="translate(639, 250)">
+          <line x1="0" y1="0" x2="0" y2="30" stroke="#334155" stroke-width="2.5" />
+          <g class="flag-wave">
+            <rect x="0" y="2" width="34" height="10" rx="1" fill="#0057b7" stroke="#1e293b" stroke-width="1" />
+            <rect x="0" y="12" width="34" height="10" rx="1" fill="#ffd700" stroke="#1e293b" stroke-width="1" />
+          </g>
+        </g>
+
+        <!-- Деталізований кормовий шлюпбалковий вузол та рятувальна шлюпка -->
         <g id="lifeboat-davit">
-          <path d="M510,748 L510,694 L538,684" fill="none" stroke="#475569" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M548,748 L548,694 L524,684" fill="none" stroke="#475569" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-          <line x1="516" y1="690" x2="516" y2="712" stroke="#1e293b" stroke-width="2" />
-          <line x1="542" y1="690" x2="542" y2="712" stroke="#1e293b" stroke-width="2" />
-          <!-- Рятувальна шлюпка -->
+          <!-- Шлюпбалки -->
+          <path d="M506,748 L506,690 L536,678" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M550,748 L550,690 L524,678" fill="none" stroke="#334155" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          <!-- Троси та талі підвісу -->
+          <line x1="514" y1="686" x2="514" y2="710" stroke="#0f172a" stroke-width="2" />
+          <line x1="542" y1="686" x2="542" y2="710" stroke="#0f172a" stroke-width="2" />
+          <!-- Рятувальна шлюпка з рубкою, привальним брусом та смугою -->
           <path
-            d="M498,714 Q528,708 558,715 L553,733 Q528,737 503,732 Z"
+            d="M494,712 Q528,704 562,713 L556,733 Q528,738 500,732 Z"
             fill="#f97316"
             stroke="#7c2d12"
             stroke-width="2.5"
           />
-          <path d="M506,717 Q528,714 550,718" fill="none" stroke="#fed7aa" stroke-width="1.8" stroke-linecap="round" />
+          <rect x="515" y="706" width="24" height="7" rx="2" fill="#fff7ed" stroke="#7c2d12" stroke-width="1.8" />
+          <path d="M501,722 Q528,726 555,722" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.85" />
         </g>
 
-        <!-- Основний корпус із якісними обводами, гострим форштевнем і бульбовою носовою кінцівкою -->
+        <!-- Основний корпус: транцева корма (478), гострий ніс з бульбовою кінцівкою -->
         <path
-          d="M478,765 L1765,765 Q1835,765 1892,732 L1914,724 L1882,812 Q1864,846 1852,862 Q1924,865 1934,886 Q1938,902 1906,906 L478,906 Z"
+          d="M478,748 L478,906 L1906,906 Q1938,902 1934,886 Q1924,865 1852,862 Q1864,846 1882,812 L1914,724 L1892,732 Q1835,765 1765,765 L478,765 Z"
           fill="url(#hullTopGrad)"
           stroke="#0f172a"
           stroke-width="3.5"
           stroke-linejoin="round"
         />
+        <!-- Чітка вертикально-зрізана транцева корма -->
+        <line x1="478" y1="748" x2="478" y2="906" stroke="#0f172a" stroke-width="4.5" />
+        <rect x="478" y="754" width="8" height="108" fill="#334155" opacity="0.45" />
+
         <!-- Підводна частина та обтічна бульбова кінцівка (bulbous bow) з гострим носовим профілем -->
         <path
           d="M478,862 L1852,862 Q1922,865 1933,886 Q1936,901 1904,906 L478,906 Z"
@@ -937,6 +996,19 @@ def check_password() -> bool:
           stroke-linecap="round"
           opacity="0.75"
         />
+
+        <!-- Неспущений якір у носовій частині (у клюзі поблизу носа) -->
+        <g id="bow-stowed-anchor" transform="translate(1842, 774) rotate(16)">
+          <!-- Клюзне гніздо / накладка борту -->
+          <ellipse cx="14" cy="14" rx="18" ry="11" fill="#0f172a" stroke="#475569" stroke-width="2" />
+          <!-- Веретено якоря -->
+          <rect x="2" y="10" width="24" height="6" rx="2" fill="#cbd5e1" stroke="#0f172a" stroke-width="2" />
+          <!-- Роги та лапи якоря -->
+          <path d="M24,13 Q34,13 34,25" fill="none" stroke="#e2e8f0" stroke-width="4.5" stroke-linecap="round" />
+          <polygon points="34,27 29,22 38,22" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5" />
+          <!-- Скоба / ланцюг -->
+          <circle cx="2" cy="13" r="4" fill="none" stroke="#94a3b8" stroke-width="2.5" />
+        </g>
 
         <!-- Палуба та леєрне огородження -->
         <path d="M478,748 L1775,748 L1912,724 L1892,736 L1775,765 L478,765 Z" fill="#475569" />
@@ -1038,7 +1110,7 @@ def check_password() -> bool:
         </g>
       </g>
 
-      <!-- 5. Судновий кран із динамічною прив'язкою та повним виключенням наповзання на контейнер -->
+      <!-- 5. Судновий кран -->
       <g id="deck-crane">
         <rect x="1552" y="485" width="96" height="263" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
         <rect x="1540" y="724" width="120" height="24" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
@@ -1066,12 +1138,26 @@ def check_password() -> bool:
         <rect id="crane-twistlock-right" x="1432" y="382" width="14" height="8" rx="1" fill="#0f172a" />
       </g>
 
-      <!-- 6. Анімовані хвилі на передньому плані -->
+      <!-- 6. Анімовані хвилі та розходження хвиль у кормовій і носовій частині судна -->
       <g id="sea-waves-anim" pointer-events="none">
+        <!-- Розбіжні хвилі на кормі (ліворуч від транця) -->
+        <g class="stern-wake-spread" fill="none" stroke-linecap="round">
+          <path d="M478,864 Q420,868 355,876" stroke="#e0f2fe" stroke-width="3.5" />
+          <path d="M478,872 Q405,882 325,896" stroke="#bae6fd" stroke-width="3.2" />
+          <path d="M478,882 Q395,898 305,918" stroke="#7dd3fc" stroke-width="2.8" />
+        </g>
+
+        <!-- Розбіжні носові хвилі / бурун біля форштевня та бульба -->
+        <g class="bow-wave-spread" fill="none" stroke-linecap="round">
+          <path d="M1862,860 Q1925,863 1995,873" stroke="#ffffff" stroke-width="3.8" />
+          <path d="M1918,876 Q1975,882 2035,895" stroke="#e0f2fe" stroke-width="3.2" />
+          <path d="M1925,892 Q1982,902 2045,916" stroke="#bae6fd" stroke-width="2.8" />
+        </g>
+
         <g class="wave-crest-ripple" stroke="#bae6fd" stroke-width="3" stroke-linecap="round" fill="none">
-          <path d="M510,876 Q565,868 620,876 T730,876" />
-          <path d="M920,882 Q985,874 1050,882 T1180,882" />
-          <path d="M1540,878 Q1610,870 1680,878 T1820,878" />
+          <path d="M560,874 Q615,866 670,874 T780,874" />
+          <path d="M1080,876 Q1145,868 1210,876 T1340,876" />
+          <path d="M1540,874 Q1605,866 1670,874 T1800,874" />
         </g>
         <g class="wave-shift-1">
           <path d="M-420,902 Q-310,884 -200,902 T20,902 T240,902 T460,902 T680,902 T900,902 T1120,902 T1340,902 T1560,902 T1780,902 T2000,902 T2220,902 T2440,902 L2440,1180 L-420,1180 Z" fill="#0369a1" opacity="0.88" />
@@ -1287,12 +1373,9 @@ def check_password() -> bool:
       }}
     }}
 
-    // Синхронна геометрія крана та контейнера: стріла і троси підіймаються вище та правіше,
-    // повністю виключаючи будь-яке наповзання на елементи контейнера
     function applyCraneLiftGeometry(lift) {{
       const clamped = Math.max(0, Math.min(1, lift));
 
-      // Підйом жовтого контейнера вгору на 115 одиниць SVG (від y=390 до y=275)
       const containerX = 1120;
       const containerY = 390 - clamped * 115;
       const containerEl = document.getElementById('container-matrix');
@@ -1300,11 +1383,10 @@ def check_password() -> bool:
         containerEl.setAttribute('transform', `translate(${{containerX.toFixed(2)}}, ${{containerY.toFixed(2)}})`);
       }}
 
-      // Траверса (спредер) розташована вище верхнього краю контейнера з чистим зазором 6 од.
       const spreaderY = containerY - 22;
       const spreaderLeftX = 1120;
       const spreaderRightX = 1450;
-      const spreaderMidX = (spreaderLeftX + spreaderRightX) / 2; // 1285
+      const spreaderMidX = (spreaderLeftX + spreaderRightX) / 2;
 
       const spreaderBar = document.getElementById('crane-spreader-bar');
       if (spreaderBar) {{
@@ -1324,7 +1406,6 @@ def check_password() -> bool:
         twistRight.setAttribute('y', (spreaderY + 12).toFixed(2));
       }}
 
-      // Каретка гака над траверсою
       const hookY = spreaderY - 26;
       const hookBlock = document.getElementById('crane-hook-block');
       if (hookBlock) {{
@@ -1332,7 +1413,6 @@ def check_password() -> bool:
         hookBlock.setAttribute('y', (hookY - 18).toFixed(2));
       }}
 
-      // Розтяжки траверси від центру каретки до країв траверси
       const slingLeft = document.getElementById('crane-sling-left');
       const slingRight = document.getElementById('crane-sling-right');
       if (slingLeft) {{
@@ -1348,8 +1428,6 @@ def check_password() -> bool:
         slingRight.setAttribute('y2', (spreaderY + 2).toFixed(2));
       }}
 
-      // Вершина стріли піднімається вище і трохи зміщується правіше (від (1292, 234) до (1380, 128)),
-      // щоб сама стріла та троси не перетинали площину піднятого контейнера
       const tipX = 1292 + clamped * 88;
       const tipY = 234 - clamped * 106;
       const tipSheave = document.getElementById('crane-tip-sheave');
@@ -1358,7 +1436,6 @@ def check_password() -> bool:
         tipSheave.setAttribute('cy', tipY.toFixed(2));
       }}
 
-      // Вертикальні троси підйому йдуть від оголовка стріли до каретки гака
       const hoistLeft = document.getElementById('crane-hoist-left');
       const hoistRight = document.getElementById('crane-hoist-right');
       const cableTopY = tipY + 12;
@@ -1376,7 +1453,6 @@ def check_password() -> bool:
         hoistRight.setAttribute('y2', cableBotY.toFixed(2));
       }}
 
-      // Стріла крана від шарніра (1582, 400) до оголовка (tipX, tipY)
       const boomBody = document.getElementById('crane-boom-body');
       if (boomBody) {{
         const p1 = '1572,382';
@@ -1386,7 +1462,6 @@ def check_password() -> bool:
         boomBody.setAttribute('points', `${{p1}} ${{p2}} ${{p3}} ${{p4}}`);
       }}
 
-      // Верхні троси стріли
       const stayTop = document.getElementById('crane-stay-top');
       const stayMid = document.getElementById('crane-stay-mid');
       if (stayTop) {{
@@ -1466,7 +1541,6 @@ def check_password() -> bool:
       let lastFrameTime = null;
       let leaveTimer = null;
 
-      // Повільна плавна анімація підйому/опускання
       const LIFT_SPEED = 0.28;
 
       const stepLiftAnimation = (timestamp) => {{
