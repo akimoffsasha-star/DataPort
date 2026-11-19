@@ -596,28 +596,79 @@ def check_password() -> bool:
       cursor: pointer;
     }}
 
-    .cloud-drift-slow {{
-      animation: cloudDrift 36s linear infinite;
+    /* Повільний рух хмар справа наліво на фоні сцени */
+    .cloud-stream-1 {{
+      animation: cloudRightToLeft1 68s linear infinite;
     }}
-    @keyframes cloudDrift {{
-      0% {{ transform: translateX(0px); }}
-      50% {{ transform: translateX(24px); }}
-      100% {{ transform: translateX(0px); }}
+    .cloud-stream-2 {{
+      animation: cloudRightToLeft2 86s linear infinite;
     }}
+    @keyframes cloudRightToLeft1 {{
+      0% {{ transform: translateX(720px); }}
+      100% {{ transform: translateX(-1450px); }}
+    }}
+    @keyframes cloudRightToLeft2 {{
+      0% {{ transform: translateX(920px); }}
+      100% {{ transform: translateX(-1450px); }}
+    }}
+
+    /* Плавна анімація хвиль та легке погойдування корпусу */
     .wave-shift-1 {{
-      animation: waveMove1 7s ease-in-out infinite;
+      animation: waveMove1 6.5s ease-in-out infinite;
     }}
     .wave-shift-2 {{
-      animation: waveMove2 9.5s ease-in-out infinite;
+      animation: waveMove2 8.8s ease-in-out infinite;
+    }}
+    .wave-crest-ripple {{
+      animation: waveRipple 5.2s ease-in-out infinite;
     }}
     @keyframes waveMove1 {{
-      0%, 100% {{ transform: translateX(0px); }}
-      50% {{ transform: translateX(-14px); }}
+      0%, 100% {{ transform: translate(0px, 0px); }}
+      50% {{ transform: translate(-22px, 3px); }}
     }}
     @keyframes waveMove2 {{
-      0%, 100% {{ transform: translateX(0px); }}
-      50% {{ transform: translateX(16px); }}
+      0%, 100% {{ transform: translate(0px, 0px); }}
+      50% {{ transform: translate(24px, -3px); }}
     }}
+    @keyframes waveRipple {{
+      0%, 100% {{ transform: translateX(0px); opacity: 0.45; }}
+      50% {{ transform: translateX(-18px); opacity: 0.75; }}
+    }}
+
+    /* Повільний вихід світлого диму з димохода */
+    .smoke-puff-1 {{
+      animation: smokeRise1 7.5s ease-out infinite;
+      transform-origin: 678px 426px;
+    }}
+    .smoke-puff-2 {{
+      animation: smokeRise2 9.2s ease-out infinite;
+      animation-delay: -3.1s;
+      transform-origin: 678px 426px;
+    }}
+    .smoke-puff-3 {{
+      animation: smokeRise3 10.8s ease-out infinite;
+      animation-delay: -6.4s;
+      transform-origin: 678px 426px;
+    }}
+    @keyframes smokeRise1 {{
+      0% {{ transform: translate(0px, 0px) scale(0.45); opacity: 0; }}
+      15% {{ opacity: 0.72; }}
+      65% {{ transform: translate(-42px, -52px) scale(1.15); opacity: 0.36; }}
+      100% {{ transform: translate(-78px, -92px) scale(1.55); opacity: 0; }}
+    }}
+    @keyframes smokeRise2 {{
+      0% {{ transform: translate(0px, 0px) scale(0.4); opacity: 0; }}
+      18% {{ opacity: 0.65; }}
+      70% {{ transform: translate(-54px, -64px) scale(1.25); opacity: 0.28; }}
+      100% {{ transform: translate(-96px, -108px) scale(1.65); opacity: 0; }}
+    }}
+    @keyframes smokeRise3 {{
+      0% {{ transform: translate(0px, 0px) scale(0.38); opacity: 0; }}
+      20% {{ opacity: 0.58; }}
+      72% {{ transform: translate(-36px, -74px) scale(1.3); opacity: 0.22; }}
+      100% {{ transform: translate(-68px, -118px) scale(1.7); opacity: 0; }}
+    }}
+
     .login-card {{
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(14px);
@@ -722,7 +773,7 @@ def check_password() -> bool:
   </header>
 
   <main id="scene-stage" class="scene-stage">
-    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="420 130 1560 860" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" class="block select-none">
+    <svg id="port-scene-svg" xmlns="http://www.w3.org/2000/svg" viewBox="420 95 1620 895" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" class="block select-none">
       <defs>
         <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#93c5fd" />
@@ -744,30 +795,65 @@ def check_password() -> bool:
         </linearGradient>
       </defs>
 
-      <!-- Рівний горизонт неба і моря по всій ширині сцени -->
-      <rect x="-200" y="130" width="2500" height="730" fill="url(#skyGrad)" />
-      <rect x="-200" y="860" width="2500" height="300" fill="url(#seaGrad)" />
-      <line x1="-200" y1="860" x2="2300" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.75" />
-      <g fill="#bae6fd" opacity="0.25">
-        <rect x="760" y="885" width="180" height="4" rx="2" />
-        <rect x="1120" y="910" width="240" height="5" rx="2.5" />
-        <rect x="850" y="945" width="140" height="4" rx="2" />
-        <rect x="1480" y="895" width="210" height="4" rx="2" />
+      <!-- 1. Рівний горизонт неба і моря на задньому плані -->
+      <rect x="-400" y="95" width="3200" height="765" fill="url(#skyGrad)" />
+      <rect x="-400" y="860" width="3200" height="320" fill="url(#seaGrad)" />
+      <line x1="-400" y1="860" x2="2800" y2="860" stroke="#7dd3fc" stroke-width="3" opacity="0.75" />
+
+      <!-- 2. Хмари позаду судна, крана і контейнера, рухаються справа наліво -->
+      <g id="sky-clouds-bg" pointer-events="none">
+        <g class="cloud-stream-1" fill="#ffffff" opacity="0.82">
+          <circle cx="1180" cy="185" r="42" />
+          <circle cx="1225" cy="174" r="56" />
+          <circle cx="1276" cy="184" r="46" />
+          <circle cx="1318" cy="192" r="32" />
+
+          <circle cx="1640" cy="225" r="36" />
+          <circle cx="1678" cy="216" r="48" />
+          <circle cx="1722" cy="226" r="38" />
+        </g>
+        <g class="cloud-stream-2" fill="#f8fafc" opacity="0.72">
+          <circle cx="1420" cy="145" r="34" />
+          <circle cx="1456" cy="138" r="44" />
+          <circle cx="1494" cy="147" r="34" />
+
+          <circle cx="1880" cy="172" r="40" />
+          <circle cx="1922" cy="162" r="52" />
+          <circle cx="1968" cy="174" r="42" />
+        </g>
       </g>
 
-      <g class="cloud-drift-slow" fill="#ffffff" opacity="0.78">
-        <circle cx="620" cy="175" r="42" />
-        <circle cx="665" cy="165" r="54" />
-        <circle cx="715" cy="175" r="44" />
-        <circle cx="755" cy="182" r="32" />
-        <circle cx="1480" cy="155" r="36" />
-        <circle cx="1518" cy="148" r="46" />
-        <circle cx="1558" cy="158" r="36" />
-      </g>
+      <!-- Тінь корпусу на воді -->
+      <ellipse cx="1185" cy="912" rx="745" ry="20" fill="url(#hullShadow)" />
 
-      <ellipse cx="1160" cy="908" rx="710" ry="20" fill="url(#hullShadow)" />
-
+      <!-- 3. Корпус контейнеровоза, бульбова носова кінцівка та димохід із вихлопним димом -->
       <g id="ship-hull">
+        <!-- Світлий дим над димоходом (позаду щогли/надбудови, повільний рух вгору і вліво) -->
+        <g id="exhaust-smoke" pointer-events="none">
+          <g class="smoke-puff-1">
+            <circle cx="678" cy="414" r="14" fill="#f1f5f9" opacity="0.85" />
+            <circle cx="690" cy="408" r="11" fill="#e2e8f0" opacity="0.75" />
+            <circle cx="668" cy="407" r="10" fill="#ffffff" opacity="0.8" />
+          </g>
+          <g class="smoke-puff-2">
+            <circle cx="678" cy="412" r="16" fill="#f8fafc" opacity="0.8" />
+            <circle cx="692" cy="404" r="12" fill="#e2e8f0" opacity="0.7" />
+            <circle cx="666" cy="404" r="11" fill="#ffffff" opacity="0.75" />
+          </g>
+          <g class="smoke-puff-3">
+            <circle cx="678" cy="410" r="15" fill="#f1f5f9" opacity="0.75" />
+            <circle cx="689" cy="402" r="11" fill="#cbd5e1" opacity="0.65" />
+          </g>
+        </g>
+
+        <!-- Димохід над надбудовою -->
+        <g id="ship-funnel">
+          <polygon points="664,442 692,442 688,418 668,418" fill="#1e293b" stroke="#0f172a" stroke-width="2.5" />
+          <rect x="665" y="424" width="26" height="8" fill="#dc2626" />
+          <rect x="666" y="415" width="24" height="5" rx="1.5" fill="#475569" />
+        </g>
+
+        <!-- Надбудова та рубка -->
         <polygon points="560,765 560,465 735,465 775,765" fill="#f8fafc" stroke="#94a3b8" stroke-width="3.5" />
         <rect x="548" y="442" width="198" height="30" rx="5" fill="#e2e8f0" stroke="#64748b" stroke-width="3" />
         <rect x="572" y="450" width="150" height="14" rx="2" fill="#0f172a" />
@@ -789,15 +875,37 @@ def check_password() -> bool:
           <rect x="640" y="610" width="24" height="20" rx="3" />
           <rect x="685" y="610" width="24" height="20" rx="3" />
         </g>
-        <line x1="648" y1="442" x2="648" y2="355" stroke="#475569" stroke-width="6" stroke-linecap="round" />
-        <line x1="612" y1="382" x2="684" y2="382" stroke="#475569" stroke-width="4" stroke-linecap="round" />
-        <rect x="628" y="366" width="40" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
-        <circle cx="648" cy="348" r="5" fill="#ef4444" />
+        <line x1="636" y1="442" x2="636" y2="355" stroke="#475569" stroke-width="6" stroke-linecap="round" />
+        <line x1="600" y1="382" x2="672" y2="382" stroke="#475569" stroke-width="4" stroke-linecap="round" />
+        <rect x="616" y="366" width="40" height="8" rx="2" fill="#cbd5e1" stroke="#475569" stroke-width="2" />
+        <circle cx="636" cy="348" r="5" fill="#ef4444" />
 
-        <polygon points="480,765 1785,765 1885,902 480,902" fill="#1e293b" stroke="#0f172a" stroke-width="3" />
-        <polygon points="480,862 1856,862 1885,902 480,902" fill="#991b1b" />
+        <!-- Основний корпус та бульбова носова кінцівка (bulbous bow) праворуч -->
+        <path
+          d="M480,765 L1785,765 Q1825,820 1856,862 Q1908,864 1916,884 Q1920,900 1892,904 L480,904 Z"
+          fill="#1e293b"
+          stroke="#0f172a"
+          stroke-width="3"
+        />
+        <!-- Підводна частина бульбової кінцівки -->
+        <path
+          d="M480,862 L1856,862 Q1906,864 1915,884 Q1918,899 1890,904 L480,904 Z"
+          fill="#991b1b"
+          stroke="#7f1d1d"
+          stroke-width="2"
+        />
+        <!-- Відблиск на бульбі для чіткого об'єму -->
+        <path
+          d="M1858,871 Q1896,872 1903,884"
+          fill="none"
+          stroke="#fca5a5"
+          stroke-width="3"
+          stroke-linecap="round"
+          opacity="0.7"
+        />
+
+        <!-- Палуба та леєрне огородження -->
         <rect x="480" y="748" width="1305" height="17" fill="#475569" />
-
         <line x1="480" y1="726" x2="1775" y2="726" stroke="#cbd5e1" stroke-width="3.5" />
         <g stroke="#cbd5e1" stroke-width="2.5">
           <line x1="510" y1="726" x2="510" y2="748" />
@@ -815,6 +923,7 @@ def check_password() -> bool:
         </g>
       </g>
 
+      <!-- 4. Контейнери на палубі -->
       <g id="containers-group">
         <g class="cargo-container" data-module-id="security" transform="translate(775, 630)" tabindex="0" role="button">
           <rect width="330" height="118" rx="6" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="3.5" />
@@ -895,7 +1004,7 @@ def check_password() -> bool:
         </g>
       </g>
 
-      <!-- Судновий кран із динамічною прив'язкою стріли, тросів та траверси до висоти підйому контейнера -->
+      <!-- 5. Судновий кран із динамічною прив'язкою без наповзання на контейнер -->
       <g id="deck-crane">
         <rect x="1552" y="485" width="96" height="263" rx="4" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
         <rect x="1540" y="724" width="120" height="24" rx="4" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
@@ -906,18 +1015,15 @@ def check_password() -> bool:
         <polygon points="1508,425 1554,425 1554,362 1522,362" fill="#38bdf8" stroke="#0f172a" stroke-width="3.5" />
         <line x1="1531" y1="362" x2="1526" y2="425" stroke="#0f172a" stroke-width="2.5" />
 
-        <!-- Стріла та верхні троси підвісу стріли -->
         <polygon id="crane-boom-body" points="1572,382 1592,418 1278,244 1290,218" fill="#f59e0b" stroke="#b45309" stroke-width="3.5" />
         <line id="crane-stay-top" x1="1604" y1="340" x2="1285" y2="222" stroke="#1e293b" stroke-width="4.5" />
         <line id="crane-stay-mid" x1="1604" y1="350" x2="1285" y2="230" stroke="#1e293b" stroke-width="3" />
         <circle id="crane-tip-sheave" cx="1285" cy="234" r="18" fill="#334155" stroke="#0f172a" stroke-width="3.5" />
         <circle cx="1604" cy="340" r="14" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
 
-        <!-- Вертикальні троси підйому (динамічна довжина від блока стріли до каретки гака) -->
         <line id="crane-hoist-left" x1="1279" y1="244" x2="1279" y2="342" stroke="#0f172a" stroke-width="4" />
         <line id="crane-hoist-right" x1="1291" y1="244" x2="1291" y2="342" stroke="#0f172a" stroke-width="4" />
 
-        <!-- Каретка гака, розтяжки та траверса (спредер), що лягає на дах контейнера -->
         <rect id="crane-hook-block" x="1270" y="338" width="30" height="22" rx="4" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
         <line id="crane-sling-left" x1="1285" y1="360" x2="1132" y2="376" stroke="#334155" stroke-width="4.5" />
         <line id="crane-sling-right" x1="1285" y1="360" x2="1438" y2="376" stroke="#334155" stroke-width="4.5" />
@@ -926,11 +1032,20 @@ def check_password() -> bool:
         <rect id="crane-twistlock-right" x="1436" y="386" width="14" height="8" rx="1" fill="#0f172a" />
       </g>
 
-      <g class="wave-shift-1">
-        <path d="M-240,902 Q-150,886 -60,902 T120,902 T300,902 T480,902 T660,902 T840,902 T1020,902 T1200,902 T1380,902 T1560,902 T1740,902 T1920,902 T2100,902 T2280,902 L2280,1160 L-240,1160 Z" fill="#0369a1" opacity="0.88" />
-      </g>
-      <g class="wave-shift-2">
-        <path d="M-240,948 Q-130,932 -20,948 T200,948 T420,948 T640,948 T860,948 T1080,948 T1300,948 T1520,948 T1740,948 T1960,948 T2180,948 L2180,1160 L-240,1160 Z" fill="#075985" opacity="0.76" />
+      <!-- 6. Анімовані хвилі на передньому плані -->
+      <g id="sea-waves-anim" pointer-events="none">
+        <g class="wave-crest-ripple" stroke="#bae6fd" stroke-width="3" stroke-linecap="round" fill="none">
+          <path d="M510,876 Q565,868 620,876 T730,876" />
+          <path d="M920,882 Q985,874 1050,882 T1180,882" />
+          <path d="M1540,878 Q1610,870 1680,878 T1820,878" />
+        </g>
+        <g class="wave-shift-1">
+          <path d="M-420,902 Q-310,884 -200,902 T20,902 T240,902 T460,902 T680,902 T900,902 T1120,902 T1340,902 T1560,902 T1780,902 T2000,902 T2220,902 T2440,902 L2440,1180 L-420,1180 Z" fill="#0369a1" opacity="0.88" />
+          <path d="M-420,902 Q-310,884 -200,902 T20,902 T240,902 T460,902 T680,902 T900,902 T1120,902 T1340,902 T1560,902 T1780,902 T2000,902 T2220,902 T2440,902" fill="none" stroke="#7dd3fc" stroke-width="3" opacity="0.55" />
+        </g>
+        <g class="wave-shift-2">
+          <path d="M-420,948 Q-295,930 -170,948 T80,948 T330,948 T580,948 T830,948 T1080,948 T1330,948 T1580,948 T1830,948 T2080,948 T2330,948 L2330,1180 L-420,1180 Z" fill="#075985" opacity="0.78" />
+        </g>
       </g>
     </svg>
 
@@ -1138,12 +1253,11 @@ def check_password() -> bool:
       }}
     }}
 
-    // Плавна, дуже повільна синхронна геометрія крана та жовтого контейнера (lift 0..1)
+    // Синхронна геометрія крана та контейнера без наповзання стріли на елементи контейнера
     function applyCraneLiftGeometry(lift) {{
       const clamped = Math.max(0, Math.min(1, lift));
 
-      // Базові координати жовтого контейнера: x=1120, y=390, ширина=330, висота=118
-      // Підйом вгору на 115 одиниць SVG (від y=390 до y=275)
+      // Підйом жовтого контейнера вгору на 115 одиниць SVG (від y=390 до y=275)
       const containerX = 1120;
       const containerY = 390 - clamped * 115;
       const containerEl = document.getElementById('container-matrix');
@@ -1151,8 +1265,8 @@ def check_password() -> bool:
         containerEl.setAttribute('transform', `translate(${{containerX.toFixed(2)}}, ${{containerY.toFixed(2)}})`);
       }}
 
-      // Траверса (спредер) спирається безпосередньо на верхню грань контейнера (y = containerY - 16)
-      const spreaderY = containerY - 16;
+      // Траверса (спредер) завжди над верхнім краєм контейнера із чистим зазором 4 од.
+      const spreaderY = containerY - 20;
       const spreaderLeftX = 1116;
       const spreaderRightX = 1454;
       const spreaderMidX = (spreaderLeftX + spreaderRightX) / 2; // 1285
@@ -1175,15 +1289,15 @@ def check_password() -> bool:
         twistRight.setAttribute('y', (spreaderY + 12).toFixed(2));
       }}
 
-      // Каретка гака піднімається пропорційно над траверсою (відстань зменшується при підйомі)
-      const hookY = spreaderY - (36 - clamped * 14);
+      // Каретка гака піднімається над траверсою зі збереженням безпечної висоти
+      const hookY = spreaderY - (34 - clamped * 8);
       const hookBlock = document.getElementById('crane-hook-block');
       if (hookBlock) {{
         hookBlock.setAttribute('x', (spreaderMidX - 15).toFixed(2));
         hookBlock.setAttribute('y', (hookY - 18).toFixed(2));
       }}
 
-      // Розтяжки від гака до країв траверси — змінюють довжину і кут без розриву
+      // Розтяжки траверси
       const slingLeft = document.getElementById('crane-sling-left');
       const slingRight = document.getElementById('crane-sling-right');
       if (slingLeft) {{
@@ -1199,10 +1313,9 @@ def check_password() -> bool:
         slingRight.setAttribute('y2', (spreaderY + 2).toFixed(2));
       }}
 
-      // Вершина стріли та блоки піднімаються вище слідом за вантажем
-      // Базова вершина стріли: (1285, 234) -> піднімається до (1285, 174)
+      // Вершина стріли піднімається вище контейнера (від y=234 до y=132), щоб стріла не наповзала на контейнер
       const tipX = 1285;
-      const tipY = 234 - clamped * 60;
+      const tipY = 234 - clamped * 102;
       const tipSheave = document.getElementById('crane-tip-sheave');
       if (tipSheave) {{
         tipSheave.setAttribute('cx', tipX.toFixed(2));
@@ -1213,7 +1326,7 @@ def check_password() -> bool:
       const hoistLeft = document.getElementById('crane-hoist-left');
       const hoistRight = document.getElementById('crane-hoist-right');
       const cableTopY = tipY + 10;
-      const cableBotY = hookY - 16;
+      const cableBotY = Math.max(cableTopY + 14, hookY - 16);
       if (hoistLeft) {{
         hoistLeft.setAttribute('x1', (tipX - 6).toFixed(2));
         hoistLeft.setAttribute('y1', cableTopY.toFixed(2));
@@ -1227,7 +1340,7 @@ def check_password() -> bool:
         hoistRight.setAttribute('y2', cableBotY.toFixed(2));
       }}
 
-      // Стріла крана (шарнір біля основи: 1582, 400) перераховується від вершини (tipX, tipY)
+      // Стріла крана від шарніра (1582, 400) до вершини (tipX, tipY)
       const boomBody = document.getElementById('crane-boom-body');
       if (boomBody) {{
         const p1 = '1572,382';
@@ -1237,7 +1350,7 @@ def check_password() -> bool:
         boomBody.setAttribute('points', `${{p1}} ${{p2}} ${{p3}} ${{p4}}`);
       }}
 
-      // Верхні троси стріли від вежі (1604, 340 / 1604, 350) до оголовка стріли
+      // Верхні троси стріли
       const stayTop = document.getElementById('crane-stay-top');
       const stayMid = document.getElementById('crane-stay-mid');
       if (stayTop) {{
@@ -1317,8 +1430,8 @@ def check_password() -> bool:
       let lastFrameTime = null;
       let leaveTimer = null;
 
-      // Дуже повільна швидкість: повний хід займає ~3.2 сек
-      const LIFT_SPEED = 0.31;
+      // Повільна плавна анімація підйому/опускання
+      const LIFT_SPEED = 0.28;
 
       const stepLiftAnimation = (timestamp) => {{
         if (lastFrameTime === null) {{
