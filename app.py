@@ -12,6 +12,9 @@ from db import (
     clear_all_facts_db,
     delete_month_from_db,
     load_cargo_view,
+    load_corridors_attacks,
+    load_corridors_cargo,
+    load_corridors_vessels,
     load_months_summary,
     load_notes,
     load_operators_dict,
@@ -21,6 +24,7 @@ from db import (
     save_corridors_to_db,
     update_operators_dict,
 )
+
 from etl_parser import parse_23m_file, parse_25vod_file, parse_corridors_file
 
 from pdf_reports import (
