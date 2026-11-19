@@ -1856,7 +1856,7 @@ elif page == "📤 Завантаження Excel":
                     ftype = detect_file_type(uf)
                     st.write(f"Визначено тип: **{ftype}**")
 
-                    elif ftype == "23-м":
+                    if ftype == "23-м":
                         df_c, warnings = parse_23m_file(uf, include_prev_year=include_prev)
                         inserted = save_cargo_to_db(df_c)
                         st.write(f"Збережено рядків вантажообігу: **{inserted}**")
@@ -1872,7 +1872,6 @@ elif page == "📤 Завантаження Excel":
                     status.update(label=f"✅ {uf.name} успішно завантажено", state="complete")
                 except Exception as e:
                     status.update(label=f"❌ Помилка в {uf.name}: {e}", state="error")
-
 
 # =====================================================================
 # СТОРІНКА 6: ПРИЧИНИ ПАДІННЯ, ДОВІДНИКИ ТА КЕРУВАННЯ МІСЯЦЯМИ
