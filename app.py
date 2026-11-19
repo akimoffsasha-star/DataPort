@@ -408,7 +408,7 @@ def check_password() -> bool:
             overflow: hidden !important;
         }}
 
-        /* Фіксована світла шапка з годинником по центру */
+        /* Фіксована світла шапка вгору з годинником по центру */
         .port-fixed-header {{
             position: fixed;
             top: 0;
@@ -471,7 +471,7 @@ def check_password() -> bool:
             justify-self: end;
         }}
 
-        /* Ліва частина: форма входу зміщена нижче до нижньої третини, вужча і вища */
+        /* Ліва частина: зафіксований блок входу */
         .port-left-top-gap {{
             height: 22vh;
         }}
@@ -554,7 +554,6 @@ def check_password() -> bool:
             line-height: 1.25;
         }}
 
-        /* Кнопка Інструкція точно за шириною блоку входу */
         div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
             width: 390px !important;
             max-width: 100% !important;
@@ -577,8 +576,8 @@ def check_password() -> bool:
             color: #0B3A63 !important;
         }}
 
-/* Права колонка: 6 блоків однакової висоти один під одним від верху до низу */
-        .port-right-stack {
+        /* Права колонка: 6 блоків однакової висоти один під одним на всю висоту */
+        .port-right-stack {{
             display: grid;
             grid-template-rows: repeat(6, minmax(0, 1fr));
             gap: 8px;
@@ -586,8 +585,8 @@ def check_password() -> bool:
             width: 100%;
             min-width: 0;
             overflow: hidden;
-        }
-        .port-right-card {
+        }}
+        .port-right-card {{
             min-height: 0;
             height: 100%;
             display: flex;
@@ -602,8 +601,8 @@ def check_password() -> bool:
             padding: 8px 13px;
             box-shadow: 0 6px 14px rgba(2, 10, 23, 0.28);
             overflow: hidden;
-        }
-        .port-right-card-title {
+        }}
+        .port-right-card-title {{
             font-size: 0.86rem;
             font-weight: 800;
             color: #7DD3FC !important;
@@ -612,15 +611,15 @@ def check_password() -> bool:
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-        .port-right-card-text {
+        }}
+        .port-right-card-text {{
             font-size: 0.75rem;
             font-weight: 500;
             color: #E2E8F0 !important;
             margin: 0;
             line-height: 1.28;
-        }
-        
+        }}
+
         /* Фіксований нижній футер */
         .port-login-footer {{
             position: fixed;
@@ -668,10 +667,10 @@ def check_password() -> bool:
                 margin-right: auto !important;
             }}
             .port-right-card-title {{
-                font-size: 0.8rem !important;
+                font-size: 0.82rem !important;
             }}
             .port-right-card-text {{
-                font-size: 0.7rem !important;
+                font-size: 0.72rem !important;
             }}
             .port-login-footer {{
                 font-size: 0.78rem !important;
@@ -722,7 +721,8 @@ def check_password() -> bool:
                 margin-right: 0 !important;
             }}
             .port-right-stack {{
-                display: flex; flex-direction: column; height: auto;
+                display: flex;
+                flex-direction: column;
                 height: auto;
                 gap: 8px;
                 margin-top: 12px;
@@ -793,9 +793,9 @@ def check_password() -> bool:
             unsafe_allow_html=True,
         )
 
-        st.markdown(
-            '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1</div>',
-            unsafe_allow_html=True,
+    st.markdown(
+        '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1</div>',
+        unsafe_allow_html=True,
     )
     return False
 
