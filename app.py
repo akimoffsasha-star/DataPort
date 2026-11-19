@@ -364,18 +364,12 @@ def check_password() -> bool:
     except Exception:
         now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
 
-    st.markdown(
+st.markdown(
         f"""
         <style>
         [data-testid="stSidebar"],
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
-        }}
-        html, body, [data-testid="stAppViewContainer"],
-        [data-testid="stAppViewContainer"] > .main {{
-            height: 100vh !important;
-            max-height: 100vh !important;
-            overflow: hidden !important;
         }}
         [data-testid="stAppViewContainer"] {{
             {bg_css}
@@ -384,29 +378,14 @@ def check_password() -> bool:
             padding: 0 !important;
         }}
         [data-testid="stAppViewContainer"] > .main > .block-container {{
-            height: 100vh !important;
-            max-height: 100vh !important;
             max-width: 100% !important;
             width: 100% !important;
-            padding: 48px 16px 34px 16px !important;
             margin: 0 !important;
-            overflow: hidden !important;
         }}
         [data-testid="stHeader"] {{
             background: transparent !important;
             height: 44px !important;
             z-index: 50 !important;
-        }}
-        div[data-testid="stHorizontalBlock"] {{
-            height: calc(100vh - 82px) !important;
-            max-height: calc(100vh - 82px) !important;
-            overflow: hidden !important;
-            align-items: stretch !important;
-        }}
-        div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
-            height: 100% !important;
-            max-height: 100% !important;
-            overflow: hidden !important;
         }}
 
         /* Фіксована світла шапка з годинником по центру */
@@ -577,12 +556,11 @@ def check_password() -> bool:
             color: #0B3A63 !important;
         }}
 
-        /* Права колонка: 6 блоків однакової висоти на всю висоту без підрізання і скролу */
+        /* Права колонка: 6 блоків однакової висоти на всю висоту */
         .port-right-stack {{
             display: grid;
             grid-template-rows: repeat(6, minmax(0, 1fr));
-            gap: 5px;
-            height: calc(100vh - 84px);
+            gap: 4px;
             width: 100%;
             min-width: 0;
             overflow: hidden;
@@ -598,27 +576,27 @@ def check_password() -> bool:
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(125, 211, 252, 0.28);
             border-left: 4px solid #38BDF8;
-            border-radius: 11px;
-            padding: 5px 11px;
+            border-radius: 10px;
+            padding: 4px 10px;
             box-shadow: 0 6px 14px rgba(2, 10, 23, 0.28);
             overflow: hidden;
         }}
         .port-right-card-title {{
-            font-size: 0.84rem;
+            font-size: 0.81rem;
             font-weight: 800;
             color: #7DD3FC !important;
             margin: 0 0 1px 0;
-            line-height: 1.15;
+            line-height: 1.14;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }}
         .port-right-card-text {{
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 500;
             color: #E2E8F0 !important;
             margin: 0;
-            line-height: 1.2;
+            line-height: 1.16;
         }}
 
         /* Фіксований нижній футер */
@@ -645,8 +623,39 @@ def check_password() -> bool:
             text-overflow: ellipsis;
         }}
 
+        /* Десктоп: повна заборона прокрутки */
+        @media (min-width: 769px) {{
+            html, body,
+            [data-testid="stAppViewContainer"],
+            [data-testid="stAppViewContainer"] > .main,
+            section[data-testid="stMain"],
+            [data-testid="stAppViewContainer"] > .main > .block-container {{
+                height: 100vh !important;
+                max-height: 100vh !important;
+                overflow: hidden !important;
+            }}
+            [data-testid="stAppViewContainer"] > .main > .block-container {{
+                padding: 48px 16px 34px 16px !important;
+            }}
+            div[data-testid="stHorizontalBlock"] {{
+                height: calc(100vh - 82px) !important;
+                max-height: calc(100vh - 82px) !important;
+                overflow: hidden !important;
+                align-items: stretch !important;
+            }}
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
+                height: 100% !important;
+                max-height: 100% !important;
+                overflow: hidden !important;
+            }}
+            .port-right-stack {{
+                height: calc(100vh - 82px) !important;
+                max-height: calc(100vh - 82px) !important;
+            }}
+        }}
+
         /* Планшети та мобільні пристрої */
-        @media (max-width: 1024px) {{
+        @media (max-width: 1024px) and (min-width: 769px) {{
             .port-fixed-header {{
                 padding-right: 12px;
                 grid-template-columns: auto auto 1fr;
@@ -667,34 +676,23 @@ def check_password() -> bool:
                 margin-left: auto !important;
                 margin-right: auto !important;
             }}
-            .port-right-card-title {{
-                font-size: 0.8rem !important;
-            }}
-            .port-right-card-text {{
-                font-size: 0.7rem !important;
-            }}
             .port-login-footer {{
                 font-size: 0.78rem !important;
             }}
         }}
 
         @media (max-width: 768px) {{
-            html, body, [data-testid="stAppViewContainer"],
+            html, body,
+            [data-testid="stAppViewContainer"],
             [data-testid="stAppViewContainer"] > .main,
+            section[data-testid="stMain"],
             [data-testid="stAppViewContainer"] > .main > .block-container {{
                 height: auto !important;
                 max-height: none !important;
                 overflow: auto !important;
-                background-attachment: scroll !important;
             }}
             [data-testid="stAppViewContainer"] > .main > .block-container {{
                 padding: 62px 12px 16px 12px !important;
-            }}
-            div[data-testid="stHorizontalBlock"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
-                height: auto !important;
-                max-height: none !important;
-                overflow: visible !important;
             }}
             .port-fixed-header {{
                 height: auto;
