@@ -361,6 +361,206 @@ if not check_password(): st.stop()
 
 elif page == "🛡️ Коридори та безпека":
     st.title("🛡️ Динаміка морських коридорів, суднозаходів та безпекових факторів")
+
+    df_c_cor = load_corridors_cargo()
+    df_v_cor = load_corridors_vessels()
+    df_att = load_corridors_attacks()
+
+    if df_c_cor.empty and df_v_cor.empty and df_att.empty:
+        st.info("Дані коридорів ще не завантажені. Перейдіть у «📤 Завантаження Excel» та завантажте Коридори.xlsx.")
+        st.stop()
+
+    # Глобальні фільтри сторінки
+    f1, f2, f3, f4 = st.columns([1, 1.3, 1.5, 1.2])
+    years_avail = sorted(df_c_cor["year"].unique(), reverse=True) if not df_c_cor.empty else []
+    sel_years = f1.multiselect("Роки", years_avail, default=years_avail[:2] if len(years_avail) >= 2 else years_avail)
+
+    months_avail = list(range(1, 13))
+    sel_months = f2.multiselect("Місяці (1–12)", months_avail)
+
+    clusters_avail = sorted(df_c_cor["cluster"].unique()) if not df_c_cor.empty else []
+    sel_clusters = f3.multiselect("Кластери", clusters_avail)
+
+    ports_avail = sorted(df_c_cor["port_name"].unique()) if not df_c_cor.empty else []
+    sel_ports = f4.multiselect("Порти", ports_avail)
+
+    # Застосування фільтрів
+    dfc = df_c_cor.copy()
+    dfv = df_v_cor.copy()
+    if sel_years:
+        dfc = dfc[dfc["year"].isin(sel_years)]
+        dfv = dfv[dfv["year"].isin(sel_years)]
+    if sel_months:
+        dfc = dfc[dfc["month"].isin(sel_months)]
+        dfv = dfv[dfv["month"].isin(sel_months)]
+    if sel_clusters:
+        dfc = dfc[dfc["cluster"].isin(sel_clusters)]
+        dfv = dfv[dfv["cluster"].isin(sel_clusters)]
+    if sel_ports:
+        dfc = dfc[dfc["port_name"].isin(sel_ports)]
+        dfv = dfv[dfv["port_name"].isin(sel_ports)]
+
+    # KPI-панель
+    tot_cargo = float(dfc[dfc["metric_type"] == "Всього"]["volume"].sum()) if not dfc.empty else 0.0
+    tot_grain = float(dfc[dfc["metric_type"] == "Зерно"]["volume"].sum()) if not dfc.empty else 0.0
+    grain_share = (tot_grain / tot_cargo * 100) if tot_cargo > 0 else 0.0
+    tot_ves = int(dfv["vessels_count"].sum()) if not dfv.empty else 0
+
+    last_att = df_att.iloc[-1] if not df_att.empty else None
+    k1, k2, k3, k4, k5, k6 = st.columns(6)
+    k1.metric("Вантажі (Всього), тис. т", f"{tot_cargo:,.1f}".replace(",", " "))
+    k2.metric("Зерно, тис. т", f"{tot_grain:,.1f}".replace(",", " "), delta=f"{grain_share:.1f}% частка")
+    k3.metric("Суднозаходи, од.", f"{tot_ves:,}".replace(",", " "))
+    if last_att is not None:
+        k4.metric(f"Пошкоджено об'єктів ({last_att['attack_date']})", int(last_att["objects_damaged"]))
+        k5.metric("Пошкоджено суден", int(last_att["vessels_damaged"]))
+        k6.metric("Постраждалі особи", int(last_att["casualties"]))
+
+    t_dash, t_matrix, t_sec, t_pdf = st.tabs([
+        "📊 Графіки та порівняння",
+        "🧮 Конструктор таблиць (будь-яка конфігурація)",
+        "🚨 Безпека та атаки",
+        "📄 Експорт PDF / Excel",
+    ])
+
+    with t_dash:
+        c1, c2 = st.columns(2)
+        with c1:
+            df_bar = (
+                dfc[dfc["metric_type"].isin(["Зерно", "Інші вантажі (незернові)"])]
+                .groupby(["port_name", "metric_type"], as_index=False)["volume"]
+                .sum()
+                .sort_values("volume", ascending=True)
+            )
+            fig_b = px.bar(
+                df_bar,
+                x="volume",
+                y="port_name",
+                color="metric_type",
+                orientation="h",
+                title="Структура переробки по портах (Зерно vs Інші, тис. т)",
+                color_discrete_map={"Зерно": "#F59E0B", "Інші вантажі (незернові)": "#0F4C81"},
+            )
+            st.plotly_chart(style_fig(fig_b, height=400), width="stretch")
+
+        with c2:
+            df_line = (
+                dfc[dfc["metric_type"] == "Всього"]
+                .groupby(["period_str", "cluster"], as_index=False)["volume"]
+                .sum()
+                .sort_values("period_str")
+            )
+            fig_l = px.line(
+                df_line,
+                x="period_str",
+                y="volume",
+                color="cluster",
+                markers=True,
+                title="Місячна динаміка переробки за кластерами (тис. т)",
+            )
+            fig_l.update_xaxes(type="category")
+            st.plotly_chart(style_fig(fig_l, height=400), width="stretch")
+
+        if not dfv.empty:
+            df_vline = (
+                dfv.groupby(["period_str", "cluster"], as_index=False)["vessels_count"]
+                .sum()
+                .sort_values("period_str")
+            )
+            fig_vl = px.area(
+                df_vline,
+                x="period_str",
+                y="vessels_count",
+                color="cluster",
+                title="Динаміка суднозаходів за кластерами (одиниць)",
+            )
+            fig_vl.update_xaxes(type="category")
+            st.plotly_chart(style_fig(fig_vl, height=340), width="stretch")
+
+    with t_matrix:
+        st.subheader("Універсальна матриця по коридорах")
+        m_src = st.radio("Джерело для матриці", ["Вантажі (тис. т)", "Суднозаходи (од.)"], horizontal=True)
+        base_df = dfc.copy() if m_src.startswith("Вантажі") else dfv.copy()
+        val_col = "volume" if m_src.startswith("Вантажі") else "vessels_count"
+
+        if m_src.startswith("Вантажі"):
+            m_types = st.multiselect(
+                "Показники вантажу",
+                ["Всього", "Зерно", "Інші вантажі (незернові)"],
+                default=["Всього", "Зерно"],
+            )
+            if m_types:
+                base_df = base_df[base_df["metric_type"].isin(m_types)]
+
+        dims = {
+            "Кластер": "cluster",
+            "Морський порт": "port_name",
+            "Рік": "year",
+            "Місяць": "month",
+            "Період (РРРР-ММ)": "period_str",
+        }
+        if m_src.startswith("Вантажі"):
+            dims["Категорія вантажу"] = "metric_type"
+
+        col_r, col_c, col_agg = st.columns(3)
+        r_sel = col_r.multiselect("Рядки", list(dims.keys()), default=["Кластер", "Морський порт"])
+        c_sel = col_c.multiselect("Стовпці", list(dims.keys()), default=["Рік"] + (["Категорія вантажу"] if m_src.startswith("Вантажі") else []))
+        agg_mode = col_agg.selectbox("Агрегація", ["Сума", "Середнє за місяць", "Максимум", "Частка від підсумку (%)"])
+
+        if r_sel and not base_df.empty:
+            agg_fn = {"Сума": "sum", "Середнє за місяць": "mean", "Максимум": "max", "Частка від підсумку (%)": "sum"}[agg_mode]
+            piv = pd.pivot_table(
+                base_df,
+                index=[dims[x] for x in r_sel],
+                columns=[dims[x] for x in c_sel] if c_sel else None,
+                values=val_col,
+                aggfunc=agg_fn,
+                fill_value=0,
+                margins=True,
+                margins_name="ВСЬОГО",
+            )
+            if agg_mode == "Частка від підсумку (%)" and "ВСЬОГО" in piv.index:
+                gt = piv.loc["ВСЬОГО"].iloc[-1] if c_sel else piv.loc["ВСЬОГО", val_col]
+                if gt != 0:
+                    piv = (piv / gt) * 100
+
+            st.dataframe(piv.style.format("{:,.2f}"), width="stretch", height=520)
+            st.download_button(
+                "📥 Завантажити таблицю в Excel (.xlsx)",
+                data=to_excel_bytes(piv),
+                file_name="corridors_custom_matrix.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+    with t_sec:
+        if not df_att.empty:
+            fig_a = px.line(
+                df_att.melt(
+                    id_vars="attack_date",
+                    value_vars=["objects_damaged", "vessels_damaged", "casualties"],
+                    var_name="Категорія",
+                    value_name="Кількість",
+                ),
+                x="attack_date",
+                y="Кількість",
+                color="Категорія",
+                markers=True,
+                title="Кумулятивна динаміка пошкоджень інфраструктури, суден та постраждалих",
+            )
+            st.plotly_chart(style_fig(fig_a, height=380), width="stretch")
+            st.dataframe(df_att, width="stretch", hide_index=True)
+
+    with t_pdf:
+        desc = f"Роки: {sel_years or 'Усі'} | Кластери: {sel_clusters or 'Усі'} | Порти: {sel_ports or 'Усі'}"
+        if st.button("⚙️ Згенерувати PDF-звіт по коридорах", type="primary"):
+            pdf_out = build_corridors_pdf(dfc, dfv, df_att, desc)
+            st.download_button(
+                "📥 Завантажити corridors_analytics_report.pdf",
+                data=pdf_out,
+                file_name="corridors_analytics_report.pdf",
+                mime="application/pdf",
+            )
+    
     kor_file = st.file_uploader("Завантажте файл «Коридори.xlsx» для аналізу (2020–2026 рр.)", type=["xlsx"])
     if kor_file:
         from etl_parser import parse_corridors_file
