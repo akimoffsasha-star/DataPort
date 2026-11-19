@@ -375,20 +375,37 @@ elif page == "🛡️ Коридори та безпека":
         st.info("Дані коридорів ще не завантажені. Перейдіть у «📤 Завантаження Excel» та завантажте Коридори.xlsx.")
         st.stop()
 
-    # Глобальні фільтри сторінки
+# Глобальні фільтри сторінки
     f1, f2, f3, f4 = st.columns([1, 1.3, 1.5, 1.2])
-    years_avail = sorted(df_c_cor["year"].unique(), reverse=True) if not df_c_cor.empty else []
-    sel_years = f1.multiselect("Роки", years_avail, default=years_avail[:2] if len(years_avail) >= 2 else years_avail)
+
+    years_avail = (
+        sorted(df_c_cor["year"].dropna().unique(), reverse=True)
+        if (not df_c_cor.empty and "year" in df_c_cor.columns)
+        else []
+    )
+    sel_years = f1.multiselect(
+        "Роки",
+        years_avail,
+        default=years_avail[:2] if len(years_avail) >= 2 else years_avail,
+    )
 
     months_avail = list(range(1, 13))
     sel_months = f2.multiselect("Місяці (1–12)", months_avail)
 
-    clusters_avail = sorted(df_c_cor["cluster"].unique()) if not df_c_cor.empty else []
+    clusters_avail = (
+        sorted(df_c_cor["cluster"].dropna().unique())
+        if (not df_c_cor.empty and "cluster" in df_c_cor.columns)
+        else []
+    )
     sel_clusters = f3.multiselect("Кластери", clusters_avail)
 
-    ports_avail = sorted(df_c_cor["port_name"].unique()) if not df_c_cor.empty else []
+    ports_avail = (
+        sorted(df_c_cor["port_name"].dropna().unique())
+        if (not df_c_cor.empty and "port_name" in df_c_cor.columns)
+        else []
+    )
     sel_ports = f4.multiselect("Порти", ports_avail)
-
+    
     # Застосування фільтрів
     dfc = df_c_cor.copy()
     dfv = df_v_cor.copy()
