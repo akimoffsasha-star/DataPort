@@ -633,50 +633,62 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }}
             [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 44px 16px 34px 16px !important;
+                padding: 48px 16px 34px 16px !important;
             }}
             div[data-testid="stHorizontalBlock"] {{
-                height: calc(100vh - 78px) !important;
-                max-height: calc(100vh - 78px) !important;
+                height: calc(100vh - 82px) !important;
+                max-height: calc(100vh - 82px) !important;
                 overflow: hidden !important;
                 align-items: stretch !important;
             }}
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] {{
-                height: 100% !important;
-                max-height: 100% !important;
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div,
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stVerticalBlock"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stElementContainer"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stMarkdown"] {{
+                max-height: calc(100vh - 82px) !important;
                 overflow: hidden !important;
             }}
             .port-right-stack {{
-                height: calc(100vh - 78px + ((100vh - 98px) / 12)) !important;
-                max-height: none !important;
-                transform: translateY(calc(-1 * ((100vh - 98px) / 12))) !important;
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-template-rows: 1fr auto !important;
+                gap: 8px !important;
+                height: calc(100vh - 82px) !important;
+                max-height: calc(100vh - 82px) !important;
+                overflow: visible !important;
             }}
-        }}
-        
-        /* Планшети та мобільні пристрої */
-        @media (max-width: 1024px) and (min-width: 769px) {{
-            .port-fixed-header {{
-                padding-right: 12px;
-                grid-template-columns: auto auto 1fr;
+            .port-right-card {{
+                height: auto !important;
+                min-height: 92px !important;
+                padding: 8px 10px !important;
             }}
-            .port-header-ministry {{
-                font-size: 0.8rem !important;
+            .port-bot-4 {{ grid-column: 1; grid-row: 2; }}
+            .port-bot-5 {{ grid-column: 2; grid-row: 2; }}
+            .port-bot-6 {{ grid-column: 3; grid-row: 2; }}
+
+            .port-top-shift-1 {{
+                grid-column: 1;
+                grid-row: 2;
+                transform: translateX(calc(-100% - 8px)) !important;
             }}
-            .port-header-clock {{
-                font-size: 0.8rem !important;
-                padding: 2px 10px;
+            .port-top-shift-2 {{
+                grid-column: 2;
+                grid-row: 2;
+                transform: translateX(calc(-100% - 8px)) !important;
             }}
-            .port-left-top-gap {{
-                height: 10vh;
-            }}
-            [data-testid="stForm"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
-                width: 340px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
+            .port-top-shift-3 {{
+                grid-column: 3;
+                grid-row: 2;
+                transform: translateX(calc(-100% - 8px)) !important;
             }}
             .port-login-footer {{
-                font-size: 0.78rem !important;
+                position: fixed !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                height: 30px !important;
+                z-index: 999 !important;
             }}
         }}
 
@@ -768,12 +780,12 @@ def check_password() -> bool:
     with col_info_side:
         st.markdown(
             '<div class="port-right-stack">'
-            '<div class="port-right-card"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">🧮 Конструктор матриць</div><p class="port-right-card-text">Зведені таблиці у тис. тонн, TEU та шт. з гнучким вибором вимірів і миттєвим експортом у Excel (.xlsx) та PDF.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">⚓ Аудит операторів і причалів</div><p class="port-right-card-text">Індекси концентрації ринку CR3/CR5 та HHI, структура власності причалів та аналіз пояснень відхилень.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">🛡️ Морські коридори та кластери</div><p class="port-right-card-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по портах і кластерах.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">🚨 Безпека та статистика атак</div><p class="port-right-card-text">Хронологія фіксації та накопичувальна динаміка пошкоджень портової інфраструктури, суден і постраждалих.</p></div>'
-            '<div class="port-right-card"><div class="port-right-card-title">📄 PDF-звіти, періоди та 3 теми</div><p class="port-right-card-text">Виконавчі, аудиторські й коридорні PDF-звіти, керування періодами в БД та Світла, Темна і Фірмова теми.</p></div>'
+            '<div class="port-right-card port-top-shift-1"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
+            '<div class="port-right-card port-top-shift-2"><div class="port-right-card-title">🧮 Конструктор матриць</div><p class="port-right-card-text">Зведені таблиці у тис. тонн, TEU та шт. з гнучким вибором вимірів і миттєвим експортом у Excel (.xlsx) та PDF.</p></div>'
+            '<div class="port-right-card port-top-shift-3"><div class="port-right-card-title">⚓ Аудит операторів і причалів</div><p class="port-right-card-text">Індекси концентрації ринку CR3/CR5 та HHI, структура власності причалів та аналіз пояснень відхилень.</p></div>'
+            '<div class="port-right-card port-bot-4"><div class="port-right-card-title">🛡️ Морські коридори та кластери</div><p class="port-right-card-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по портах і кластерах.</p></div>'
+            '<div class="port-right-card port-bot-5"><div class="port-right-card-title">🚨 Безпека та статистика атак</div><p class="port-right-card-text">Хронологія фіксації та накопичувальна динаміка пошкоджень портової інфраструктури, суден і постраждалих.</p></div>'
+            '<div class="port-right-card port-bot-6"><div class="port-right-card-title">📄 PDF-звіти, періоди та 3 теми</div><p class="port-right-card-text">Виконавчі, аудиторські й коридорні PDF-звіти, керування періодами в БД та Світла, Темна і Фірмова теми.</p></div>'
             '</div>',
             unsafe_allow_html=True,
         )
