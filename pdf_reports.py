@@ -71,6 +71,13 @@ def _ensure_reportlab_cyrillic_font() -> tuple[str, str]:
     return "AppCyrillic", "AppCyrillicBold"
 
 
+def _fpdf_to_bytes(pdf: FPDF) -> bytes:
+    out = pdf.output()
+    if isinstance(out, (bytes, bytearray)):
+        return bytes(out)
+    return out.encode("latin1")
+
+
 plt.rcParams["font.family"] = "DejaVu Sans"
 plt.rcParams["axes.edgecolor"] = "#CBD5E1"
 plt.rcParams["axes.linewidth"] = 0.8
@@ -688,7 +695,7 @@ def build_executive_pdf(df_tons: pd.DataFrame, df_vessels: pd.DataFrame, df_all:
     aligns = ["L", "R", "R", "R", "R", "R", "R", "R", "R", "R"]
     pdf.render_table(headers, rows, widths, aligns, total_row_idx=len(rows) - 1, font_size=7.2)
 
-    return bytes(pdf.output(dest="S").encode("latin1"))
+    return _fpdf_to_bytes(pdf)
 
 
 # ---------------- 2. АУДИТ ОПЕРАТОРІВ ТА КОНЦЕНТРАЦІЇ ----------------
@@ -779,7 +786,7 @@ def build_operators_audit_pdf(df_tons: pd.DataFrame, df_notes: pd.DataFrame, fil
             font_size=6.8,
         )
 
-    return bytes(pdf.output(dest="S").encode("latin1"))
+    return _fpdf_to_bytes(pdf)
 
 
 # ---------------- 3. НОМЕНКЛАТУРНИЙ АУДИТ ----------------
@@ -876,7 +883,7 @@ def build_cargo_audit_pdf(df_tons: pd.DataFrame, df_all_period: pd.DataFrame, fi
             font_size=7.5,
         )
 
-    return bytes(pdf.output(dest="S").encode("latin1"))
+    return _fpdf_to_bytes(pdf)
 
 
 # ---------------- 4. ІНДИВІДУАЛЬНИЙ МАТРИЧНИЙ ЗВІТ (LANDSCAPE A4) ----------------
@@ -974,4 +981,4 @@ def build_custom_matrix_pdf(pivot_df: pd.DataFrame, title: str, filters_desc: st
 
     f_size = 6.5 if len(headers) > 9 else 7.5
     pdf.render_table(headers, rows, widths, aligns, total_row_idx=tot_idx, font_size=f_size)
-    return bytes(pdf.output(dest="S").encode("latin1"))
+    return _fpdf_to_bytes(pdf)
