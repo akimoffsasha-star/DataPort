@@ -355,38 +355,42 @@ def check_password() -> bool:
     if st.session_state.get("authenticated"):
         return True
 
-    bg_css = _get_login_bg_css()
     try:
         now_str = datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%d.%m.%Y %H:%M")
     except Exception:
         now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
 
     st.markdown(
-        f"""
+        """
         <style>
         [data-testid="stSidebar"],
-        [data-testid="stSidebarCollapsedControl"] {{
+        [data-testid="stSidebarCollapsedControl"] {
             display: none !important;
-        }}
-        [data-testid="stAppViewContainer"] {{
-            {bg_css}
-        }}
-        [data-testid="stAppViewContainer"] > .main {{
+        }
+        [data-testid="stAppViewContainer"],
+        .stApp {
+            background: #bae6fd !important;
+        }
+        [data-testid="stAppViewContainer"] > .main {
             padding: 0 !important;
-        }}
-        [data-testid="stAppViewContainer"] > .main > .block-container {{
+            position: relative !important;
+            z-index: 5 !important;
+        }
+        [data-testid="stAppViewContainer"] > .main > .block-container {
             max-width: 100% !important;
             width: 100% !important;
             margin: 0 !important;
-        }}
-        [data-testid="stHeader"] {{
+            position: relative !important;
+            z-index: 6 !important;
+        }
+        [data-testid="stHeader"] {
             background: transparent !important;
             height: 44px !important;
             z-index: 50 !important;
-        }}
+        }
 
         /* Фіксована світла шапка з годинником по центру */
-        .port-fixed-header {{
+        .port-fixed-header {
             position: fixed;
             top: 0;
             left: 0;
@@ -398,21 +402,21 @@ def check_password() -> bool:
             align-items: center;
             gap: 10px;
             background: rgba(248, 251, 255, 0.97);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(148, 163, 184, 0.45);
             padding: 4px 16px;
             padding-right: 135px;
-            box-shadow: 0 4px 16px rgba(2, 12, 27, 0.22);
-        }}
-        .port-header-brand {{
+            box-shadow: 0 4px 16px rgba(2, 12, 27, 0.18);
+        }
+        .port-header-brand {
             display: flex;
             align-items: center;
             gap: 8px;
             justify-self: start;
             min-width: 0;
-        }}
-        .port-header-logo {{
+        }
+        .port-header-logo {
             width: 26px;
             height: 26px;
             border-radius: 7px;
@@ -424,16 +428,16 @@ def check_password() -> bool:
             font-size: 14px;
             font-weight: 800;
             flex-shrink: 0;
-        }}
-        .port-header-ministry {{
+        }
+        .port-header-ministry {
             font-size: 0.85rem;
             font-weight: 800;
             color: #0F172A !important;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }}
-        .port-header-clock {{
+        }
+        .port-header-clock {
             justify-self: center;
             background: #EFF6FF;
             border: 1px solid #93C5FD;
@@ -443,206 +447,87 @@ def check_password() -> bool:
             font-size: 0.85rem;
             font-weight: 800;
             white-space: nowrap;
-        }}
-        .port-header-spacer {{
+        }
+        .port-header-spacer {
             justify-self: end;
-        }}
+        }
 
-        /* Палубний судновий кран: стріла, лебідка та палубна основа */
-        .port-deck-crane-head {{
-            position: relative;
-            width: 312px;
-            max-width: 100%;
-            margin-bottom: -2px;
-            z-index: 3;
-        }}
-        .port-deck-crane-jib {{
-            height: 13px;
-            border-radius: 4px 12px 0 0;
-            background: repeating-linear-gradient(
-                -45deg,
-                #F59E0B 0px,
-                #F59E0B 7px,
-                #0F172A 7px,
-                #0F172A 14px
-            );
-            border: 1.5px solid #FBBF24;
-            border-bottom: none;
-            box-shadow: 0 3px 10px rgba(2, 10, 23, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 8px;
-        }}
-        .port-deck-crane-badge {{
-            background: #0F172A;
-            color: #FBBF24 !important;
-            font-size: 0.58rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            padding: 0 6px;
-            border-radius: 2px;
-            line-height: 1.25;
-        }}
-        .port-deck-crane-pedestal {{
-            width: 312px;
-            max-width: 100%;
-            height: 9px;
-            margin-top: -2px;
-            background: linear-gradient(90deg, #F59E0B, #D97706, #F59E0B);
-            border: 1.5px solid #0F172A;
-            border-radius: 0 0 4px 4px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
-        }}
+        /* Адаптована SVG-сцена контейнеровоза та крана на сторінці */
+        .port-ship-scene-wrap {
+            position: fixed;
+            top: 44px;
+            left: 0;
+            right: 0;
+            bottom: 30px;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .port-ship-scene-wrap svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
 
-        /* Троси від палубного крана до 1-го контейнера (тільки на десктопі) */
-        .port-crane-rigging-svg {{
-            display: none;
-        }}
-
-        .port-form-head {{
+        /* Форма входу поверх сцени */
+        .port-form-head {
             text-align: center;
-            margin-bottom: 6px;
-        }}
-        .port-form-icon {{
+            margin-bottom: 8px;
+        }
+        .port-form-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             border-radius: 8px;
             background: #FEF3C7;
             border: 1px solid #F59E0B;
             color: #92400E !important;
-            font-size: 0.92rem;
-            margin-bottom: 3px;
-        }}
-        .port-form-title {{
             font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+        .port-form-title {
+            font-size: 0.98rem;
             font-weight: 800;
             color: #0F172A !important;
             line-height: 1.15;
-        }}
-        .port-form-dept {{
-            font-size: 0.71rem;
+        }
+        .port-form-dept {
+            font-size: 0.72rem;
             font-weight: 600;
             color: #475569 !important;
             line-height: 1.2;
             margin-top: 2px;
-        }}
+        }
+        [data-testid="stForm"] {
+            width: 330px !important;
+            max-width: 100% !important;
+            background: rgba(248, 251, 255, 0.94) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            border: 1.5px solid rgba(15, 23, 42, 0.22) !important;
+            border-top: 4px solid #f59e0b !important;
+            border-radius: 12px !important;
+            padding: 12px 16px 10px 16px !important;
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.24) !important;
+        }
         [data-testid="stForm"] label,
-        [data-testid="stForm"] label p {{
+        [data-testid="stForm"] label p {
             color: #0F172A !important;
             font-weight: 600 !important;
-            font-size: 0.8rem !important;
-        }}
-
-        /* Морські контейнери на палубі: гофра, світлі кутові фітинги та ISO-маркування */
-        .port-right-card {{
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            border-radius: 4px;
-            border: 1.5px solid rgba(255, 255, 255, 0.34);
-            box-shadow: 0 6px 16px rgba(2, 10, 23, 0.48);
-            overflow: hidden;
-        }}
-        .port-right-card::before {{
-            content: "";
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            background-image:
-                linear-gradient(#F8FAFC, #F8FAFC),
-                linear-gradient(#F8FAFC, #F8FAFC),
-                linear-gradient(#F8FAFC, #F8FAFC),
-                linear-gradient(#F8FAFC, #F8FAFC),
-                repeating-linear-gradient(
-                    90deg,
-                    rgba(255, 255, 255, 0.06) 0px,
-                    rgba(255, 255, 255, 0.06) 3px,
-                    rgba(0, 0, 0, 0.17) 3px,
-                    rgba(0, 0, 0, 0.17) 6px,
-                    transparent 6px,
-                    transparent 14px
-                );
-            background-position:
-                top left,
-                top right,
-                bottom left,
-                bottom right,
-                0 0;
-            background-size:
-                10px 10px,
-                10px 10px,
-                10px 10px,
-                10px 10px,
-                auto;
-            background-repeat: no-repeat;
-            z-index: 2;
-        }}
-        .port-right-card::after {{
-            content: attr(data-iso);
-            position: absolute;
-            top: 5px;
-            right: 13px;
-            font-size: 0.6rem;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            color: #F8FAFC;
-            background: rgba(2, 10, 23, 0.50);
-            border: 1px solid rgba(248, 250, 252, 0.65);
-            border-radius: 3px;
-            padding: 1px 5px;
-            pointer-events: none;
-            z-index: 3;
-        }}
-        .port-right-card > * {{
-            position: relative;
-            z-index: 2;
-        }}
-
-        /* 6 кольорів морських контейнерів */
-        .port-right-card:nth-child(1) {{
-            background-color: rgba(12, 74, 110, 0.89);
-            border-left: 6px solid #38BDF8;
-        }}
-        .port-right-card:nth-child(2) {{
-            background-color: rgba(146, 64, 14, 0.89);
-            border-left: 6px solid #FBBF24;
-        }}
-        .port-right-card:nth-child(3) {{
-            background-color: rgba(19, 78, 74, 0.89);
-            border-left: 6px solid #2DD4BF;
-        }}
-        .port-right-card:nth-child(4) {{
-            background-color: rgba(30, 58, 138, 0.89);
-            border-left: 6px solid #818CF8;
-        }}
-        .port-right-card:nth-child(5) {{
-            background-color: rgba(127, 29, 29, 0.89);
-            border-left: 6px solid #F87171;
-        }}
-        .port-right-card:nth-child(6) {{
-            background-color: rgba(30, 41, 59, 0.91);
-            border-left: 6px solid #94A3B8;
-        }}
-
-        .port-right-card-title {{
-            font-weight: 700;
-            color: #FFFFFF !important;
-            padding-right: 82px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-        }}
-        .port-right-card-text {{
-            margin: 0;
-            color: #F1F5F9 !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-        }}
+            font-size: 0.82rem !important;
+        }
 
         /* Фіксований футер */
-        .port-login-footer {{
-            background: rgba(248, 251, 255, 0.96);
+        .port-login-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 30px;
+            z-index: 999;
+            background: rgba(248, 251, 255, 0.97);
             color: #0F172A !important;
             border-top: 1px solid rgba(148, 163, 184, 0.45);
             display: flex;
@@ -654,169 +539,232 @@ def check_password() -> bool:
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }}
+        }
 
-        /* Десктоп: без прокрутки, палубний кран з тросами до контейнера, контейнери (46vh) на палубі внизу */
-        @media (min-width: 769px) {{
+        /* Десктоп: без прокрутки, форма розміщена у верхній лівій зоні над палубою */
+        @media (min-width: 769px) {
             html, body,
             [data-testid="stAppViewContainer"],
             [data-testid="stAppViewContainer"] > .main,
             section[data-testid="stMain"],
-            [data-testid="stAppViewContainer"] > .main > .block-container {{
+            [data-testid="stAppViewContainer"] > .main > .block-container {
                 height: 100vh !important;
                 max-height: 100vh !important;
                 overflow: hidden !important;
-            }}
-            [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 48px 18px 34px 18px !important;
-            }}
-            div[data-testid="stHorizontalBlock"] {{
-                height: calc(100vh - 82px) !important;
-                max-height: calc(100vh - 82px) !important;
-                overflow: hidden !important;
-                align-items: stretch !important;
-            }}
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div,
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stVerticalBlock"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stElementContainer"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stMarkdown"] {{
-                height: 100% !important;
-                max-height: calc(100vh - 82px) !important;
-                overflow: hidden !important;
-            }}
-
-            /* Ліва колонка: палубний кран внизу зліва */
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {{
+            }
+            [data-testid="stAppViewContainer"] > .main > .block-container {
+                padding: 54px 20px 36px 20px !important;
+            }
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {
                 display: flex !important;
                 flex-direction: column !important;
-                justify-content: flex-end !important;
+                justify-content: flex-start !important;
                 align-items: flex-start !important;
-                padding-bottom: 12px !important;
-                padding-left: 6px !important;
-            }}
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child [data-testid="stVerticalBlock"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child [data-testid="stElementContainer"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child [data-testid="stMarkdown"] {{
-                height: auto !important;
-                max-height: none !important;
-                overflow: visible !important;
-                width: 312px !important;
+            }
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {
+                width: 330px !important;
                 max-width: 100% !important;
-            }}
-            [data-testid="stForm"] {{
-                position: relative !important;
-                width: 312px !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                background: rgba(248, 251, 255, 0.96) !important;
-                border-left: 6px solid #F59E0B !important;
-                border-right: 6px solid #334155 !important;
-                border-top: 3px solid #1E293B !important;
-                border-bottom: 3px solid #1E293B !important;
-                border-radius: 3px !important;
-                padding: 9px 14px 9px 14px !important;
-                box-shadow: 0 14px 30px rgba(2, 10, 23, 0.48) !important;
-            }}
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
-                width: 312px !important;
-                max-width: 100% !important;
-                margin: 6px 0 0 0 !important;
-            }}
-
-            /* Права колонка: 6 контейнерів нижче (46vh) на палубі, щоб не перекривати напис підкладки */
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stVerticalBlock"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stElementContainer"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stMarkdown"] {{
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: flex-end !important;
-            }}
-            .port-right-stack {{
-                display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
-                gap: 5px !important;
-                height: 46vh !important;
-                max-height: calc(100vh - 96px) !important;
-                margin-top: auto !important;
-                transform: none !important;
-                width: 100% !important;
-                min-width: 0 !important;
-                overflow: hidden !important;
-            }}
-            .port-right-card {{
-                min-height: 0 !important;
-                height: 100% !important;
-                padding: 5px 12px !important;
-                justify-content: center !important;
-            }}
-            .port-right-card-title {{
-                font-size: 0.9rem !important;
-                margin: 0 0 1px 0 !important;
-                line-height: 1.12 !important;
-            }}
-            .port-right-card-text {{
-                font-size: 0.72rem !important;
-                line-height: 1.16 !important;
-            }}
-
-            /* Троси між палубним краном і верхнім лівим контейнером */
-            .port-crane-rigging-svg {{
-                display: block !important;
-                position: fixed !important;
-                inset: 44px 0 30px 0 !important;
-                width: 100vw !important;
-                height: calc(100vh - 74px) !important;
-                pointer-events: none !important;
-                z-index: 4 !important;
-            }}
-
-            .port-login-footer {{
-                position: fixed !important;
-                left: 0 !important;
-                right: 0 !important;
-                bottom: 0 !important;
-                height: 30px !important;
-                z-index: 999 !important;
-            }}
-        }}
+                margin-top: 8px !important;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
     st.markdown(
-        f'<div class="port-fixed-header"><div class="port-header-brand"><div class="port-header-logo">⚓</div><div class="port-header-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div></div><div class="port-header-clock">🕒 Київ: {now_str}</div><div class="port-header-spacer"></div></div>',
-        unsafe_allow_html=True,
-    )
+        f"""
+        <div class="port-fixed-header">
+            <div class="port-header-brand">
+                <div class="port-header-logo">⚓</div>
+                <div class="port-header-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div>
+            </div>
+            <div class="port-header-clock">🕒 Київ: {now_str}</div>
+            <div class="port-header-spacer"></div>
+        </div>
 
-    st.markdown(
-        """
-        <svg class="port-crane-rigging-svg" viewBox="0 0 1440 760" preserveAspectRatio="none" aria-hidden="true">
-          <!-- Стріла палубного крана від блоку входу до зони 1-го контейнера -->
-          <line x1="330" y1="455" x2="540" y2="395" stroke="#FBBF24" stroke-width="4" stroke-linecap="round"/>
-          <!-- Троси підвісу до верхнього лівого краю 1-го контейнера -->
-          <line x1="538" y1="395" x2="480" y2="418" stroke="#E2E8F0" stroke-width="1.6" stroke-dasharray="5 3"/>
-          <line x1="542" y1="395" x2="515" y2="418" stroke="#E2E8F0" stroke-width="1.6"/>
-          <circle cx="540" cy="395" r="4" fill="#F59E0B" stroke="#0F172A" stroke-width="1.2"/>
-        </svg>
+        <div class="port-ship-scene-wrap" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMax slice">
+              <defs>
+                <!-- Градієнт неба -->
+                <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#bae6fd"/>
+                  <stop offset="100%" stop-color="#f0f9ff"/>
+                </linearGradient>
+
+                <!-- Градієнт моря -->
+                <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#0284c7"/>
+                  <stop offset="100%" stop-color="#0369a1"/>
+                </linearGradient>
+
+                <!-- Шаблон гофрованої стінки контейнера -->
+                <pattern id="corrugation" width="12" height="10" patternUnits="userSpaceOnUse">
+                  <line x1="4" y1="0" x2="4" y2="10" stroke="#000000" stroke-opacity="0.18" stroke-width="3"/>
+                  <line x1="8" y1="0" x2="8" y2="10" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1.5"/>
+                </pattern>
+              </defs>
+
+              <!-- Фон: Небо та море -->
+              <rect width="800" height="410" fill="url(#skyGrad)"/>
+              <rect y="410" width="800" height="90" fill="url(#seaGrad)"/>
+
+              <!-- Легкі хмари -->
+              <g fill="#ffffff" opacity="0.7">
+                <circle cx="120" cy="80" r="25"/>
+                <circle cx="150" cy="75" r="30"/>
+                <circle cx="180" cy="82" r="22"/>
+                <circle cx="620" cy="60" r="20"/>
+                <circle cx="645" cy="55" r="25"/>
+                <circle cx="670" cy="62" r="18"/>
+              </g>
+
+              <!-- Корпус контейнеровоза (палуба та борт) -->
+              <g id="ship-hull">
+                <!-- Надбудова на задньому плані (місток) -->
+                <polygon points="40,360 40,220 110,220 130,360" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+                <rect x="35" y="210" width="85" height="15" rx="2" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+                <!-- Вікна капітанського містка -->
+                <rect x="55" y="214" width="55" height="6" fill="#0f172a"/>
+                <rect x="55" y="240" width="12" height="10" fill="#334155"/>
+                <rect x="75" y="240" width="12" height="10" fill="#334155"/>
+                <rect x="55" y="265" width="12" height="10" fill="#334155"/>
+                <rect x="75" y="265" width="12" height="10" fill="#334155"/>
+                <!-- Щогла з радаром -->
+                <line x1="75" y1="210" x2="75" y2="175" stroke="#475569" stroke-width="3"/>
+                <line x1="60" y1="185" x2="90" y2="185" stroke="#475569" stroke-width="2"/>
+
+                <!-- Головний корпус судна -->
+                <polygon points="10,360 740,360 785,435 10,435" fill="#1e293b"/>
+                <!-- Ватерлінія -->
+                <polygon points="10,415 773,415 785,435 10,435" fill="#991b1b"/>
+                <!-- Настил палуби -->
+                <rect x="10" y="352" width="730" height="8" fill="#475569"/>
+
+                <!-- Фальшборт / леєрне огородження -->
+                <line x1="10" y1="342" x2="735" y2="342" stroke="#cbd5e1" stroke-width="2"/>
+                <g stroke="#cbd5e1" stroke-width="1.5">
+                  <line x1="30" y1="342" x2="30" y2="352"/>
+                  <line x1="80" y1="342" x2="80" y2="352"/>
+                  <line x1="130" y1="342" x2="130" y2="352"/>
+                  <line x1="480" y1="342" x2="480" y2="352"/>
+                  <line x1="530" y1="342" x2="530" y2="352"/>
+                  <line x1="670" y1="342" x2="670" y2="352"/>
+                  <line x1="720" y1="342" x2="720" y2="352"/>
+                </g>
+              </g>
+
+              <!-- Контейнери: 2 в довжину (колонки), 3 у висоту (яруси) -->
+              <g id="containers">
+                <!-- КОЛОНКА 1 (Ліва) -->
+                <g transform="translate(150, 300)">
+                  <rect width="145" height="52" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="2"/>
+                  <rect x="6" y="4" width="133" height="44" fill="url(#corrugation)"/>
+                  <rect x="12" y="10" width="32" height="10" fill="#ffffff" opacity="0.85"/>
+                  <rect x="0" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="0" y="46" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="46" width="6" height="6" fill="#0f172a"/>
+                </g>
+                <g transform="translate(150, 248)">
+                  <rect width="145" height="52" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2"/>
+                  <rect x="6" y="4" width="133" height="44" fill="url(#corrugation)"/>
+                  <rect x="12" y="10" width="32" height="10" fill="#ffffff" opacity="0.85"/>
+                  <rect x="0" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="0" y="46" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="46" width="6" height="6" fill="#0f172a"/>
+                </g>
+                <g transform="translate(150, 196)">
+                  <rect width="145" height="52" fill="#047857" stroke="#064e3b" stroke-width="2"/>
+                  <rect x="6" y="4" width="133" height="44" fill="url(#corrugation)"/>
+                  <rect x="12" y="10" width="32" height="10" fill="#ffffff" opacity="0.85"/>
+                  <rect x="0" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="0" y="46" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="46" width="6" height="6" fill="#0f172a"/>
+                </g>
+
+                <!-- КОЛОНКА 2 (Права) -->
+                <g transform="translate(300, 300)">
+                  <rect width="145" height="52" fill="#c2410c" stroke="#7c2d12" stroke-width="2"/>
+                  <rect x="6" y="4" width="133" height="44" fill="url(#corrugation)"/>
+                  <rect x="12" y="10" width="32" height="10" fill="#ffffff" opacity="0.85"/>
+                  <rect x="0" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="0" y="46" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="46" width="6" height="6" fill="#0f172a"/>
+                </g>
+                <g transform="translate(300, 248)">
+                  <rect width="145" height="52" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+                  <rect x="6" y="4" width="133" height="44" fill="url(#corrugation)"/>
+                  <rect x="12" y="10" width="32" height="10" fill="#ffffff" opacity="0.85"/>
+                  <rect x="0" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="0" y="46" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="46" width="6" height="6" fill="#0f172a"/>
+                </g>
+                <g transform="translate(300, 178)">
+                  <rect width="145" height="52" fill="#eab308" stroke="#a16207" stroke-width="2"/>
+                  <rect x="6" y="4" width="133" height="44" fill="url(#corrugation)"/>
+                  <rect x="12" y="10" width="32" height="10" fill="#1e293b" opacity="0.85"/>
+                  <rect x="0" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="0" width="6" height="6" fill="#0f172a"/>
+                  <rect x="0" y="46" width="6" height="6" fill="#0f172a"/>
+                  <rect x="139" y="46" width="6" height="6" fill="#0f172a"/>
+                </g>
+              </g>
+
+              <!-- Палубний кран -->
+              <g id="deck-crane">
+                <rect x="575" y="220" width="44" height="132" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+                <rect x="570" y="340" width="54" height="12" fill="#334155"/>
+                <rect x="573" y="212" width="48" height="8" fill="#1e293b"/>
+
+                <polygon points="575,212 622,212 615,155 580,155" fill="#fbbf24" stroke="#b45309" stroke-width="2"/>
+                <polygon points="555,195 578,195 578,165 562,165" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/>
+                <line x1="566" y1="165" x2="564" y2="195" stroke="#0f172a" stroke-width="1.5"/>
+
+                <polygon points="585,175 595,192 365,92 370,80" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+                <circle cx="372.5" cy="88" r="8" fill="#334155" stroke="#0f172a" stroke-width="2"/>
+                <circle cx="600" cy="155" r="6" fill="#334155"/>
+
+                <line x1="600" y1="155" x2="372.5" y2="82" stroke="#1e293b" stroke-width="2.5"/>
+                <line x1="600" y1="160" x2="372.5" y2="86" stroke="#1e293b" stroke-width="1.5"/>
+
+                <line x1="369" y1="92" x2="369" y2="148" stroke="#0f172a" stroke-width="2"/>
+                <line x1="376" y1="92" x2="376" y2="148" stroke="#0f172a" stroke-width="2"/>
+
+                <rect x="364" y="145" width="17" height="12" rx="2" fill="#1e293b"/>
+                <line x1="372.5" y1="157" x2="305" y2="170" stroke="#334155" stroke-width="2.5"/>
+                <line x1="372.5" y1="157" x2="440" y2="170" stroke="#334155" stroke-width="2.5"/>
+
+                <rect x="298" y="170" width="149" height="8" rx="1" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
+                <rect x="299" y="176" width="8" height="6" fill="#0f172a"/>
+                <rect x="438" y="176" width="8" height="6" fill="#0f172a"/>
+              </g>
+
+              <!-- Хвилі на передньому плані -->
+              <path d="M0,435 Q40,428 80,435 T160,435 T240,435 T320,435 T400,435 T480,435 T560,435 T640,435 T720,435 T800,435 L800,500 L0,500 Z" fill="#0369a1" opacity="0.85"/>
+              <path d="M0,455 Q50,448 100,455 T200,455 T300,455 T400,455 T500,455 T600,455 T700,455 T800,455 L800,500 L0,500 Z" fill="#075985" opacity="0.7"/>
+            </svg>
+        </div>
         """,
         unsafe_allow_html=True,
     )
 
-    col_form_side, col_info_side = st.columns([0.78, 1.62], gap="medium")
+    col_form_side, _ = st.columns([1.0, 1.4], gap="medium")
 
     with col_form_side:
-        st.markdown(
-            '<div class="port-deck-crane-head">'
-            '<div class="port-deck-crane-jib"><span class="port-deck-crane-badge">DECK CRANE</span><span class="port-deck-crane-badge">SWL 50T</span></div>'
-            '</div>',
-            unsafe_allow_html=True,
-        )
         with st.form("login_form", clear_on_submit=False):
             st.markdown(
-                '<div class="port-form-head"><div class="port-form-icon">⚓</div><div class="port-form-title">Вхід до аналітичної системи</div><div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div></div>',
+                """
+                <div class="port-form-head">
+                    <div class="port-form-icon">⚓</div>
+                    <div class="port-form-title">Вхід до аналітичної системи</div>
+                    <div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div>
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
             pwd = st.text_input(
@@ -836,29 +784,15 @@ def check_password() -> bool:
                 else:
                     st.error("Невірний пароль доступу. Спробуйте ще раз.")
 
-        st.markdown(
-            '<div class="port-deck-crane-pedestal"></div>',
-            unsafe_allow_html=True,
-        )
-
         if st.button("📘 Інструкція", key="login_manual_btn", width="stretch"):
             _show_login_manual_dialog()
 
-    with col_info_side:
-        st.markdown(
-            '<div class="port-right-stack">'
-            '<div class="port-right-card" data-iso="ISO · 40HC"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
-            '<div class="port-right-card" data-iso="ISO · 20DV"><div class="port-right-card-title">🧮 Конструктор матриць</div><p class="port-right-card-text">Зведені таблиці у тис. тонн, TEU та шт. з гнучким вибором вимірів і миттєвим експортом у Excel (.xlsx) та PDF.</p></div>'
-            '<div class="port-right-card" data-iso="ISO · 40RF"><div class="port-right-card-title">⚓ Аудит операторів і причалів</div><p class="port-right-card-text">Індекси концентрації ринку CR3/CR5 та HHI, структура власності причалів та аналіз пояснень відхилень.</p></div>'
-            '<div class="port-right-card" data-iso="ISO · 45GP"><div class="port-right-card-title">🛡️ Морські коридори та кластери</div><p class="port-right-card-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по портах і кластерах.</p></div>'
-            '<div class="port-right-card" data-iso="IMO · TANK"><div class="port-right-card-title">🚨 Безпека та статистика атак</div><p class="port-right-card-text">Хронологія фіксації та накопичувальна динаміка пошкоджень портової інфраструктури, суден і постраждалих.</p></div>'
-            '<div class="port-right-card" data-iso="ISO · 20OT"><div class="port-right-card-title">📄 PDF-звіти, періоди та 3 теми</div><p class="port-right-card-text">Виконавчі, аудиторські й коридорні PDF-звіти, керування періодами в БД та Світла, Темна і Фірмова теми.</p></div>'
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
     st.markdown(
-        '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.3</div>',
+        """
+        <div class="port-login-footer">
+            © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.3
+        </div>
+        """,
         unsafe_allow_html=True,
     )
     return False
