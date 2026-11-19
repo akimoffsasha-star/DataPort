@@ -325,71 +325,110 @@ def check_password() -> bool:
     st.markdown(
         f"""
         <style>
+        /* Приховуємо сайдбар та зайві хром-елементи на екрані входу */
+        [data-testid="stSidebar"],
+        [data-testid="stSidebarCollapsedControl"] {{
+            display: none !important;
+        }}
         [data-testid="stAppViewContainer"] {{
             {bg_css}
         }}
         [data-testid="stHeader"] {{
             background: transparent;
         }}
-        [data-testid="stForm"] {{
-            background: rgba(255, 255, 255, 0.97);
-            border-radius: 16px;
-            padding: 30px 28px 26px 28px;
-            max-width: 450px;
-            margin: 4vh auto 0 auto;
-            border-top: 5px solid #0F4C81;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+
+        /* Додатковий легкий градієнт внизу для читабельності футера без перекриття верхнього заголовка */
+        .login-top-spacer {{
+            height: 24vh;
         }}
+
+        [data-testid="stForm"] {{
+            background: rgba(8, 25, 48, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-top: 4px solid #38BDF8;
+            border-radius: 16px;
+            padding: 24px 26px 22px 26px;
+            max-width: 440px;
+            margin: 0 auto;
+            box-shadow: 0 24px 60px rgba(2, 10, 23, 0.55);
+        }}
+        [data-testid="stForm"] label,
+        [data-testid="stForm"] p,
+        [data-testid="stForm"] span {{
+            color: #E2E8F0 !important;
+        }}
+        [data-testid="stForm"] input {{
+            background-color: rgba(15, 38, 68, 0.9) !important;
+            color: #F8FAFC !important;
+            border: 1px solid rgba(148, 163, 184, 0.4) !important;
+            border-radius: 8px !important;
+        }}
+        [data-testid="stForm"] input::placeholder {{
+            color: #94A3B8 !important;
+        }}
+        [data-testid="stForm"] button[kind="primary"],
+        [data-testid="stForm"] button[kind="primary"] * {{
+            background: linear-gradient(135deg, #0284C7, #0F4C81) !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            font-weight: 700 !important;
+        }}
+
         .login-badge {{
             text-align: center;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }}
         .login-icon {{
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 54px;
-            height: 54px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #0F4C81, #0EA5E9);
-            color: #FFFFFF;
-            font-size: 26px;
-            margin-bottom: 10px;
-            box-shadow: 0 6px 16px rgba(15, 76, 129, 0.28);
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.16);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            color: #7DD3FC;
+            font-size: 22px;
+            margin-bottom: 8px;
         }}
         .login-ministry {{
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #64748B;
+            letter-spacing: 0.05em;
+            color: #93C5FD !important;
             font-weight: 700;
             line-height: 1.35;
         }}
         .login-title {{
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             font-weight: 800;
-            color: #0F172A;
-            margin: 6px 0 4px 0;
+            color: #FFFFFF !important;
+            margin: 4px 0 2px 0;
         }}
         .login-dept {{
-            font-size: 0.82rem;
-            color: #0F4C81;
-            font-weight: 600;
+            font-size: 0.78rem;
+            color: #7DD3FC !important;
+            font-weight: 500;
         }}
         .login-copyright {{
             text-align: center;
-            color: rgba(255, 255, 255, 0.82);
-            font-size: 0.76rem;
-            margin-top: 24px;
-            padding: 8px 14px;
-            line-height: 1.5;
+            color: rgba(226, 232, 240, 0.85);
+            font-size: 0.74rem;
+            margin-top: 16px;
+            padding: 6px 14px;
+            line-height: 1.45;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
         }}
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    _, col_center, _ = st.columns([1, 1.3, 1])
+    st.markdown('<div class="login-top-spacer"></div>', unsafe_allow_html=True)
+
+    _, col_center, _ = st.columns([1.1, 1.2, 1.1])
     with col_center:
         with st.form("login_form", clear_on_submit=False):
             st.markdown(
@@ -413,7 +452,7 @@ def check_password() -> bool:
             submitted = st.form_submit_button(
                 "🔐 Увійти в систему",
                 type="primary",
-                width="stretch",
+                use_container_width=True,
             )
             if submitted:
                 if pwd == st.secrets["APP_PASSWORD"]:
@@ -426,7 +465,7 @@ def check_password() -> bool:
         """
         <div class="login-copyright">
             © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp;
-            Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 1.1
+            Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1
         </div>
         """,
         unsafe_allow_html=True,
