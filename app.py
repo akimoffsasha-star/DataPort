@@ -106,6 +106,7 @@ THEME_PALETTES = {
     },
 }
 
+THEMES = THEME_PALETTES
 
 def get_active_palette(theme_name: str) -> dict:
     if theme_name in THEME_PALETTES:
@@ -462,7 +463,7 @@ def _blue_heatmap(val, max_val: float) -> str:
 
 # Винесено в самий початок сайдбару, щоб працювати і на екрані входу
 st.sidebar.title("🚢 Портова аналітика")
-selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=1) # Світла за замовчуванням
+selected_theme = st.sidebar.selectbox("🎨 Тема інтерфейсу", list(THEMES.keys()), index=0) # Світла за замовчуванням
 T = THEMES[selected_theme]
 
 st.markdown(
