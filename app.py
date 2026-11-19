@@ -780,7 +780,7 @@ def check_password() -> bool:
         if st.button("📘 Інструкція", key="login_manual_btn", width="stretch"):
             _show_login_manual_dialog()
 
-with col_info_side:
+    with col_info_side:
         st.markdown(
             '<div class="port-right-stack">'
             '<div class="port-right-card"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
