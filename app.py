@@ -18,6 +18,7 @@ from db import (
     load_vessels,
     save_25vod_to_db,
     save_cargo_to_db,
+    save_corridors_to_db,
     update_operators_dict,
 )
 from etl_parser import parse_23m_file, parse_25vod_file, parse_corridors_file
@@ -318,9 +319,12 @@ def to_excel_bytes(df: pd.DataFrame) -> bytes:
 
 
 def detect_file_type(uploaded_file) -> str:
+    fname = (getattr(uploaded_file, "name", "") or "").lower()
     wb = openpyxl.load_workbook(uploaded_file, read_only=True)
-    sheets = [s.lower().replace("i", "і") for s in wb.sheetnames]
+    sheets = [s.lower().replace("i", "і").strip() for s in wb.sheetnames]
     uploaded_file.seek(0)
+    if "коридор" in fname or any(s in sheets for s in ("вантажі", "суднозаходи", "атаки")):
+        return "коридори"
     if any(s in sheets for s in ("експорт", "імпорт", "транзит")):
         return "23-м"
     return "25-вод"
@@ -960,7 +964,7 @@ if uploaded_files and st.button("🚀 Обробити та зберегти в 
                     if ftype == "коридори":
                         corridors_data = parse_corridors_file(uf)
                         saved_counts = save_corridors_to_db(corridors_data)
-                        st.write(f"Збережено коридори: {saved}")
+                        st.write(f"Збережено коридори: вантажів — **{saved.get('cargo', 0)}**, "f"суднозаходів — **{saved.get('vessels', 0)}**, атак — **{saved.get('attacks', 0)}**")
                     elif ftype == "23-м":
                         df_c, warnings = parse_23m_file(uf, include_prev_year=include_prev)
                         inserted = save_cargo_to_db(df_c)
