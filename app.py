@@ -448,80 +448,56 @@ def check_password() -> bool:
             justify-self: end;
         }}
 
-        /* Портальний кран: верхній спредер, троси, бічні опори-ноги та рейкова база */
-        .port-crane-top {{
+        /* Палубний судновий кран: стріла, лебідка та палубна основа */
+        .port-deck-crane-head {{
             position: relative;
-            width: 324px;
+            width: 312px;
             max-width: 100%;
             margin-bottom: -2px;
             z-index: 3;
         }}
-        .port-crane-cables {{
-            display: flex;
-            justify-content: space-between;
-            padding: 0 44px;
-            height: 11px;
-        }}
-        .port-crane-cable {{
-            width: 3px;
-            height: 11px;
-            background: linear-gradient(180deg, #CBD5E1, #334155);
-        }}
-        .port-crane-spreader {{
-            height: 14px;
-            border-radius: 4px 4px 0 0;
+        .port-deck-crane-jib {{
+            height: 13px;
+            border-radius: 4px 12px 0 0;
             background: repeating-linear-gradient(
                 -45deg,
                 #F59E0B 0px,
-                #F59E0B 8px,
-                #0F172A 8px,
-                #0F172A 16px
+                #F59E0B 7px,
+                #0F172A 7px,
+                #0F172A 14px
             );
             border: 1.5px solid #FBBF24;
             border-bottom: none;
             box-shadow: 0 3px 10px rgba(2, 10, 23, 0.45);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 0 8px;
         }}
-        .port-crane-spreader-tag {{
+        .port-deck-crane-badge {{
             background: #0F172A;
             color: #FBBF24 !important;
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             font-weight: 800;
             letter-spacing: 0.08em;
-            padding: 0 7px;
+            padding: 0 6px;
             border-radius: 2px;
             line-height: 1.25;
         }}
-        .port-crane-rail-base {{
-            position: relative;
-            width: 324px;
+        .port-deck-crane-pedestal {{
+            width: 312px;
             max-width: 100%;
-            height: 10px;
+            height: 9px;
             margin-top: -2px;
-            z-index: 3;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            padding: 0 4px;
-        }}
-        .port-crane-bogie {{
-            width: 24px;
-            height: 8px;
-            border-radius: 2px;
-            background: #F59E0B;
+            background: linear-gradient(90deg, #F59E0B, #D97706, #F59E0B);
             border: 1.5px solid #0F172A;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
         }}
-        .port-crane-rail {{
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #E2E8F0, #64748B, #E2E8F0);
-            border-radius: 2px;
+
+        /* Троси від палубного крана до 1-го контейнера (тільки на десктопі) */
+        .port-crane-rigging-svg {{
+            display: none;
         }}
 
         .port-form-head {{
@@ -542,13 +518,13 @@ def check_password() -> bool:
             margin-bottom: 3px;
         }}
         .port-form-title {{
-            font-size: 0.96rem;
+            font-size: 0.95rem;
             font-weight: 800;
             color: #0F172A !important;
             line-height: 1.15;
         }}
         .port-form-dept {{
-            font-size: 0.72rem;
+            font-size: 0.71rem;
             font-weight: 600;
             color: #475569 !important;
             line-height: 1.2;
@@ -561,14 +537,14 @@ def check_password() -> bool:
             font-size: 0.8rem !important;
         }}
 
-        /* Стиль морських контейнерів із гофрованими ребрами, світлими кутовими фітингами та ISO-маркуванням */
+        /* Морські контейнери на палубі: гофра, світлі кутові фітинги та ISO-маркування */
         .port-right-card {{
             position: relative;
             display: flex;
             flex-direction: column;
             border-radius: 4px;
             border: 1.5px solid rgba(255, 255, 255, 0.34);
-            box-shadow: 0 6px 16px rgba(2, 10, 23, 0.45);
+            box-shadow: 0 6px 16px rgba(2, 10, 23, 0.48);
             overflow: hidden;
         }}
         .port-right-card::before {{
@@ -577,12 +553,10 @@ def check_password() -> bool:
             inset: 0;
             pointer-events: none;
             background-image:
-                /* 4 світлі кутові фітинги (ISO corner castings) */
                 linear-gradient(#F8FAFC, #F8FAFC),
                 linear-gradient(#F8FAFC, #F8FAFC),
                 linear-gradient(#F8FAFC, #F8FAFC),
                 linear-gradient(#F8FAFC, #F8FAFC),
-                /* гофровані ребра корпусу */
                 repeating-linear-gradient(
                     90deg,
                     rgba(255, 255, 255, 0.06) 0px,
@@ -599,10 +573,10 @@ def check_password() -> bool:
                 bottom right,
                 0 0;
             background-size:
-                11px 11px,
-                11px 11px,
-                11px 11px,
-                11px 11px,
+                10px 10px,
+                10px 10px,
+                10px 10px,
+                10px 10px,
                 auto;
             background-repeat: no-repeat;
             z-index: 2;
@@ -610,13 +584,13 @@ def check_password() -> bool:
         .port-right-card::after {{
             content: attr(data-iso);
             position: absolute;
-            top: 6px;
-            right: 14px;
-            font-size: 0.62rem;
+            top: 5px;
+            right: 13px;
+            font-size: 0.6rem;
             font-weight: 800;
             letter-spacing: 0.06em;
             color: #F8FAFC;
-            background: rgba(2, 10, 23, 0.48);
+            background: rgba(2, 10, 23, 0.50);
             border: 1px solid rgba(248, 250, 252, 0.65);
             border-radius: 3px;
             padding: 1px 5px;
@@ -630,34 +604,34 @@ def check_password() -> bool:
 
         /* 6 кольорів морських контейнерів */
         .port-right-card:nth-child(1) {{
-            background-color: rgba(12, 74, 110, 0.88);
+            background-color: rgba(12, 74, 110, 0.89);
             border-left: 6px solid #38BDF8;
         }}
         .port-right-card:nth-child(2) {{
-            background-color: rgba(146, 64, 14, 0.88);
+            background-color: rgba(146, 64, 14, 0.89);
             border-left: 6px solid #FBBF24;
         }}
         .port-right-card:nth-child(3) {{
-            background-color: rgba(19, 78, 74, 0.88);
+            background-color: rgba(19, 78, 74, 0.89);
             border-left: 6px solid #2DD4BF;
         }}
         .port-right-card:nth-child(4) {{
-            background-color: rgba(30, 58, 138, 0.88);
+            background-color: rgba(30, 58, 138, 0.89);
             border-left: 6px solid #818CF8;
         }}
         .port-right-card:nth-child(5) {{
-            background-color: rgba(127, 29, 29, 0.88);
+            background-color: rgba(127, 29, 29, 0.89);
             border-left: 6px solid #F87171;
         }}
         .port-right-card:nth-child(6) {{
-            background-color: rgba(30, 41, 59, 0.90);
+            background-color: rgba(30, 41, 59, 0.91);
             border-left: 6px solid #94A3B8;
         }}
 
         .port-right-card-title {{
             font-weight: 700;
             color: #FFFFFF !important;
-            padding-right: 84px;
+            padding-right: 82px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }}
         .port-right-card-text {{
@@ -682,7 +656,7 @@ def check_password() -> bool:
             text-overflow: ellipsis;
         }}
 
-        /* Десктоп: без прокрутки, портальний кран з опорами-ногами ліворуч, контейнери (55vh) зі світлими фітингами праворуч */
+        /* Десктоп: без прокрутки, палубний кран з тросами до контейнера, контейнери (46vh) на палубі внизу */
         @media (min-width: 769px) {{
             html, body,
             [data-testid="stAppViewContainer"],
@@ -712,7 +686,7 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }}
 
-            /* Портальний кран ліворуч */
+            /* Ліва колонка: палубний кран внизу зліва */
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child {{
                 display: flex !important;
                 flex-direction: column !important;
@@ -727,34 +701,30 @@ def check_password() -> bool:
                 height: auto !important;
                 max-height: none !important;
                 overflow: visible !important;
-                width: 324px !important;
+                width: 312px !important;
                 max-width: 100% !important;
             }}
             [data-testid="stForm"] {{
                 position: relative !important;
-                width: 324px !important;
+                width: 312px !important;
                 max-width: 100% !important;
                 margin: 0 !important;
                 background: rgba(248, 251, 255, 0.96) !important;
-                /* Дві вертикальні опори-ноги портального крана з боків */
-                border-left: 8px solid #F59E0B !important;
-                border-right: 8px solid #F59E0B !important;
+                border-left: 6px solid #F59E0B !important;
+                border-right: 6px solid #334155 !important;
                 border-top: 3px solid #1E293B !important;
-                border-bottom: 4px solid #1E293B !important;
+                border-bottom: 3px solid #1E293B !important;
                 border-radius: 3px !important;
-                padding: 10px 14px 10px 14px !important;
-                box-shadow:
-                    inset 2px 0 0 #0F172A,
-                    inset -2px 0 0 #0F172A,
-                    0 14px 30px rgba(2, 10, 23, 0.48) !important;
+                padding: 9px 14px 9px 14px !important;
+                box-shadow: 0 14px 30px rgba(2, 10, 23, 0.48) !important;
             }}
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:first-child .stButton {{
-                width: 324px !important;
+                width: 312px !important;
                 max-width: 100% !important;
                 margin: 6px 0 0 0 !important;
             }}
 
-            /* Контейнери праворуч: висота 55vh, притиснуті ближче до футера */
+            /* Права колонка: 6 контейнерів нижче (46vh) на палубі, щоб не перекривати напис підкладки */
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stVerticalBlock"],
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stElementContainer"],
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stMarkdown"] {{
@@ -766,9 +736,9 @@ def check_password() -> bool:
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                 grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
-                gap: 6px !important;
-                height: 55vh !important;
-                max-height: calc(100vh - 88px) !important;
+                gap: 5px !important;
+                height: 46vh !important;
+                max-height: calc(100vh - 96px) !important;
                 margin-top: auto !important;
                 transform: none !important;
                 width: 100% !important;
@@ -778,18 +748,30 @@ def check_password() -> bool:
             .port-right-card {{
                 min-height: 0 !important;
                 height: 100% !important;
-                padding: 8px 14px !important;
+                padding: 5px 12px !important;
                 justify-content: center !important;
             }}
             .port-right-card-title {{
-                font-size: 0.94rem !important;
-                margin: 0 0 2px 0 !important;
-                line-height: 1.15 !important;
+                font-size: 0.9rem !important;
+                margin: 0 0 1px 0 !important;
+                line-height: 1.12 !important;
             }}
             .port-right-card-text {{
-                font-size: 0.76rem !important;
-                line-height: 1.2 !important;
+                font-size: 0.72rem !important;
+                line-height: 1.16 !important;
             }}
+
+            /* Троси між палубним краном і верхнім лівим контейнером */
+            .port-crane-rigging-svg {{
+                display: block !important;
+                position: fixed !important;
+                inset: 44px 0 30px 0 !important;
+                width: 100vw !important;
+                height: calc(100vh - 74px) !important;
+                pointer-events: none !important;
+                z-index: 4 !important;
+            }}
+
             .port-login-footer {{
                 position: fixed !important;
                 left: 0 !important;
@@ -809,19 +791,32 @@ def check_password() -> bool:
         unsafe_allow_html=True,
     )
 
+    st.markdown(
+        """
+        <svg class="port-crane-rigging-svg" viewBox="0 0 1440 760" preserveAspectRatio="none" aria-hidden="true">
+          <!-- Стріла палубного крана від блоку входу до зони 1-го контейнера -->
+          <line x1="330" y1="455" x2="540" y2="395" stroke="#FBBF24" stroke-width="4" stroke-linecap="round"/>
+          <!-- Троси підвісу до верхнього лівого краю 1-го контейнера -->
+          <line x1="538" y1="395" x2="480" y2="418" stroke="#E2E8F0" stroke-width="1.6" stroke-dasharray="5 3"/>
+          <line x1="542" y1="395" x2="515" y2="418" stroke="#E2E8F0" stroke-width="1.6"/>
+          <circle cx="540" cy="395" r="4" fill="#F59E0B" stroke="#0F172A" stroke-width="1.2"/>
+        </svg>
+        """,
+        unsafe_allow_html=True,
+    )
+
     col_form_side, col_info_side = st.columns([0.78, 1.62], gap="medium")
 
     with col_form_side:
         st.markdown(
-            '<div class="port-crane-top">'
-            '<div class="port-crane-cables"><span class="port-crane-cable"></span><span class="port-crane-cable"></span></div>'
-            '<div class="port-crane-spreader"><span class="port-crane-spreader-tag">PORTAL CRANE · 65T</span></div>'
+            '<div class="port-deck-crane-head">'
+            '<div class="port-deck-crane-jib"><span class="port-deck-crane-badge">DECK CRANE</span><span class="port-deck-crane-badge">SWL 50T</span></div>'
             '</div>',
             unsafe_allow_html=True,
         )
         with st.form("login_form", clear_on_submit=False):
             st.markdown(
-                '<div class="port-form-head"><div class="port-form-icon">🏗️</div><div class="port-form-title">Вхід до аналітичної системи</div><div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div></div>',
+                '<div class="port-form-head"><div class="port-form-icon">⚓</div><div class="port-form-title">Вхід до аналітичної системи</div><div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div></div>',
                 unsafe_allow_html=True,
             )
             pwd = st.text_input(
@@ -842,11 +837,7 @@ def check_password() -> bool:
                     st.error("Невірний пароль доступу. Спробуйте ще раз.")
 
         st.markdown(
-            '<div class="port-crane-rail-base">'
-            '<span class="port-crane-bogie"></span>'
-            '<span class="port-crane-bogie"></span>'
-            '<span class="port-crane-rail"></span>'
-            '</div>',
+            '<div class="port-deck-crane-pedestal"></div>',
             unsafe_allow_html=True,
         )
 
