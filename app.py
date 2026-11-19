@@ -497,6 +497,9 @@ def check_password() -> bool:
     .cargo-container, #deck-crane {{
       cursor: pointer;
     }}
+    #rear-secret-code {{
+      transition: opacity 0.45s ease;
+    }}
     .cloud-stream-1 {{ animation: cloudRightToLeft1 68s linear infinite; }}
     .cloud-stream-2 {{ animation: cloudRightToLeft2 86s linear infinite; }}
     @keyframes cloudRightToLeft1 {{
@@ -628,47 +631,8 @@ def check_password() -> bool:
     #container-tooltip-box {{
       transition: border-left-color 0.35s ease;
     }}
-    #secret-password-badge {{
-      position: fixed;
-      top: 64px;
-      right: 28px;
-      z-index: 35;
-      padding: 8px 16px;
-      border-radius: 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      opacity: 0;
-      transform: translateY(-8px) scale(0.97);
-      pointer-events: none;
-      transition: opacity 0.55s ease, transform 0.55s ease, color 0.45s ease, background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
-      background: rgba(255, 255, 255, 0.92);
-      color: #0f294a;
-      border: 1.5px solid rgba(15, 41, 74, 0.28);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.14);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }}
-    #secret-password-badge.is-visible {{
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }}
-    body.night-theme #secret-password-badge {{
-      background: rgba(3, 15, 26, 0.9);
-      color: #22ff88;
-      border: 1.5px solid rgba(34, 255, 136, 0.45);
-      box-shadow: 0 0 18px rgba(34, 255, 136, 0.28), 0 10px 24px rgba(0, 0, 0, 0.45);
-      text-shadow: 0 0 10px rgba(34, 255, 136, 0.55);
-    }}
     @media (max-width: 1023px) {{
       #container-tooltip-box, .top-title {{ display: none !important; }}
-      #secret-password-badge {{
-        top: 54px;
-        right: 12px;
-        font-size: 13px;
-        padding: 6px 12px;
-      }}
       .fixed-top-bar {{
         grid-template-columns: auto 1fr auto;
         gap: 6px;
@@ -949,7 +913,22 @@ def check_password() -> bool:
         </g>
       </g>
 
-      <!-- 4. 9 контейнерів зменшеного розміру (3 колонки × 3 ряди, 226×86) -->
+      <!-- 4. Контейнер позаду жовтого контейнера GRID-20DV (відкривається при його підйомі) -->
+      <g id="rear-vault-container" transform="translate(1246, 484)" pointer-events="none">
+        <rect width="226" height="86" rx="5" fill="#064e3b" stroke="#022c22" stroke-width="3" />
+        <rect x="7" y="6" width="212" height="74" rx="3" fill="url(#corrugation)" />
+        <rect x="142" y="10" width="74" height="21" rx="4" fill="#022c22" fill-opacity="0.9" />
+        <text x="179" y="24" text-anchor="middle" fill="#6ee7b7" font-size="10.5" font-weight="700">VAULT-01</text>
+        <g id="rear-secret-code" opacity="0">
+          <rect x="10" y="34" width="206" height="42" rx="6" fill="#02131d" fill-opacity="0.94" stroke="#fde047" stroke-width="1.8" />
+          <text x="113" y="50" text-anchor="middle" fill="#a7f3d0" font-size="9.5" font-weight="700" letter-spacing="0.06em">СЕКРЕТНИЙ КОД</text>
+          <text x="113" y="68" text-anchor="middle" fill="#fde047" font-size="15.5" font-weight="800" letter-spacing="0.08em">DataPort2026</text>
+        </g>
+        <rect x="0" y="0" width="9" height="9" fill="#022c22" /><rect x="217" y="0" width="9" height="9" fill="#022c22" />
+        <rect x="0" y="77" width="9" height="9" fill="#022c22" /><rect x="217" y="77" width="9" height="9" fill="#022c22" />
+      </g>
+
+      <!-- 5. 9 контейнерів зменшеного розміру (3 колонки × 3 ряди, 226×86) -->
       <g id="containers-group">
         <!-- Ряд 3 (нижній, y = 660) -->
         <g class="cargo-container" data-module-id="security" transform="translate(778, 660)" tabindex="0" role="button">
@@ -1055,7 +1034,7 @@ def check_password() -> bool:
         </g>
       </g>
 
-      <!-- 5. Реалістичніший судновий кран (опорна тумба, поворотна рубка, стріла, відтяжки, талі, спредер) -->
+      <!-- 6. Реалістичніший судновий кран (опорна тумба, поворотна рубка, стріла, відтяжки, талі, спредер) -->
       <g id="deck-crane">
         <rect x="1552" y="726" width="112" height="22" rx="3" fill="#334155" stroke="#0f172a" stroke-width="2.5" />
         <rect x="1560" y="718" width="96" height="8" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="2" />
@@ -1094,7 +1073,7 @@ def check_password() -> bool:
         <rect id="crane-twistlock-right" x="1455" y="472" width="11" height="7" rx="1" fill="#0f172a" />
       </g>
 
-      <!-- 6. Хвилі та розходження води -->
+      <!-- 7. Хвилі та розходження води -->
       <g id="sea-waves-anim" pointer-events="none">
         <g class="stern-wake-spread" fill="none" stroke-linecap="round">
           <path d="M478,864 Q420,868 355,876" stroke="#e0f2fe" stroke-width="3.5" />
@@ -1207,10 +1186,6 @@ def check_password() -> bool:
     </aside>
   </main>
 
-  <div id="secret-password-badge" aria-live="polite">
-    🔑 DataPort2026
-  </div>
-
   <footer class="fixed-bottom-bar">
     © 2026, Міністерство з відновлення, інфраструктури та транспорту України || Департамент морського та внутрішнього водного транспорту || Версія 2.3
   </footer>
@@ -1276,7 +1251,6 @@ def check_password() -> bool:
       const wave2 = document.getElementById('wave-layer-2');
 
       if (isNight) {{
-        document.body.classList.add('night-theme');
         stage?.classList.add('night-mode');
         skyRect?.setAttribute('fill', 'url(#skyGradNight)');
         seaRect?.setAttribute('fill', 'url(#seaGradNight)');
@@ -1287,7 +1261,6 @@ def check_password() -> bool:
         wave1?.setAttribute('fill', '#072845');
         wave2?.setAttribute('fill', '#04182b');
       }} else {{
-        document.body.classList.remove('night-theme');
         stage?.classList.remove('night-mode');
         skyRect?.setAttribute('fill', 'url(#skyGradDay)');
         seaRect?.setAttribute('fill', 'url(#seaGradDay)');
@@ -1357,6 +1330,12 @@ def check_password() -> bool:
       const containerEl = document.getElementById('container-matrix');
       if (containerEl) {{
         containerEl.setAttribute('transform', `translate(${{containerX.toFixed(2)}}, ${{containerY.toFixed(2)}})`);
+      }}
+
+      const rearCode = document.getElementById('rear-secret-code');
+      if (rearCode) {{
+        const revealProgress = Math.max(0, Math.min(1, (clamped - 0.55) / 0.45));
+        rearCode.setAttribute('opacity', revealProgress.toFixed(3));
       }}
 
       const spreaderY = containerY - 15;
@@ -1505,19 +1484,12 @@ def check_password() -> bool:
       const tooltipDesc = document.getElementById('tooltip-desc');
       const tooltipBox = document.getElementById('container-tooltip-box');
       const deckCrane = document.getElementById('deck-crane');
-      const secretPasswordBadge = document.getElementById('secret-password-badge');
 
       let currentLift = 0;
       let targetLift = 0;
       let lastFrameTime = null;
       let leaveTimer = null;
       const LIFT_SPEED = 0.28;
-
-      const syncSecretPasswordVisibility = () => {{
-        if (!secretPasswordBadge) return;
-        const isFullyLifted = targetLift > 0.5 && currentLift >= 0.99;
-        secretPasswordBadge.classList.toggle('is-visible', isFullyLifted);
-      }};
 
       const stepLiftAnimation = (timestamp) => {{
         if (lastFrameTime === null) lastFrameTime = timestamp;
@@ -1531,7 +1503,6 @@ def check_password() -> bool:
             : Math.max(targetLift, currentLift - maxStep);
           applyCraneLiftGeometry(currentLift);
         }}
-        syncSecretPasswordVisibility();
         requestAnimationFrame(stepLiftAnimation);
       }};
       requestAnimationFrame(stepLiftAnimation);
@@ -1541,7 +1512,6 @@ def check_password() -> bool:
         tooltipTitle.textContent = 'Оберіть контейнер на судні для перегляду аналітики';
         tooltipDesc.textContent = '9 палубних контейнерів відповідають модулям аналітики, звітів та імпорту. Наведіть на кран для плавного підйому контейнера GRID-20DV.';
         tooltipBox.style.borderLeftColor = '#0284c7';
-        syncSecretPasswordVisibility();
       }};
 
       const activateCraneLift = () => {{
@@ -1551,7 +1521,6 @@ def check_password() -> bool:
         tooltipTitle.textContent = 'Повільний підйом контейнера GRID-20DV';
         tooltipDesc.textContent = 'Стріла, відтяжки, талева підвіска та спредер синхронно підіймають контейнер матриць.';
         tooltipBox.style.borderLeftColor = '#eab308';
-        syncSecretPasswordVisibility();
       }};
 
       const scheduleReleaseLift = () => {{
@@ -1581,7 +1550,6 @@ def check_password() -> bool:
           tooltipTitle.textContent = mod.title;
           tooltipDesc.textContent = mod.desc;
           tooltipBox.style.borderLeftColor = mod.accent;
-          syncSecretPasswordVisibility();
         }});
         el.addEventListener('mouseleave', () => {{
           if (modId === 'matrix') scheduleReleaseLift();
