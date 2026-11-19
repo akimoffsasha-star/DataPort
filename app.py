@@ -388,7 +388,7 @@ def check_password() -> bool:
             max-height: 100vh !important;
             max-width: 100% !important;
             width: 100% !important;
-            padding: 54px 16px 38px 16px !important;
+            padding: 56px 18px 42px 18px !important;
             margin: 0 !important;
             overflow: hidden !important;
         }}
@@ -397,13 +397,13 @@ def check_password() -> bool:
             height: 0px !important;
         }}
         div[data-testid="stHorizontalBlock"] {{
-            height: calc(100vh - 92px) !important;
-            max-height: calc(100vh - 92px) !important;
+            height: calc(100vh - 98px) !important;
+            max-height: calc(100vh - 98px) !important;
             overflow: hidden !important;
             align-items: stretch !important;
         }}
 
-        /* Фіксована світла шапка з годинником по центру */
+        /* Фіксована світла шапка вгору з годинником по центру */
         .port-fixed-header {{
             position: fixed;
             top: 0;
@@ -414,12 +414,12 @@ def check_password() -> bool:
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             background: rgba(248, 251, 255, 0.96);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(148, 163, 184, 0.45);
-            padding: 4px 16px;
+            padding: 4px 18px;
             padding-right: 120px;
             box-shadow: 0 4px 16px rgba(2, 12, 27, 0.22);
         }}
@@ -444,7 +444,7 @@ def check_password() -> bool:
             flex-shrink: 0;
         }}
         .port-header-ministry {{
-            font-size: 0.86rem;
+            font-size: 0.88rem;
             font-weight: 800;
             color: #0F172A !important;
             white-space: nowrap;
@@ -458,7 +458,7 @@ def check_password() -> bool:
             color: #0F4C81 !important;
             border-radius: 999px;
             padding: 2px 14px;
-            font-size: 0.86rem;
+            font-size: 0.88rem;
             font-weight: 800;
             white-space: nowrap;
         }}
@@ -468,38 +468,45 @@ def check_password() -> bool:
 
         /* Ліва колонка: вужча, вища та зміщена нижче до нижньої третини */
         .port-left-spacer {{
-            height: 18vh;
+            height: 16vh;
         }}
         .port-login-box-wrap {{
-            max-width: 390px;
-            width: 100%;
+            width: 390px !important;
+            max-width: 100% !important;
             margin: 0 0 0 18px;
-        }}
-        [data-testid="stForm"] {{
             background: rgba(248, 251, 255, 0.96);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(186, 214, 245, 0.95);
             border-top: 4px solid #0284C7;
             border-radius: 16px;
-            padding: 22px 20px 18px 20px;
-            width: 100% !important;
-            max-width: 390px !important;
-            margin: 0 !important;
+            padding: 18px 20px 16px 20px;
             box-shadow: 0 18px 40px rgba(2, 10, 23, 0.45);
         }}
-        [data-testid="stForm"] .stTextInput {{
+        .port-login-box-wrap [data-testid="stForm"] {{
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+        }}
+        .port-login-box-wrap [data-testid="stForm"] .stTextInput {{
             margin-top: 8px;
             margin-bottom: 12px;
         }}
-        [data-testid="stForm"] label,
-        [data-testid="stForm"] .stTextInput label p {{
-            font-size: 0.95rem !important;
+        .port-login-box-wrap [data-testid="stForm"] label,
+        .port-login-box-wrap [data-testid="stForm"] .stTextInput label p {{
+            font-size: 0.96rem !important;
             font-weight: 700 !important;
             color: #0F172A !important;
             margin-bottom: 3px !important;
         }}
-        [data-testid="stForm"] input {{
+        .port-login-box-wrap [data-testid="stForm"] input {{
             background-color: #FFFFFF !important;
             color: #0F172A !important;
             border: 1.5px solid #64748B !important;
@@ -509,12 +516,12 @@ def check_password() -> bool:
             min-height: 40px !important;
             height: 40px !important;
         }}
-        [data-testid="stForm"] input::placeholder {{
+        .port-login-box-wrap [data-testid="stForm"] input::placeholder {{
             color: #64748B !important;
             font-size: 0.92rem !important;
         }}
-        [data-testid="stForm"] button[kind="primary"],
-        [data-testid="stForm"] button[kind="primary"] * {{
+        .port-login-box-wrap [data-testid="stForm"] button[kind="primary"],
+        .port-login-box-wrap [data-testid="stForm"] button[kind="primary"] * {{
             background: linear-gradient(135deg, #0F4C81, #0284C7) !important;
             color: #FFFFFF !important;
             border: none !important;
@@ -542,47 +549,49 @@ def check_password() -> bool:
             margin-bottom: 6px;
         }}
         .port-form-title {{
-            font-size: 1.22rem;
+            font-size: 1.24rem;
             font-weight: 800;
             color: #0F172A !important;
             margin: 0;
             line-height: 1.18;
         }}
         .port-form-dept {{
-            font-size: 0.84rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #0F4C81 !important;
             margin: 3px 0 0 0;
             line-height: 1.25;
         }}
 
-        /* Кнопка Інструкція безпосередньо в блоці введення паролю */
-        .port-manual-btn-wrap {{
-            margin-top: -10px;
-            padding: 0 20px 14px 20px;
+        /* Кнопка Інструкція точно за шириною блоку входу */
+        .port-login-box-wrap .stButton {{
+            margin-top: 8px;
+            width: 100% !important;
         }}
-        .port-manual-btn-wrap button {{
+        .port-login-box-wrap .stButton > button {{
+            width: 100% !important;
             background: #EFF6FF !important;
             color: #0F4C81 !important;
             border: 1px solid #93C5FD !important;
             border-radius: 9px !important;
-            font-size: 0.9rem !important;
+            font-size: 0.94rem !important;
             font-weight: 700 !important;
-            min-height: 36px !important;
-            height: 36px !important;
+            min-height: 38px !important;
+            height: 38px !important;
         }}
-        .port-manual-btn-wrap button:hover {{
+        .port-login-box-wrap .stButton > button:hover {{
             background: #DBEAFE !important;
             color: #0B3A63 !important;
         }}
 
-        /* Права колонка: 6 підблоків на всю висоту без прокрутки */
+        /* Права колонка: 6 однакових за висотою блоків від шапки до футера */
         .port-right-stack {{
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 6px;
-            height: 100%;
+            gap: 8px;
+            height: calc(100vh - 102px);
+            width: 100%;
             min-width: 0;
             overflow: hidden;
         }}
@@ -592,29 +601,29 @@ def check_password() -> bool:
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background: rgba(10, 31, 58, 0.86);
+            background: rgba(10, 31, 58, 0.88);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(125, 211, 252, 0.28);
             border-left: 4px solid #38BDF8;
-            border-radius: 12px;
-            padding: 6px 12px;
+            border-radius: 13px;
+            padding: 8px 14px;
             box-shadow: 0 6px 16px rgba(2, 10, 23, 0.28);
             overflow: hidden;
         }}
         .port-right-card-title {{
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-weight: 800;
             color: #7DD3FC !important;
-            margin: 0 0 1px 0;
-            line-height: 1.18;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
         }}
         .port-right-card-text {{
-            font-size: 0.76rem;
+            font-size: 0.78rem;
             font-weight: 500;
             color: #E2E8F0 !important;
             margin: 0;
-            line-height: 1.24;
+            line-height: 1.28;
         }}
 
         /* Фіксований нижній футер */
@@ -623,7 +632,7 @@ def check_password() -> bool:
             left: 0;
             right: 0;
             bottom: 0;
-            height: 32px;
+            height: 34px;
             z-index: 30;
             display: flex;
             align-items: center;
@@ -634,7 +643,7 @@ def check_password() -> bool:
             border-top: 1px solid rgba(148, 163, 184, 0.45);
             padding: 4px 16px;
             color: #0F172A !important;
-            font-size: 0.84rem;
+            font-size: 0.86rem;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
@@ -648,30 +657,31 @@ def check_password() -> bool:
                 grid-template-columns: auto auto 1fr;
             }}
             .port-header-ministry {{
-                font-size: 0.8rem !important;
+                font-size: 0.82rem !important;
             }}
             .port-header-clock {{
-                font-size: 0.8rem !important;
+                font-size: 0.82rem !important;
                 padding: 2px 10px;
             }}
             .port-left-spacer {{
-                height: 8vh;
+                height: 7vh;
             }}
             .port-login-box-wrap {{
                 margin: 0 auto;
-                max-width: 370px;
+                width: 360px !important;
             }}
-            [data-testid="stForm"] {{
-                max-width: 370px !important;
+            .port-right-stack {{
+                height: calc(100vh - 98px);
+                gap: 6px;
             }}
             .port-right-card-title {{
-                font-size: 0.82rem !important;
+                font-size: 0.84rem !important;
             }}
             .port-right-card-text {{
-                font-size: 0.72rem !important;
+                font-size: 0.74rem !important;
             }}
             .port-login-footer {{
-                font-size: 0.78rem !important;
+                font-size: 0.8rem !important;
             }}
         }}
 
@@ -685,7 +695,7 @@ def check_password() -> bool:
                 background-attachment: scroll !important;
             }}
             [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 62px 12px 16px 12px !important;
+                padding: 64px 12px 16px 12px !important;
             }}
             div[data-testid="stHorizontalBlock"] {{
                 height: auto !important;
@@ -704,35 +714,34 @@ def check_password() -> bool:
                 justify-self: center;
             }}
             .port-header-ministry {{
-                font-size: 0.76rem !important;
+                font-size: 0.78rem !important;
                 white-space: normal;
                 text-align: center;
             }}
             .port-left-spacer {{
                 height: 6px;
             }}
-            .port-login-box-wrap,
-            [data-testid="stForm"] {{
-                margin: 0 auto !important;
-                max-width: 100% !important;
+            .port-login-box-wrap {{
+                margin: 0 auto;
+                width: 100% !important;
             }}
             .port-right-stack {{
                 height: auto;
                 gap: 8px;
-                margin-top: 10px;
+                margin-top: 12px;
                 overflow: visible;
             }}
             .port-right-card {{
                 flex: none;
-                padding: 9px 12px;
+                padding: 10px 12px;
             }}
             .port-login-footer {{
                 position: static;
                 height: auto;
-                margin-top: 10px;
+                margin-top: 12px;
                 white-space: normal;
                 text-align: center;
-                font-size: 0.78rem !important;
+                font-size: 0.8rem !important;
             }}
         }}
         </style>
@@ -745,7 +754,7 @@ def check_password() -> bool:
         unsafe_allow_html=True,
     )
 
-    col_form_side, col_info_side = st.columns([1.2, 1.3], gap="medium")
+    col_form_side, col_info_side = st.columns([1.15, 1.35], gap="medium")
 
     with col_form_side:
         st.markdown('<div class="port-left-spacer"></div><div class="port-login-box-wrap">', unsafe_allow_html=True)
@@ -771,10 +780,9 @@ def check_password() -> bool:
                 else:
                     st.error("Невірний пароль доступу. Спробуйте ще раз.")
 
-        st.markdown('<div class="port-manual-btn-wrap">', unsafe_allow_html=True)
         if st.button("📘 Інструкція", key="login_manual_btn", width="stretch"):
             _show_login_manual_dialog()
-        st.markdown('</div></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_info_side:
         st.markdown(
