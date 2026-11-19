@@ -633,11 +633,11 @@ def check_password() -> bool:
                 overflow: hidden !important;
             }}
             [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 48px 16px 34px 16px !important;
+                padding: 48px 16px 32px 16px !important;
             }}
             div[data-testid="stHorizontalBlock"] {{
-                height: calc(100vh - 82px) !important;
-                max-height: calc(100vh - 82px) !important;
+                height: calc(100vh - 80px) !important;
+                max-height: calc(100vh - 80px) !important;
                 overflow: hidden !important;
                 align-items: stretch !important;
             }}
@@ -646,41 +646,45 @@ def check_password() -> bool:
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stVerticalBlock"],
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stElementContainer"],
             div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stMarkdown"] {{
-                max-height: calc(100vh - 82px) !important;
+                height: 100% !important;
+                max-height: calc(100vh - 80px) !important;
                 overflow: hidden !important;
+            }}
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stVerticalBlock"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stElementContainer"],
+            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"]:last-child [data-testid="stMarkdown"] {{
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-end !important;
             }}
             .port-right-stack {{
                 display: grid !important;
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-                grid-template-rows: 1fr auto !important;
-                gap: 8px !important;
-                height: calc(100vh - 82px) !important;
-                max-height: calc(100vh - 82px) !important;
-                overflow: visible !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+                gap: 6px !important;
+                height: calc((100vh - 84px) * 0.72) !important;
+                max-height: calc((100vh - 84px) * 0.72) !important;
+                margin-top: auto !important;
+                transform: none !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                overflow: hidden !important;
             }}
             .port-right-card {{
-                height: auto !important;
-                min-height: 92px !important;
-                padding: 8px 10px !important;
+                min-height: 0 !important;
+                height: 100% !important;
+                padding: 5px 10px !important;
+                border-radius: 10px !important;
+                overflow: hidden !important;
             }}
-            .port-bot-4 {{ grid-column: 1; grid-row: 2; }}
-            .port-bot-5 {{ grid-column: 2; grid-row: 2; }}
-            .port-bot-6 {{ grid-column: 3; grid-row: 2; }}
-
-            .port-top-shift-1 {{
-                grid-column: 1;
-                grid-row: 2;
-                transform: translateX(calc(-100% - 8px)) !important;
+            .port-right-card-title {{
+                font-size: 0.78rem !important;
+                margin: 0 0 1px 0 !important;
+                line-height: 1.15 !important;
             }}
-            .port-top-shift-2 {{
-                grid-column: 2;
-                grid-row: 2;
-                transform: translateX(calc(-100% - 8px)) !important;
-            }}
-            .port-top-shift-3 {{
-                grid-column: 3;
-                grid-row: 2;
-                transform: translateX(calc(-100% - 8px)) !important;
+            .port-right-card-text {{
+                font-size: 0.67rem !important;
+                line-height: 1.18 !important;
             }}
             .port-login-footer {{
                 position: fixed !important;
@@ -689,53 +693,6 @@ def check_password() -> bool:
                 bottom: 0 !important;
                 height: 30px !important;
                 z-index: 999 !important;
-            }}
-        }}
-
-        @media (max-width: 768px) {{
-            html, body,
-            [data-testid="stAppViewContainer"],
-            [data-testid="stAppViewContainer"] > .main,
-            section[data-testid="stMain"],
-            [data-testid="stAppViewContainer"] > .main > .block-container {{
-                height: 100vh !important;
-                max-height: 100vh !important;
-                overflow: hidden !important;
-            }}
-            [data-testid="stAppViewContainer"] > .main > .block-container {{
-                padding: 48px 16px 34px 16px !important;
-            }}
-            div[data-testid="stHorizontalBlock"] {{
-                height: calc(100vh - 82px) !important;
-                max-height: calc(100vh - 82px) !important;
-                overflow: hidden !important;
-                align-items: stretch !important;
-            }}
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] > div,
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stVerticalBlock"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stElementContainer"],
-            div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] [data-testid="stMarkdown"] {{
-                max-height: calc(100vh - 82px) !important;
-                overflow: hidden !important;
-            }}
-            .port-right-stack {{
-                height: calc((100vh - 82px) * 0.80) !important;
-                max-height: calc((100vh - 82px) * 0.80) !important;
-                gap: 4px !important;
-                transform: none !important;
-            }}
-            .port-right-card {{
-                padding: 3px 10px !important;
-            }}
-        }}
-            .port-login-footer {{
-                position: static;
-                height: auto;
-                margin-top: 12px;
-                white-space: normal;
-                text-align: center;
-                font-size: 0.78rem !important;
             }}
         }}
         </style>
@@ -780,12 +737,12 @@ def check_password() -> bool:
     with col_info_side:
         st.markdown(
             '<div class="port-right-stack">'
-            '<div class="port-right-card port-top-shift-1"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
-            '<div class="port-right-card port-top-shift-2"><div class="port-right-card-title">🧮 Конструктор матриць</div><p class="port-right-card-text">Зведені таблиці у тис. тонн, TEU та шт. з гнучким вибором вимірів і миттєвим експортом у Excel (.xlsx) та PDF.</p></div>'
-            '<div class="port-right-card port-top-shift-3"><div class="port-right-card-title">⚓ Аудит операторів і причалів</div><p class="port-right-card-text">Індекси концентрації ринку CR3/CR5 та HHI, структура власності причалів та аналіз пояснень відхилень.</p></div>'
-            '<div class="port-right-card port-bot-4"><div class="port-right-card-title">🛡️ Морські коридори та кластери</div><p class="port-right-card-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по портах і кластерах.</p></div>'
-            '<div class="port-right-card port-bot-5"><div class="port-right-card-title">🚨 Безпека та статистика атак</div><p class="port-right-card-text">Хронологія фіксації та накопичувальна динаміка пошкоджень портової інфраструктури, суден і постраждалих.</p></div>'
-            '<div class="port-right-card port-bot-6"><div class="port-right-card-title">📄 PDF-звіти, періоди та 3 теми</div><p class="port-right-card-text">Виконавчі, аудиторські й коридорні PDF-звіти, керування періодами в БД та Світла, Темна і Фірмова теми.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">🧮 Конструктор матриць</div><p class="port-right-card-text">Зведені таблиці у тис. тонн, TEU та шт. з гнучким вибором вимірів і миттєвим експортом у Excel (.xlsx) та PDF.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">⚓ Аудит операторів і причалів</div><p class="port-right-card-text">Індекси концентрації ринку CR3/CR5 та HHI, структура власності причалів та аналіз пояснень відхилень.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">🛡️ Морські коридори та кластери</div><p class="port-right-card-text">Багаторічна динаміка перевезень, зернових та незернових вантажів і суднозаходів по портах і кластерах.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">🚨 Безпека та статистика атак</div><p class="port-right-card-text">Хронологія фіксації та накопичувальна динаміка пошкоджень портової інфраструктури, суден і постраждалих.</p></div>'
+            '<div class="port-right-card"><div class="port-right-card-title">📄 PDF-звіти, періоди та 3 теми</div><p class="port-right-card-text">Виконавчі, аудиторські й коридорні PDF-звіти, керування періодами в БД та Світла, Темна і Фірмова теми.</p></div>'
             '</div>',
             unsafe_allow_html=True,
         )
