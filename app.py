@@ -300,7 +300,7 @@ def _get_login_bg_css() -> str:
     svg = """
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
       <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="g" x1="0%" y1="0%" x2="1%" y2="1%">
           <stop offset="0%" stop-color="#06192E"/>
           <stop offset="55%" stop-color="#0D3B66"/>
           <stop offset="100%" stop-color="#0F527D"/>
@@ -631,23 +631,39 @@ def check_password() -> bool:
       pointer-events: none;
     }}
 
-    /* Мобільні та планшети (< 1024px): лише блок входу по центру на фоні контейнеровозу */
+    /* Мобільні та планшети (< 1024px): шапка з годинником і "Мобільна", вхід по центру та футер */
     @media (max-width: 1023px) {{
-      .fixed-bottom-bar,
-      #container-tooltip-box {{
+      #container-tooltip-box,
+      .top-title {{
         display: none !important;
       }}
-      .top-title {{
+      .fixed-top-bar {{
+        grid-template-columns: auto 1fr auto;
+        gap: 6px;
+        padding: 0 8px 0 4px;
+        height: 44px;
+      }}
+      .top-logo {{
+        width: 24px;
+        height: 24px;
         font-size: 12.5px;
+        margin-left: 0;
+        transform: translateX(-1px);
       }}
       .top-clock {{
-        padding: 3px 10px;
-        font-size: 12px;
+        justify-self: center;
+        padding: 3px 8px;
+        font-size: 11px;
+        gap: 5px;
+      }}
+      .top-device-badge {{
+        padding: 3px 8px;
+        font-size: 11px;
       }}
       .scene-stage {{
-        top: 48px;
-        bottom: 0;
-        height: calc(100vh - 48px);
+        top: 44px;
+        bottom: 36px;
+        height: calc(100vh - 80px);
       }}
       #login-panel {{
         top: 0 !important;
@@ -658,12 +674,19 @@ def check_password() -> bool:
         height: 100% !important;
         justify-content: center !important;
         align-items: center !important;
-        padding: 16px !important;
+        padding: 12px !important;
         gap: 0 !important;
       }}
       #login-box {{
         width: 100% !important;
         max-width: 350px !important;
+      }}
+      .fixed-bottom-bar {{
+        height: 36px;
+        padding: 0 8px;
+        font-size: 9.5px;
+        line-height: 1.25;
+        white-space: normal;
       }}
     }}
   </style>
