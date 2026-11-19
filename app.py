@@ -165,6 +165,36 @@ THEMES = {
     },
 }
 
+selected_theme = st.sidebar.selectbox(
+    "🎨 Тема інтерфейсу",
+    list(THEMES.keys()),
+    index=0,  # 0 — Світла, 1 — Темна, 2 — Фірмова
+)
+
+active_theme_key = locals().get("selected_theme")
+raw_theme = THEMES.get(active_theme_key) or next(iter(THEMES.values()))
+
+raw_theme = THEMES.get(selected_theme) or next(iter(THEMES.values()))
+T = {
+    "bg": raw_theme.get("bg") or raw_theme.get("bg_main") or "#F8FAFC",
+    "sidebar": raw_theme.get("sidebar") or raw_theme.get("bg_sidebar") or "#FFFFFF",
+    "card": raw_theme.get("card") or raw_theme.get("bg_card") or "#FFFFFF",
+    "border": raw_theme.get("border") or raw_theme.get("border_card") or "#CBD5E1",
+    "text": raw_theme.get("text") or raw_theme.get("text_main") or "#0F172A",
+    "muted": raw_theme.get("muted") or raw_theme.get("text_muted") or "#475569",
+    "btn_bg": raw_theme.get("btn_bg") or "#0F4C81",
+    "btn_hover": raw_theme.get("btn_hover") or "#0B3A63",
+    "btn_text": raw_theme.get("btn_text") or "#FFFFFF",
+    "sec_bg": raw_theme.get("sec_bg") or raw_theme.get("sec_btn_bg") or "#E2E8F0",
+    "sec_text": raw_theme.get("sec_text") or raw_theme.get("sec_btn_text") or "#0F172A",
+    "delta_bg": raw_theme.get("delta_bg") or raw_theme.get("delta_pos_bg") or "#DCFCE7",
+    "delta_text": raw_theme.get("delta_text") or raw_theme.get("delta_pos_text") or "#166534",
+    "accent": raw_theme.get("accent") or raw_theme.get("tab_active") or "#0F4C81",
+    "plotly": raw_theme.get("plotly") or raw_theme.get("plotly_template") or "plotly_white",
+    "grid": raw_theme.get("grid") or raw_theme.get("grid_color") or "#E2E8F0",
+}
+
+
 def get_active_palette(theme_name: str) -> dict:
     if theme_name in THEME_PALETTES:
         return THEME_PALETTES[theme_name]
@@ -483,25 +513,6 @@ def check_password() -> bool:
     )
     return False
 
-raw_theme = THEMES.get(selected_theme) or next(iter(THEMES.values()))
-T = {
-    "bg": raw_theme.get("bg") or raw_theme.get("bg_main") or "#F8FAFC",
-    "sidebar": raw_theme.get("sidebar") or raw_theme.get("bg_sidebar") or "#FFFFFF",
-    "card": raw_theme.get("card") or raw_theme.get("bg_card") or "#FFFFFF",
-    "border": raw_theme.get("border") or raw_theme.get("border_card") or "#CBD5E1",
-    "text": raw_theme.get("text") or raw_theme.get("text_main") or "#0F172A",
-    "muted": raw_theme.get("muted") or raw_theme.get("text_muted") or "#475569",
-    "btn_bg": raw_theme.get("btn_bg") or "#0F4C81",
-    "btn_hover": raw_theme.get("btn_hover") or "#0B3A63",
-    "btn_text": raw_theme.get("btn_text") or "#FFFFFF",
-    "sec_bg": raw_theme.get("sec_bg") or raw_theme.get("sec_btn_bg") or "#E2E8F0",
-    "sec_text": raw_theme.get("sec_text") or raw_theme.get("sec_btn_text") or "#0F172A",
-    "delta_bg": raw_theme.get("delta_bg") or raw_theme.get("delta_pos_bg") or "#DCFCE7",
-    "delta_text": raw_theme.get("delta_text") or raw_theme.get("delta_pos_text") or "#166534",
-    "accent": raw_theme.get("accent") or raw_theme.get("tab_active") or "#0F4C81",
-    "plotly": raw_theme.get("plotly") or raw_theme.get("plotly_template") or "plotly_white",
-    "grid": raw_theme.get("grid") or raw_theme.get("grid_color") or "#E2E8F0",
-}
 
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
