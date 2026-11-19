@@ -577,20 +577,19 @@ def check_password() -> bool:
             color: #0B3A63 !important;
         }}
 
-        /* Права колонка: удвічі вужча, 6 однакових карток на всю висоту без прокрутки */
-        .port-right-stack {{
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 6px;
-            height: 100%;
+/* Права колонка: 6 блоків однакової висоти один під одним від верху до низу */
+        .port-right-stack {
+            display: grid;
+            grid-template-rows: repeat(6, minmax(0, 1fr));
+            gap: 8px;
+            height: calc(100vh - 96px);
             width: 100%;
             min-width: 0;
             overflow: hidden;
-        }}
-        .port-right-card {{
-            flex: 1 1 0;
+        }
+        .port-right-card {
             min-height: 0;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -600,28 +599,28 @@ def check_password() -> bool:
             border: 1px solid rgba(125, 211, 252, 0.28);
             border-left: 4px solid #38BDF8;
             border-radius: 12px;
-            padding: 5px 11px;
+            padding: 8px 13px;
             box-shadow: 0 6px 14px rgba(2, 10, 23, 0.28);
             overflow: hidden;
-        }}
-        .port-right-card-title {{
-            font-size: 0.84rem;
+        }
+        .port-right-card-title {
+            font-size: 0.86rem;
             font-weight: 800;
             color: #7DD3FC !important;
-            margin: 0 0 1px 0;
-            line-height: 1.15;
+            margin: 0 0 2px 0;
+            line-height: 1.2;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }}
-        .port-right-card-text {{
-            font-size: 0.73rem;
+        }
+        .port-right-card-text {
+            font-size: 0.75rem;
             font-weight: 500;
             color: #E2E8F0 !important;
             margin: 0;
-            line-height: 1.22;
-        }}
-
+            line-height: 1.28;
+        }
+        
         /* Фіксований нижній футер */
         .port-login-footer {{
             position: fixed;
@@ -723,6 +722,7 @@ def check_password() -> bool:
                 margin-right: 0 !important;
             }}
             .port-right-stack {{
+                display: flex; flex-direction: column; height: auto;
                 height: auto;
                 gap: 8px;
                 margin-top: 12px;
@@ -780,7 +780,7 @@ def check_password() -> bool:
         if st.button("📘 Інструкція", key="login_manual_btn", width="stretch"):
             _show_login_manual_dialog()
 
-    with col_info_side:
+with col_info_side:
         st.markdown(
             '<div class="port-right-stack">'
             '<div class="port-right-card"><div class="port-right-card-title">📊 Вантажообіг 23-м та 25-вод</div><p class="port-right-card-text">Щомісячний облік вантажів і суден по портах, кластерах, напрямках та номенклатурі з контролем YoY і сезонності.</p></div>'
@@ -792,7 +792,7 @@ def check_password() -> bool:
             '</div>',
             unsafe_allow_html=True,
         )
-
+    
     st.markdown(
         '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1</div>',
         unsafe_allow_html=True,
