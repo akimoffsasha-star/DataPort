@@ -364,7 +364,7 @@ def check_password() -> bool:
     except Exception:
         now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
 
-st.markdown(
+    st.markdown(
         f"""
         <style>
         [data-testid="stSidebar"],
