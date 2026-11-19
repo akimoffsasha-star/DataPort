@@ -325,7 +325,7 @@ def check_password() -> bool:
     st.markdown(
         f"""
         <style>
-        /* Приховуємо сайдбар та зайві хром-елементи на екрані входу */
+        /* Ховаємо бічну панель лише до моменту успішного входу */
         [data-testid="stSidebar"],
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
@@ -337,98 +337,245 @@ def check_password() -> bool:
             background: transparent;
         }}
 
-        /* Додатковий легкий градієнт внизу для читабельності футера без перекриття верхнього заголовка */
-        .login-top-spacer {{
-            height: 24vh;
+        .login-stage-spacer {{
+            height: clamp(28px, 8vh, 84px);
         }}
 
+        /* Заокруглені бічні інформаційні картки */
+        .login-side-card {{
+            background: rgba(241, 247, 255, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(186, 214, 245, 0.85);
+            border-left: 5px solid #0284C7;
+            border-radius: 20px;
+            padding: 20px 22px;
+            color: #0F172A;
+            box-shadow: 0 16px 38px rgba(3, 15, 33, 0.28);
+            margin-bottom: 14px;
+        }}
+        .login-side-card h4 {{
+            margin: 0 0 10px 0;
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: #0B3A63 !important;
+            letter-spacing: 0.01em;
+        }}
+        .login-side-card ul {{
+            margin: 0;
+            padding-left: 18px;
+            color: #1E293B;
+        }}
+        .login-side-card li {{
+            font-size: 0.96rem;
+            line-height: 1.48;
+            margin-bottom: 7px;
+            color: #1E293B !important;
+        }}
+        .login-side-card li:last-child {{
+            margin-bottom: 0;
+        }}
+
+        /* Світла форма вводу паролю зі збільшеними шрифтами */
         [data-testid="stForm"] {{
-            background: rgba(8, 25, 48, 0.88);
+            background: rgba(248, 251, 255, 0.97);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            border-top: 4px solid #38BDF8;
-            border-radius: 16px;
-            padding: 24px 26px 22px 26px;
-            max-width: 440px;
+            border: 1px solid rgba(203, 223, 247, 0.95);
+            border-top: 5px solid #0F4C81;
+            border-radius: 22px;
+            padding: 28px 28px 24px 28px;
+            max-width: 470px;
             margin: 0 auto;
-            box-shadow: 0 24px 60px rgba(2, 10, 23, 0.55);
+            box-shadow: 0 24px 56px rgba(2, 12, 27, 0.42);
         }}
         [data-testid="stForm"] label,
-        [data-testid="stForm"] p,
-        [data-testid="stForm"] span {{
-            color: #E2E8F0 !important;
+        [data-testid="stForm"] .stTextInput label p {{
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            color: #0F172A !important;
         }}
         [data-testid="stForm"] input {{
-            background-color: rgba(15, 38, 68, 0.9) !important;
-            color: #F8FAFC !important;
-            border: 1px solid rgba(148, 163, 184, 0.4) !important;
-            border-radius: 8px !important;
+            background-color: #FFFFFF !important;
+            color: #0F172A !important;
+            border: 1.5px solid #94A3B8 !important;
+            border-radius: 10px !important;
+            font-size: 1.12rem !important;
+            padding: 10px 14px !important;
+            min-height: 46px !important;
         }}
         [data-testid="stForm"] input::placeholder {{
-            color: #94A3B8 !important;
+            color: #64748B !important;
+            font-size: 1.02rem !important;
         }}
         [data-testid="stForm"] button[kind="primary"],
         [data-testid="stForm"] button[kind="primary"] * {{
-            background: linear-gradient(135deg, #0284C7, #0F4C81) !important;
+            background: linear-gradient(135deg, #0F4C81, #0284C7) !important;
             color: #FFFFFF !important;
             border: none !important;
+            border-radius: 10px !important;
+            font-size: 1.08rem !important;
             font-weight: 700 !important;
+            min-height: 46px !important;
         }}
 
         .login-badge {{
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }}
         .login-icon {{
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            background: rgba(56, 189, 248, 0.16);
-            border: 1px solid rgba(56, 189, 248, 0.45);
-            color: #7DD3FC;
-            font-size: 22px;
-            margin-bottom: 8px;
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0F4C81, #0EA5E9);
+            color: #FFFFFF;
+            font-size: 26px;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 18px rgba(15, 76, 129, 0.28);
         }}
         .login-ministry {{
-            font-size: 0.68rem;
+            font-size: 0.82rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #93C5FD !important;
-            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #334155 !important;
+            font-weight: 800;
             line-height: 1.35;
         }}
         .login-title {{
-            font-size: 1.25rem;
+            font-size: 1.55rem;
             font-weight: 800;
-            color: #FFFFFF !important;
-            margin: 4px 0 2px 0;
+            color: #0F172A !important;
+            margin: 6px 0 4px 0;
+            line-height: 1.2;
         }}
         .login-dept {{
-            font-size: 0.78rem;
-            color: #7DD3FC !important;
-            font-weight: 500;
+            font-size: 0.98rem;
+            color: #0F4C81 !important;
+            font-weight: 700;
+            line-height: 1.35;
+        }}
+
+        /* Гармонійний збільшений копірайт */
+        .login-copyright-wrap {{
+            display: flex;
+            justify-content: center;
+            margin-top: 22px;
+            padding: 0 16px 18px 16px;
         }}
         .login-copyright {{
+            display: inline-block;
             text-align: center;
-            color: rgba(226, 232, 240, 0.85);
-            font-size: 0.74rem;
-            margin-top: 16px;
-            padding: 6px 14px;
-            line-height: 1.45;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+            background: rgba(241, 247, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(186, 214, 245, 0.8);
+            border-radius: 14px;
+            color: #0F172A !important;
+            font-size: 0.96rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            line-height: 1.5;
+            box-shadow: 0 10px 24px rgba(2, 12, 27, 0.25);
+        }}
+
+        /* Планшети та мобільні пристрої: динамічне масштабування й адаптивна верстка */
+        @media (max-width: 1024px) {{
+            .login-stage-spacer {{
+                height: 20px;
+            }}
+            .login-side-card {{
+                padding: 16px 18px;
+                border-radius: 16px;
+            }}
+            .login-side-card h4 {{
+                font-size: 1rem !important;
+            }}
+            .login-side-card li {{
+                font-size: 0.92rem !important;
+            }}
+            [data-testid="stForm"] {{
+                padding: 22px 20px !important;
+                border-radius: 18px !important;
+            }}
+            .login-title {{
+                font-size: 1.38rem !important;
+            }}
+            .login-copyright {{
+                font-size: 0.88rem !important;
+                padding: 9px 14px;
+            }}
+        }}
+
+        @media (max-width: 640px) {{
+            [data-testid="stAppViewContainer"] {{
+                background-attachment: scroll !important;
+            }}
+            .login-stage-spacer {{
+                height: 10px;
+            }}
+            .login-side-card {{
+                padding: 14px 16px;
+                border-radius: 14px;
+                margin-bottom: 10px;
+            }}
+            .login-side-card h4 {{
+                font-size: 0.96rem !important;
+                margin-bottom: 6px;
+            }}
+            .login-side-card li {{
+                font-size: 0.88rem !important;
+                line-height: 1.4;
+                margin-bottom: 4px;
+            }}
+            [data-testid="stForm"] {{
+                padding: 18px 16px !important;
+                border-radius: 16px !important;
+                max-width: 100% !important;
+            }}
+            .login-title {{
+                font-size: 1.24rem !important;
+            }}
+            .login-dept {{
+                font-size: 0.88rem !important;
+            }}
+            [data-testid="stForm"] input,
+            [data-testid="stForm"] button[kind="primary"] {{
+                font-size: 1rem !important;
+                min-height: 44px !important;
+            }}
+            .login-copyright {{
+                font-size: 0.82rem !important;
+                padding: 8px 12px;
+                border-radius: 12px;
+            }}
         }}
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="login-top-spacer"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-stage-spacer"></div>', unsafe_allow_html=True)
 
-    _, col_center, _ = st.columns([1.1, 1.2, 1.1])
+    col_left, col_center, col_right = st.columns([1.15, 1.3, 1.15], gap="medium")
+
+    with col_left:
+        st.markdown(
+            """
+            <div class="login-side-card">
+                <h4>📊 Моніторинг та аналітика</h4>
+                <ul>
+                    <li>Вантажообіг за формами <b>23-м</b> та <b>25-вод</b> у розрізі портів, операторів і номенклатури.</li>
+                    <li>Динаміка показників <b>YoY</b>, сезонність, теплові карти та структура власності причалів.</li>
+                    <li>Конструктор багатовимірних матриць із вивантаженням у <b>Excel (.xlsx)</b> та <b>PDF</b>.</li>
+                </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     with col_center:
         with st.form("login_form", clear_on_submit=False):
             st.markdown(
@@ -452,7 +599,7 @@ def check_password() -> bool:
             submitted = st.form_submit_button(
                 "🔐 Увійти в систему",
                 type="primary",
-                use_container_width=True,
+                width="stretch",
             )
             if submitted:
                 if pwd == st.secrets["APP_PASSWORD"]:
@@ -461,17 +608,33 @@ def check_password() -> bool:
                 else:
                     st.error("Невірний пароль доступу. Спробуйте ще раз.")
 
+    with col_right:
+        st.markdown(
+            """
+            <div class="login-side-card">
+                <h4>🛡️ Коридори та безпека</h4>
+                <ul>
+                    <li>Історична динаміка перевезень, зернових та незернових вантажів і суднозаходів по кластерах.</li>
+                    <li>Моніторинг безпекових факторів та накопичувальної статистики пошкоджень.</li>
+                    <li>Професійні <b>PDF-звіти</b>, аудит операторів та три теми оформлення інтерфейсу.</li>
+                </ul>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     st.markdown(
         """
-        <div class="login-copyright">
-            © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp;
-            Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1
+        <div class="login-copyright-wrap">
+            <div class="login-copyright">
+                © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp;
+                Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
     return False
-
 
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
