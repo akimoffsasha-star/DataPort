@@ -414,12 +414,18 @@ def save_corridors_to_db(corridors_data: dict) -> dict:
     return results
 
 @st.cache_data(ttl=300)
+@st.cache_data(ttl=300)
 def load_corridors_cargo() -> pd.DataFrame:
     engine = get_engine()
     try:
         df = pd.read_sql("SELECT * FROM fact_corridors_cargo", engine)
-        if not df.empty:
-            df["report_date"] = pd.to_datetime(df["report_date"])
+        if df.empty:
+            return df
+        df["report_date"] = pd.to_datetime(df["report_date"])
+        if "port_name" not in df.columns and "port_short" in df.columns:
+            df["port_name"] = df["port_short"]
+        if "cluster" not in df.columns:
+            df["cluster"] = "Інші порти"
         return df
     except Exception:
         return pd.DataFrame()
@@ -450,13 +456,15 @@ def save_corridors_to_db(corridors_data: dict) -> dict:
     engine = get_engine()
     results = {}
     with engine.begin() as conn:
-        if "cargo" in corridors_data and not corridors_data["cargo"].empty:
-            corridors_data["cargo"].to_sql("fact_corridors_cargo", conn, if_exists="replace", index=False)
-            results["cargo"] = len(corridors_data["cargo"])
-        if "vessels" in corridors_data and not corridors_data["vessels"].empty:
-            corridors_data["vessels"].to_sql("fact_corridors_vessels", conn, if_exists="replace", index=False)
-            results["vessels"] = len(corridors_data["vessels"])
-        if "attacks" in corridors_data and not corridors_data["attacks"].empty:
-            corridors_data["attacks"].to_sql("fact_corridors_attacks", conn, if_exists="replace", index=False)
-            results["attacks"] = len(corridors_data["attacks"])
+        for key, tbl in [
+            ("cargo", "fact_corridors_cargo"),
+            ("vessels", "fact_corridors_vessels"),
+            ("attacks", "fact_corridors_attacks"),
+        ]:
+            df = corridors_data.get(key)
+            if df is not None and not df.empty:
+                conn.execute(text(f"DROP TABLE IF EXISTS {tbl} CASCADE"))
+                df.to_sql(tbl, conn, if_exists="replace", index=False)
+                results[key] = len(df)
+    st.cache_data.clear()
     return results
