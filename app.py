@@ -364,7 +364,6 @@ def check_password() -> bool:
     st.markdown(
         f"""
         <style>
-        /* Приховуємо сайдбар та блокуємо прокрутку сторінки на екрані входу */
         [data-testid="stSidebar"],
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
@@ -397,14 +396,19 @@ def check_password() -> bool:
             background: transparent !important;
             height: 36px !important;
         }}
+        div[data-testid="stHorizontalBlock"] {{
+            align-items: flex-end !important;
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+        }}
 
-        /* Шапка сторінки входу з безпечним правим відступом від кнопок Streamlit Cloud */
+        /* Шапка сторінки */
         .port-login-header {{
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            background: rgba(8, 26, 51, 0.82);
+            background: rgba(8, 26, 51, 0.84);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(125, 211, 252, 0.28);
@@ -433,7 +437,7 @@ def check_password() -> bool:
             flex-shrink: 0;
         }}
         .port-login-ministry {{
-            font-size: 0.86rem;
+            font-size: 0.88rem;
             font-weight: 700;
             color: #F8FAFC !important;
             white-space: nowrap;
@@ -446,60 +450,51 @@ def check_password() -> bool:
             color: #BAE6FD !important;
             border-radius: 999px;
             padding: 3px 11px;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             font-weight: 600;
             white-space: nowrap;
             flex-shrink: 0;
         }}
 
-        /* Основна робоча сітка: вузькі бокові колонки біля країв + центральна зона */
-        .port-login-grid {{
-            display: grid;
-            grid-template-columns: minmax(195px, 14.5vw) 1fr minmax(195px, 14.5vw);
-            gap: 16px;
-            align-items: end;
-            flex: 1 1 auto;
-            min-height: 0;
-            padding-top: 8px;
+        /* Зазор зверху, щоб не перекривати напис на фоновій картинці */
+        .port-top-gap {{
+            height: 11vh;
+            flex-shrink: 0;
         }}
-        .port-side-col {{
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            align-self: center;
-        }}
+
+        /* 3 лівих та 3 правих заокруглених підблоки біля країв */
         .port-subcard {{
-            background: rgba(11, 33, 62, 0.84);
+            background: rgba(10, 31, 58, 0.86);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(125, 211, 252, 0.25);
+            border: 1px solid rgba(125, 211, 252, 0.28);
             border-left: 4px solid #38BDF8;
             border-radius: 14px;
             padding: 9px 12px;
+            margin-bottom: 8px;
             box-shadow: 0 10px 24px rgba(2, 10, 23, 0.32);
         }}
+        .port-subcard:last-child {{
+            margin-bottom: 0;
+        }}
         .port-subcard-title {{
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-weight: 800;
             color: #7DD3FC !important;
             margin: 0 0 2px 0;
-            line-height: 1.2;
+            line-height: 1.22;
         }}
         .port-subcard-text {{
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: #E2E8F0 !important;
             margin: 0;
-            line-height: 1.3;
+            line-height: 1.32;
         }}
 
-        /* Центральна колонка: зміщення форми нижче (ближче до нижньої третини), не зачіпаючи верхній напис фону */
-        .port-center-col {{
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            height: 100%;
-            padding-bottom: 6px;
+        /* Форма входу паролю — зміщена нижче до нижньої третини */
+        .port-form-spacer {{
+            height: 14vh;
         }}
         [data-testid="stForm"] {{
             background: rgba(244, 249, 255, 0.96);
@@ -509,14 +504,14 @@ def check_password() -> bool:
             border-top: 4px solid #0284C7;
             border-radius: 18px;
             padding: 16px 22px 14px 22px;
-            max-width: 430px;
+            max-width: 440px;
             width: 100%;
             margin: 0 auto !important;
             box-shadow: 0 20px 44px rgba(2, 10, 23, 0.48);
         }}
         [data-testid="stForm"] label,
         [data-testid="stForm"] .stTextInput label p {{
-            font-size: 0.95rem !important;
+            font-size: 0.98rem !important;
             font-weight: 700 !important;
             color: #0F172A !important;
             margin-bottom: 2px !important;
@@ -526,14 +521,14 @@ def check_password() -> bool:
             color: #0F172A !important;
             border: 1.5px solid #64748B !important;
             border-radius: 9px !important;
-            font-size: 1.02rem !important;
+            font-size: 1.04rem !important;
             padding: 7px 12px !important;
             min-height: 38px !important;
             height: 38px !important;
         }}
         [data-testid="stForm"] input::placeholder {{
             color: #64748B !important;
-            font-size: 0.92rem !important;
+            font-size: 0.94rem !important;
         }}
         [data-testid="stForm"] button[kind="primary"],
         [data-testid="stForm"] button[kind="primary"] * {{
@@ -541,7 +536,7 @@ def check_password() -> bool:
             color: #FFFFFF !important;
             border: none !important;
             border-radius: 9px !important;
-            font-size: 0.98rem !important;
+            font-size: 1rem !important;
             font-weight: 700 !important;
             min-height: 38px !important;
             height: 38px !important;
@@ -564,21 +559,21 @@ def check_password() -> bool:
             margin-bottom: 4px;
         }}
         .port-form-title {{
-            font-size: 1.25rem;
+            font-size: 1.28rem;
             font-weight: 800;
             color: #0F172A !important;
             margin: 0;
             line-height: 1.2;
         }}
         .port-form-dept {{
-            font-size: 0.84rem;
+            font-size: 0.86rem;
             font-weight: 700;
             color: #0F4C81 !important;
             margin: 2px 0 0 0;
             line-height: 1.25;
         }}
 
-        /* Фіксований нижній футер */
+        /* Нижній футер */
         .port-login-footer {{
             position: fixed;
             left: 0;
@@ -592,7 +587,7 @@ def check_password() -> bool:
             padding: 7px 18px;
             text-align: center;
             color: #F1F5F9 !important;
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
@@ -604,24 +599,23 @@ def check_password() -> bool:
             .port-login-header {{
                 padding-right: 14px;
             }}
-            .port-login-grid {{
-                grid-template-columns: minmax(150px, 18vw) 1fr minmax(150px, 18vw);
-                gap: 10px;
+            .port-top-gap {{
+                height: 4vh;
             }}
-            .port-subcard {{
-                padding: 8px 10px;
+            .port-form-spacer {{
+                height: 4vh;
             }}
             .port-subcard-title {{
-                font-size: 0.82rem !important;
+                font-size: 0.84rem !important;
             }}
             .port-subcard-text {{
-                font-size: 0.73rem !important;
+                font-size: 0.74rem !important;
             }}
             .port-form-title {{
-                font-size: 1.14rem !important;
+                font-size: 1.16rem !important;
             }}
             .port-login-footer {{
-                font-size: 0.8rem !important;
+                font-size: 0.82rem !important;
             }}
         }}
 
@@ -634,29 +628,25 @@ def check_password() -> bool:
                 overflow: auto !important;
                 background-attachment: scroll !important;
             }}
+            div[data-testid="stHorizontalBlock"] {{
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }}
             .port-login-header {{
                 padding-right: 12px;
             }}
             .port-login-ministry {{
-                font-size: 0.76rem !important;
+                font-size: 0.78rem !important;
                 white-space: normal;
             }}
-            .port-login-grid {{
-                grid-template-columns: 1fr;
-                gap: 10px;
-                padding-top: 6px;
-            }}
-            .port-center-col {{
-                order: -1;
-            }}
-            .port-subcard {{
-                padding: 8px 12px;
+            .port-top-gap, .port-form-spacer {{
+                height: 8px;
             }}
             .port-login-footer {{
                 position: static;
                 margin-top: 10px;
                 white-space: normal;
-                font-size: 0.78rem !important;
+                font-size: 0.8rem !important;
             }}
         }}
         </style>
@@ -665,69 +655,25 @@ def check_password() -> bool:
     )
 
     st.markdown(
-        f"""
-        <div class="port-login-header">
-            <div class="port-login-brand">
-                <div class="port-login-logo">⚓</div>
-                <div class="port-login-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div>
-            </div>
-            <div class="port-login-clock">🕒 Київ: {now_str}</div>
-        </div>
-
-        <div class="port-login-grid">
-            <div class="port-side-col">
-                <div class="port-subcard">
-                    <div class="port-subcard-title">📊 Вантажообіг 23-м / 25-вод</div>
-                    <p class="port-subcard-text">Порти, оператори, напрямки, YoY та сезонність.</p>
-                </div>
-                <div class="port-subcard">
-                    <div class="port-subcard-title">🧮 Конструктор матриць</div>
-                    <p class="port-subcard-text">Зведені таблиці у т, TEU, шт. та експорт у XLSX/PDF.</p>
-                </div>
-                <div class="port-subcard">
-                    <div class="port-subcard-title">⚓ Аудит операторів</div>
-                    <p class="port-subcard-text">Індекси CR3/CR5, HHI, власність причалів і причини.</p>
-                </div>
-            </div>
-
-            <div class="port-center-col" id="port-login-center-slot">
-            </div>
-
-            <div class="port-side-col">
-                <div class="port-subcard">
-                    <div class="port-subcard-title">🛡️ Морські коридори</div>
-                    <p class="port-subcard-text">Вантажі, зерно та суднозаходи за кластерами.</p>
-                </div>
-                <div class="port-subcard">
-                    <div class="port-subcard-title">🚨 Безпека та атаки</div>
-                    <p class="port-subcard-text">Хронологія та накопичувальні пошкодження.</p>
-                </div>
-                <div class="port-subcard">
-                    <div class="port-subcard-title">📄 PDF-звіти та 3 теми</div>
-                    <p class="port-subcard-text">Аудиторські звіти, Світла, Темна та Фірмова теми.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="port-login-footer">
-            © 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp;
-            Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1
-        </div>
-        """,
+        f'<div class="port-login-header"><div class="port-login-brand"><div class="port-login-logo">⚓</div><div class="port-login-ministry">Міністерство з відновлення, інфраструктури та транспорту України</div></div><div class="port-login-clock">🕒 Київ: {now_str}</div></div><div class="port-top-gap"></div>',
         unsafe_allow_html=True,
     )
 
-    _, col_center, _ = st.columns([1.15, 1.2, 1.15])
+    col_left, col_center, col_right = st.columns([0.95, 1.45, 0.95], gap="small")
+
+    with col_left:
+        st.markdown(
+            '<div class="port-subcard"><div class="port-subcard-title">📊 Вантажообіг 23-м / 25-вод</div><p class="port-subcard-text">Порти, оператори, напрямки, YoY та сезонність.</p></div>'
+            '<div class="port-subcard"><div class="port-subcard-title">🧮 Конструктор матриць</div><p class="port-subcard-text">Зведені таблиці у т, TEU, шт. та експорт у XLSX/PDF.</p></div>'
+            '<div class="port-subcard"><div class="port-subcard-title">⚓ Аудит операторів</div><p class="port-subcard-text">Індекси CR3/CR5, HHI, власність причалів і причини.</p></div>',
+            unsafe_allow_html=True,
+        )
+
     with col_center:
+        st.markdown('<div class="port-form-spacer"></div>', unsafe_allow_html=True)
         with st.form("login_form", clear_on_submit=False):
             st.markdown(
-                """
-                <div class="port-form-head">
-                    <div class="port-form-icon">🔐</div>
-                    <div class="port-form-title">Вхід до аналітичної системи</div>
-                    <div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div>
-                </div>
-                """,
+                '<div class="port-form-head"><div class="port-form-icon">🔐</div><div class="port-form-title">Вхід до аналітичної системи</div><div class="port-form-dept">Департамент морського та внутрішнього водного транспорту</div></div>',
                 unsafe_allow_html=True,
             )
             pwd = st.text_input(
@@ -747,7 +693,20 @@ def check_password() -> bool:
                 else:
                     st.error("Невірний пароль доступу. Спробуйте ще раз.")
 
+    with col_right:
+        st.markdown(
+            '<div class="port-subcard"><div class="port-subcard-title">🛡️ Морські коридори</div><p class="port-subcard-text">Вантажі, зерно та суднозаходи за кластерами.</p></div>'
+            '<div class="port-subcard"><div class="port-subcard-title">🚨 Безпека та атаки</div><p class="port-subcard-text">Хронологія та накопичувальні пошкодження.</p></div>'
+            '<div class="port-subcard"><div class="port-subcard-title">📄 PDF-звіти та 3 теми</div><p class="port-subcard-text">Аудиторські звіти, Світла, Темна та Фірмова теми.</p></div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown(
+        '<div class="port-login-footer">© 2026, Міністерство з відновлення, інфраструктури та транспорту України &nbsp;||&nbsp; Департамент морського та внутрішнього водного транспорту &nbsp;||&nbsp; Версія 2.1</div>',
+        unsafe_allow_html=True,
+    )
     return False
+
 def to_excel_bytes(df: pd.DataFrame) -> bytes:
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as writer:
